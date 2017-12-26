@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>at.vulperium.cryptobot</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
+    <groupId>at.vulperium.cryptobot</groupId>
+    <artifactId>be</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>be</name>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>at.vulperium.cryptobot</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- GERONIMO -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-atinject_1.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+        </dependency>
+
+        <!-- LOGGING -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- openjpa -->
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa-jest</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa-jdbc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-jpa-module-api</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-jpa-module-impl</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <!-- create a test jar -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*TestDataHelper*.class</include>
+                                <include>META-INF/beans.xml</include>
+                                <include>META-INF/scan.xml</include>
+                                <include>**/testdatahelper/**/*.class</include>
+                            </includes>
+                            <skipIfEmpty>true</skipIfEmpty>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>clean-test-database</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <onError>continue</onError> <!-- always continue on DROP errors -->
+                            <srcFiles>
+                                <srcFile>src/main/sql/${database.vendor}/createdb.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>setup-test-database</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <onError>${database.onError.action}</onError>
+                            <srcFiles>
+                                <srcFile>src/main/sql/${database.vendor}/database.sql</srcFile>
+                                <!--
+                                <srcFile>src/main/sql/${database.vendor}/schema_delta.sql</srcFile>
+                                <srcFile>src/main/sql/${database.vendor}/createindex.sql</srcFile>
+                                -->
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>setup-test-triggers</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <onError>${database.onError.action}</onError>
+                            <srcFiles>
+                                <srcFile>src/main/sql/${database.vendor}/createtriggers.sql</srcFile>
+                            </srcFiles>
+                            <delimiter>/</delimiter>
+                            <delimiterType>row</delimiterType>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>setup-testdata</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <onError>${database.onError.action}</onError>
+                            <orderFile>ascending</orderFile>
+                            <fileset>
+                                <basedir>${basedir}/</basedir>
+                                <includes>
+                                    <include>src/test/sql/${database.vendor}/*.sql</include>
+                                </includes>
+                            </fileset>
+                        </configuration>
+                    </execution>
+
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>${log4j.version}</version>
+                    </dependency>
+
+                    <!-- currently not used -->
+                    <!-- <dependency>
+                        <groupId>com.oracle</groupId>
+                        <artifactId>ojdbc6</artifactId>
+                        <version>${oracle.version}</version>
+                    </dependency>-->
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>generateSql</id>
+            <!-- generates a full Database schema against the configured database -->
+            <properties>
+                <openjpa.proddiff.dir>${java.io.tmpdir}/openjpa</openjpa.proddiff.dir>
+
+                <openjpa.createdb.sql>src/main/sql/${database.vendor}/createdb.sql</openjpa.createdb.sql>
+                <openjpa.proddiff.createdb.sql>${openjpa.proddiff.dir}/createdb-${database.vendor}-${project.version}.sql</openjpa.proddiff.createdb.sql>
+
+                <openjpa.database.sql>src/main/sql/${database.vendor}/database.sql</openjpa.database.sql>
+                <openjpa.proddiff.database.sql>${openjpa.proddiff.dir}/database-${database.vendor}-${project.version}.sql</openjpa.proddiff.database.sql>
+
+                <!-- means append to existing file. Will only be set to false in the very first backend project in the build chain -->
+                <openjpa.keepsqldifffile>true</openjpa.keepsqldifffile>
+
+                <generate.jpa-excludes/>
+                <jpa-excludes>${generate.jpa-excludes}</jpa-excludes>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-createdb-sql</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>sql</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${openjpa.skipschemagen}</skip>
+                                    <sqlAction>dropSchema</sqlAction>
+                                    <!-- <sqlFile>${project.build.directory}/createdb-${database.vendor}-tmp.sql</sqlFile> -->
+                                    <sqlFile>${openjpa.createdb.sql}</sqlFile>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>generate-database-sql</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>sql</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${openjpa.skipschemagen}</skip>
+                                    <sqlAction>build</sqlAction>
+                                    <sqlFile>${openjpa.database.sql}</sqlFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

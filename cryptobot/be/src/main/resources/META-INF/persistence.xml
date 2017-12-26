@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="CRYPTODB" transaction-type="JTA">
+        <jta-data-source>CRYPTODB</jta-data-source>
+
+        <!-- Klassen angeben -->
+        <!-- <class>at.sozvers.zepta.util.be.entities.VersionedEntity</class> -->
+        <!--<class>at.vulperium.entity.TestEntity</class> -->
+
+        <class>at.vulperium.cryptobot.entities.TradeAktion</class>
+
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="openjpa.PostLoadOnMerge" value="true"/>
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
+            <property name="openjpa.RuntimeUnenhancedClasses" value="unsupported"/>
+            <!-- only got added in openjpa-2.2.x?
+                <property name="openjpa.DetachState" value="IgnoreDetachedStateFieldForProxySerialization=true"/>
+                <property name="openjpa.Compatibility" value="loaded(DetachedStateField=true)"/>
+            -->
+            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+
+            <property name="openjpa.jdbc.DBDictionary" value="(BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_10)"/>
+
+            <!-- die naechste zeile schreibt alle abgesetzten SQL-Statements in eine eigene Datei -->
+            <!--<property name="openjpa.Log" value="File=/tmp/openjpa.log, DefaultLevel=ERROR, SQL=TRACE"/>-->
+            <!--<property name="openjpa.ConnectionFactoryProperties"
+                      value="PrettyPrint=true, PrettyPrintLineLength=200, PrintParameters=True"/>-->
+        </properties>
+    </persistence-unit>
+
+</persistence>

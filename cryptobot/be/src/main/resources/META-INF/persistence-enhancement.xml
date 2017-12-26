@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="EnhancementPU" transaction-type="RESOURCE_LOCAL">
+        <properties>
+            <property name="openjpa.PostLoadOnMerge" value="true"/>
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
+            <property name="openjpa.RuntimeUnenhancedClasses" value="unsupported"/>
+            <!-- only got added in openjpa-2.2.x?
+                <property name="openjpa.DetachState" value="IgnoreDetachedStateFieldForProxySerialization=true"/>
+                <property name="openjpa.Compatibility" value="loaded(DetachedStateField=true)"/>
+            -->
+            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+
+            <property name="openjpa.jdbc.DBDictionary" value="(BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_10)"/>
+
+        </properties>
+    </persistence-unit>
+</persistence>
