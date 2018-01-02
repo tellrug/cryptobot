@@ -17,7 +17,7 @@ public interface CryptoWaehrungService {
 
     Boolean aktualisiereCryptoWaehrung(CryptoWaehrungKurzDTO cryptoWaehrungKurzDTO);
 
-    List<CryptoWaehrungKurzDTO> filterCryptoWaehrungList(List<CryptoWaehrungKurzDTO> cryptoWaehrungKurzDTOList ,boolean gueltig);
+    List<CryptoWaehrungKurzDTO> filterCryptoWaehrungList(List<CryptoWaehrungKurzDTO> cryptoWaehrungKurzDTOList, boolean gueltig);
 
     Boolean setzeCryptoWaehrungUngueltig(Long cryptoWaehrungId);
 }

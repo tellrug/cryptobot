@@ -9,8 +9,8 @@ import javax.persistence.Table;
  * Created by Ace on 26.12.2017.
  */
 @Entity
-@Table(name = "PROPERTIES")
-public class Properties extends BaseEntity<String> {
+@Table(name = "CRYPTOBOT_CONFIG")
+public class CryptobotConfig extends BaseEntity<String> {
 
     @Id
     @Column(name = "KEY", nullable = false, updatable = false)

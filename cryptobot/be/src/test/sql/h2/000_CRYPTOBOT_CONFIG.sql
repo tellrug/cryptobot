@@ -1,0 +1,1 @@
+INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('testKey', 'testWert');

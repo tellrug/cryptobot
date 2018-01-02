@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="mylogintest" version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+    <display-name>Crypto-Trades</display-name>
+
+    <context-param>
+        <description>Vaadin production mode</description>
+        <param-name>productionMode</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
+    <session-config>
+        <session-timeout>10</session-timeout>
+    </session-config>
+
+    <!--
+    <servlet>
+        <servlet-name>Vulperium Login</servlet-name>
+        <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+        <init-param>
+            <param-name>UIProvider</param-name>
+            <param-value>com.vaadin.cdi.CDIUIProvider</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Vulperium Login</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    -->
+
+    <!--
+    <servlet>
+        <servlet-name>CryptoBotApp</servlet-name>
+        <servlet-class>com.vaadin.cdi.server.VaadinCDIServlet</servlet-class>
+
+        <init-param>
+            <param-name>UIProvider</param-name>
+            <param-value>com.vaadin.cdi.CDIUIProvider</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ViewProvider</param-name>
+            <param-value>com.vaadin.cdi.CDIViewProvider</param-value>
+        </init-param>
+        -->
+        <!--
+        <init-param>
+            <param-name>UI</param-name>
+            <param-value>at.vulperium.fe.base.BaseUI</param-value>
+        </init-param>
+
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CryptoBotApp</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    -->
+
+    <!-- Wird nicht mehr hier benoetigt da mittels CDI gearbeitet wird -->
+    <!--
+    <servlet>
+        <servlet-name>VulperiumLogin</servlet-name>
+        <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+        <init-param>
+            <param-name>UI</param-name>
+            <param-value>at.vulperium.cryptobot.MyUI</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>VulperiumLogin</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    -->
+</web-app>

@@ -41,7 +41,35 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+            <artifactId>geronimo-jcdi_1.1_spec</artifactId>
+        </dependency>
+
+        <!-- DELTASPIKE -->
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-jpa-module-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-jpa-module-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.cdictrl</groupId>
+            <artifactId>deltaspike-cdictrl-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.cdictrl</groupId>
+            <artifactId>deltaspike-cdictrl-openejb</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- LOGGING -->
@@ -72,6 +100,30 @@
             </exclusions>
         </dependency>
 
+        <!-- WS-Clients -->
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.26</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>2.26</version>
+        </dependency>
+
+        <!--JSON -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20170516</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -79,20 +131,23 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.deltaspike.modules</groupId>
-            <artifactId>deltaspike-jpa-module-api</artifactId>
-            <version>${deltaspike.version}</version>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomee</groupId>
+            <artifactId>openejb-core</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.deltaspike.modules</groupId>
-            <artifactId>deltaspike-jpa-module-impl</artifactId>
-            <version>${deltaspike.version}</version>
-            <scope>runtime</scope>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -149,7 +204,7 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <onError>${database.onError.action}</onError>
+                            <onError>abort</onError>
                             <srcFiles>
                                 <srcFile>src/main/sql/${database.vendor}/database.sql</srcFile>
                                 <!--
@@ -166,7 +221,7 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <onError>${database.onError.action}</onError>
+                            <onError>abort</onError>
                             <srcFiles>
                                 <srcFile>src/main/sql/${database.vendor}/createtriggers.sql</srcFile>
                             </srcFiles>
@@ -181,7 +236,7 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <onError>${database.onError.action}</onError>
+                            <onError>abort</onError>
                             <orderFile>ascending</orderFile>
                             <fileset>
                                 <basedir>${basedir}/</basedir>
@@ -225,10 +280,12 @@
                 <openjpa.proddiff.dir>${java.io.tmpdir}/openjpa</openjpa.proddiff.dir>
 
                 <openjpa.createdb.sql>src/main/sql/${database.vendor}/createdb.sql</openjpa.createdb.sql>
-                <openjpa.proddiff.createdb.sql>${openjpa.proddiff.dir}/createdb-${database.vendor}-${project.version}.sql</openjpa.proddiff.createdb.sql>
-
                 <openjpa.database.sql>src/main/sql/${database.vendor}/database.sql</openjpa.database.sql>
+
+                <!-- Diffs noch nicht beruecksichtigt
+                <openjpa.proddiff.createdb.sql>${openjpa.proddiff.dir}/createdb-${database.vendor}-${project.version}.sql</openjpa.proddiff.createdb.sql>
                 <openjpa.proddiff.database.sql>${openjpa.proddiff.dir}/database-${database.vendor}-${project.version}.sql</openjpa.proddiff.database.sql>
+                -->
 
                 <!-- means append to existing file. Will only be set to false in the very first backend project in the build chain -->
                 <openjpa.keepsqldifffile>true</openjpa.keepsqldifffile>
@@ -244,18 +301,30 @@
                         <artifactId>openjpa-maven-plugin</artifactId>
                         <executions>
                             <execution>
+                                <id>cryptobot-enhance</id>
+                                <goals>
+                                    <goal>enhance</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>${cryptobot-jpa-includes}</includes>
+                                </configuration>
+                            </execution>
+
+                            <execution>
                                 <id>generate-createdb-sql</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
                                     <goal>sql</goal>
                                 </goals>
                                 <configuration>
+                                    <includes>${cryptobot-jpa-includes}</includes>
                                     <skip>${openjpa.skipschemagen}</skip>
                                     <sqlAction>dropSchema</sqlAction>
                                     <!-- <sqlFile>${project.build.directory}/createdb-${database.vendor}-tmp.sql</sqlFile> -->
                                     <sqlFile>${openjpa.createdb.sql}</sqlFile>
                                 </configuration>
                             </execution>
+
                             <execution>
                                 <id>generate-database-sql</id>
                                 <phase>generate-test-sources</phase>
@@ -263,6 +332,7 @@
                                     <goal>sql</goal>
                                 </goals>
                                 <configuration>
+                                    <includes>${cryptobot-jpa-includes}</includes>
                                     <skip>${openjpa.skipschemagen}</skip>
                                     <sqlAction>build</sqlAction>
                                     <sqlFile>${openjpa.database.sql}</sqlFile>

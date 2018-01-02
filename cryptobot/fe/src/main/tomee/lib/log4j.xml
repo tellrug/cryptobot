@@ -1,0 +1,42 @@
+tomee.xml<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} [%t] %X{nodeId} %X{sessionId} %X{userId} %-5p %c{2} %m%n"/>
+            <!-- <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> -->
+        </layout>
+    </appender>
+
+    <!--
+       see  http://openjpa.apache.org/builds/2.2.2/apache-openjpa/docs/ref_guide_logging.html
+    -->
+    <!-- openjpa log broken #6683 -->
+    <category name="openjpa"             ><priority value="INFO"/></category>
+    <!--<category name="openjpa.Tool"        ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.Enhance"     ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.Runtime"     ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.Remote"      ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.DataCache"   ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.MetaData"    ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.Query"       ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.jdbc.SQL"    ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.jdbc.SQLDiag"><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.jdbc.JDBC"   ><priority value="DEBUG"/></category>-->
+    <!--<category name="openjpa.jdbc.Schema" ><priority value="DEBUG"/></category>-->
+
+    <!-- Global level for at.vulperium -->
+    <category name="at.vulperium"><priority value="INFO"/></category>
+
+    <!-- debug for this service - just for a few weeks -->
+    <!-- Example -->
+    <!-- <category name="at.vulperium.schriftverkehr.be.urgenz"><priority value="DEBUG"/></category> -->
+
+    <root>
+        <priority value ="INFO" />
+        <appender-ref ref="console" />
+    </root>
+
+</log4j:configuration>

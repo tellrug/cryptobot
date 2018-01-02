@@ -1,6 +1,7 @@
 package at.vulperium.cryptobot.dtos;
 
-import at.vulperium.cryptobot.enums.TradeAktionStatus;
+import at.vulperium.cryptobot.enums.TradeBasisStatus;
+import at.vulperium.cryptobot.enums.TradeJobStatus;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import org.joda.time.LocalDateTime;
 
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
 /**
  * Created by Ace on 26.12.2017.
  */
-public class TradeAktionDTO implements Serializable {
+public class TradeJobDTO implements Serializable {
 
     private Long id;
     private String cryptoWaehrung; //TODO wird noch durch DTO ersetzt
@@ -21,7 +22,8 @@ public class TradeAktionDTO implements Serializable {
     private BigDecimal letztwert;
     private BigDecimal zielwert;
     private String cryptoWaehrungReferenz; //TODO wird noch durch DTO ersetzt
-    private TradeAktionStatus tradeAktionStatus;
+    private TradeJobStatus tradeJobStatus;
+    private TradeBasisStatus tradeBasisStatus;
     private TradingPlattform tradingPlattform;
 
     public Long getId() {
@@ -96,12 +98,20 @@ public class TradeAktionDTO implements Serializable {
         this.cryptoWaehrungReferenz = cryptoWaehrungReferenz;
     }
 
-    public TradeAktionStatus getTradeAktionStatus() {
-        return tradeAktionStatus;
+    public TradeJobStatus getTradeJobStatus() {
+        return tradeJobStatus;
     }
 
-    public void setTradeAktionStatus(TradeAktionStatus tradeAktionStatus) {
-        this.tradeAktionStatus = tradeAktionStatus;
+    public void setTradeJobStatus(TradeJobStatus tradeJobStatus) {
+        this.tradeJobStatus = tradeJobStatus;
+    }
+
+    public TradeBasisStatus getTradeBasisStatus() {
+        return tradeBasisStatus;
+    }
+
+    public void setTradeBasisStatus(TradeBasisStatus tradeBasisStatus) {
+        this.tradeBasisStatus = tradeBasisStatus;
     }
 
     public TradingPlattform getTradingPlattform() {

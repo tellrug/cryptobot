@@ -1,6 +1,8 @@
-package at.vulperium.cryptobot.entitymanager;
+package at.vulperium.cryptobot.persistence;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Disposes;
@@ -12,20 +14,26 @@ import javax.persistence.PersistenceUnit;
 /**
  * Created by Ace on 26.12.2017.
  */
-@ApplicationScoped
+@RequestScoped
 public class EntityManagerProducer {
 
-    @PersistenceUnit
-    private EntityManagerFactory entityManagerFactory;
+    private static final Logger logger = LoggerFactory.getLogger(EntityManagerProducer.class);
+
+    @PersistenceUnit(unitName = "cryptodb")
+    private EntityManagerFactory emfCryptoDB;
 
     @Produces
-    @Default
     @RequestScoped
-    public EntityManager create() {
-        return this.entityManagerFactory.createEntityManager();
+    @Default
+    public EntityManager createEntityManager() {
+        return this.emfCryptoDB.createEntityManager();
     }
 
     public void dispose(@Disposes @Default EntityManager entityManager) {
+        if (entityManager == null) {
+            logger.warn("CryptoDB EntityManager dispose called with null EntityManager!");
+            return;
+        }
         if (entityManager.isOpen()) {
             entityManager.close();
         }

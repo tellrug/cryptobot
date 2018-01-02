@@ -1,265 +1,372 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>at.vulperium</groupId>
-    <artifactId>cryptobot</artifactId>
+    <parent>
+        <groupId>at.vulperium</groupId>
+        <artifactId>cryptobot</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>at.vulperium.cryptobot</groupId>
+    <artifactId>parent</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
 
-  <groupId>at.vulperium.cryptobot</groupId>
-  <artifactId>parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <name>parent</name>
 
-  <name>parent</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- If there are no local customisations, this can also be "fetch" or "cdn" -->
+        <vaadin.widgetset.mode>local</vaadin.widgetset.mode>
 
-    <!-- If there are no local customisations, this can also be "fetch" or "cdn" -->
-    <vaadin.widgetset.mode>local</vaadin.widgetset.mode>
+        <vaadin.version>8.2.0</vaadin.version>
+        <vaadin.plugin.version>8.2.0</vaadin.plugin.version>
 
-    <vaadin.version>8.2.0</vaadin.version>
-    <vaadin.plugin.version>8.2.0</vaadin.plugin.version>
+        <tomee.version>1.7.4</tomee.version>
+        <tomee.maven.version>${tomee.version}</tomee.maven.version>
 
-    <tomee.version>1.7.4</tomee.version>
-    <tomee.maven.version>${tomee.version}</tomee.maven.version>
+        <!-- H2-Properties -->
+        <h2.version>1.4.192</h2.version>
+        <h2.database.driver.name>org.h2.Driver</h2.database.driver.name>
+        <h2.database.user>sa</h2.database.user>
+        <h2.database.password>sa</h2.database.password>
 
-    <!-- H2-Properties -->
-    <h2.version>1.4.192</h2.version>
-    <h2.database.driver.name>org.h2.Driver</h2.database.driver.name>
-    <h2.database.user>sa</h2.database.user>
-    <h2.database.password>sa</h2.database.password>
+        <!--
+            H2 requires an absolute path, to be able to run multiple builds in parallel we need one path per build
+            override with -Dh2.database.base.path=<absolute_path>
+            To connect to the H2 Database while it is in use (e.g. while running tomcat), we added the AUTO_SERVER_PORT.
+            By default this is 9090, override with -Dh2.database.base.port=9091
+            Attention, path is OS dependent (e.g. under windows you will need something like /D:/tmp/h2/v3
+             -->
+        <h2.database.base.port>9090</h2.database.base.port>
+        <h2.database.base.path>d:/tmp/h2</h2.database.base.path>
+        <h2.database.connection.url>jdbc:h2:file:${h2.database.base.path}/cryptodb;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=${h2.database.base.port}</h2.database.connection.url>
+        <database.vendor>h2</database.vendor>
+        <h2.database.onError.action>abort</h2.database.onError.action>
 
-    <!--
-        H2 requires an absolute path, to be able to run multiple builds in parallel we need one path per build
-        override with -Dh2.database.base.path=<absolute_path>
-        To connect to the H2 Database while it is in use (e.g. while running tomcat), we added the AUTO_SERVER_PORT.
-        By default this is 9090, override with -Dh2.database.base.port=9091
-        Attention, path is OS dependent (e.g. under windows you will need something like /D:/tmp/h2/v3
-         -->
-    <h2.database.base.port>9090</h2.database.base.port>
-    <h2.database.base.path>d:/tmp/h2</h2.database.base.path>
-    <h2.database.connection.url>jdbc:h2:file:${h2.database.base.path}/shirodb;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=${h2.database.base.port}</h2.database.connection.url>
-    <database.vendor>h2</database.vendor>
-    <h2.database.onError.action>abort</h2.database.onError.action>
+        <cryptobot-jpa-includes>
+            at/vulperium/cryptobot/entities/*.class
+        </cryptobot-jpa-includes>
 
-    <!-- DeltaSpike -->
-    <deltaspike.version>1.7.1</deltaspike.version>
+        <!-- DeltaSpike -->
+        <!-- <deltaspike.version>1.8.0-afx-0</deltaspike.version> -->
+        <deltaspike.version>1.8.0</deltaspike.version>
+        <openejb.version>7.0.1</openejb.version>
 
-    <!-- Logging -->
-    <slf4j.version>1.7.12</slf4j.version>
-    <log4j.version>1.2.17</log4j.version>
+        <!-- Logging -->
+        <slf4j.version>1.7.12</slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
 
-    <openjpa.version>2.4.1</openjpa.version>
-    <ojdbc6.version>11.2.0.3</ojdbc6.version>
+        <testng.version>6.11</testng.version>
 
-    <openjpa.connectionProperties>
-      driverClassName=${h2.database.driver.name},
-      url=${h2.database.connection.url},
-      username=${h2.database.user},
-      password=${h2.database.password}
-    </openjpa.connectionProperties>
-    <openjpa.sqlAction>build</openjpa.sqlAction>
-    <openjpa.outputpath>${project.basedir}/src/main/sql/h2/database.sql</openjpa.outputpath>
+        <openjpa.version>2.4.1</openjpa.version>
+        <ojdbc6.version>11.2.0.4.0</ojdbc6.version>
 
-    <!-- set to false to enable the execution of the SQL plugin to insert test data -->
-    <openjpa.skipsql>false</openjpa.skipsql>
-    <!-- set to false to enable the build time enhancement of entities, see also jpa-includes/excludes -->
-    <!-- set to false to enable the build time enhancement of entities, see also jpa-includes/excludes -->
-    <openjpa.skipenhance>false</openjpa.skipenhance>
+        <openjpa.connectionProperties>
+            driverClassName=${h2.database.driver.name},
+            url=${h2.database.connection.url},
+            username=${h2.database.user},
+            password=${h2.database.password}
+        </openjpa.connectionProperties>
+        <openjpa.sqlAction>build</openjpa.sqlAction>
+        <openjpa.outputpath>${project.basedir}/src/main/sql/h2/database.sql</openjpa.outputpath>
 
-    <!-- Zusaetzlich gibt es module die kein APP_ZEPTA schema verwenden-->
-    <openjpa.skipschemagen>${openjpa.skipenhance}</openjpa.skipschemagen>
+        <!-- set to false to enable the execution of the SQL plugin to insert test data -->
+        <openjpa.skipsql>false</openjpa.skipsql>
+        <!-- set to false to enable the build time enhancement of entities, see also jpa-includes/excludes -->
+        <!-- set to false to enable the build time enhancement of entities, see also jpa-includes/excludes -->
+        <openjpa.skipenhance>false</openjpa.skipenhance>
 
-    <!-- siehe parent-be die diversen openjpa-maven-plugin profiles zum schema generieren -->
-    <openjpa.sqlAction>build</openjpa.sqlAction>
-    <sql.unpack.directory>${project.build.directory}/sql</sql.unpack.directory>
+        <!-- Zusaetzlich gibt es module die kein APP_ZEPTA schema verwenden-->
+        <openjpa.skipschemagen>${openjpa.skipenhance}</openjpa.skipschemagen>
 
-    <!-- utils -->
-    <commons.collections4.version>4.1</commons.collections4.version>
-    <commons.beanutils.version>1.8.3</commons.beanutils.version>
+        <!-- siehe parent-be die diversen openjpa-maven-plugin profiles zum schema generieren -->
+        <openjpa.sqlAction>build</openjpa.sqlAction>
+        <sql.unpack.directory>${project.build.directory}/sql</sql.unpack.directory>
 
-  </properties>
+        <!-- utils -->
+        <commons.collections4.version>4.1</commons.collections4.version>
+        <commons.beanutils.version>1.9.3</commons.beanutils.version>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.vaadin</groupId>
-        <artifactId>vaadin-bom</artifactId>
-        <version>${vaadin.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+    </properties>
 
-      <!-- GERONIMO -->
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-atinject_1.0_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-        <version>1.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jcdi_1.0_spec</artifactId>
-        <version>1.0</version>
-      </dependency>
-
-      <!-- DELTASPIKE -->
-      <dependency>
-        <groupId>org.apache.deltaspike.core</groupId>
-        <artifactId>deltaspike-core-api</artifactId>
-        <version>${deltaspike.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.deltaspike.core</groupId>
-        <artifactId>deltaspike-core-impl</artifactId>
-        <version>${deltaspike.version}</version>
-      </dependency>
-
-      <!-- LOGGING -->
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>runtime</scope>
-      </dependency>
-
-      <!-- openjpa -->
-      <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa</artifactId>
-        <version>${openjpa.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>joda-time</groupId>
-        <artifactId>joda-time</artifactId>
-        <version>2.9.9</version>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-
-        <plugin>
-          <groupId>org.apache.openjpa</groupId>
-          <artifactId>openjpa-maven-plugin</artifactId>
-          <version>${openjpa.version}</version>
-          <configuration>
-            <skip>${openjpa.skipenhance}</skip>
-            <includes>${jpa-includes}</includes>
-            <excludes>${jpa-excludes}</excludes>
-            <persistenceXmlFile>META-INF/persistence-enhancement.xml</persistenceXmlFile>
-            <persistenceUnitName>EnhancementPU</persistenceUnitName>
-
-            <addDefaultConstructor>true</addDefaultConstructor>
-            <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
-            <sqlAction>${openjpa.sqlAction}</sqlAction>
-            <sqlFile>${openjpa.outputpath}</sqlFile>
-            <connectionDriverName>org.apache.commons.dbcp.BasicDataSource</connectionDriverName>
-            <connectionProperties>
-              ${openjpa.connectionProperties}
-            </connectionProperties>
-            <toolProperties>
-              <!--
-               * These are the same like in zepta-persistence.properties but without 'openjpa.' and 'jdbc.' in front.
-               * We need them here as they are not in persistence.xml
-              -->
-              <MappingDefaults>ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict</MappingDefaults>
-
-              <!-- dirty hack to prevent openjpa from generating the sequence table -->
-              <Sequence>time</Sequence>
-            </toolProperties>
-          </configuration>
-          <executions>
-            <execution>
-              <id>enhance-classes</id>
-              <phase>process-classes</phase>
-              <goals>
-                <goal>enhance</goal>
-              </goals>
-            </execution>
-          </executions>
-          <dependencies>
+    <dependencyManagement>
+        <dependencies>
             <dependency>
-              <groupId>org.apache.openjpa</groupId>
-              <artifactId>openjpa</artifactId>
-              <version>${openjpa.version}</version>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- GERONIMO -->
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-atinject_1.0_spec</artifactId>
+                <version>1.0</version>
             </dependency>
             <dependency>
-              <groupId>commons-dbcp</groupId>
-              <artifactId>commons-dbcp</artifactId>
-              <version>1.4</version>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ejb_3.1_spec</artifactId>
+                <version>1.0.2</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
-              <groupId>oracle</groupId>
-              <artifactId>ojdbc6</artifactId>
-              <version>11.2.0.3</version>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jcdi_1.1_spec</artifactId>
+                <version>1.0</version>
             </dependency>
-            <dependency>
-              <groupId>com.h2database</groupId>
-              <artifactId>h2</artifactId>
-              <version>${h2.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>log4j</groupId>
-              <artifactId>log4j</artifactId>
-              <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-log4j12</artifactId>
-              <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>at.vulperium.cryptobot</groupId>
-              <artifactId>be</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
+            <!-- DELTASPIKE -->
+            <dependency>
+                <groupId>org.apache.deltaspike.core</groupId>
+                <artifactId>deltaspike-core-api</artifactId>
+                <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.deltaspike.core</groupId>
+                <artifactId>deltaspike-core-impl</artifactId>
+                <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.deltaspike.modules</groupId>
+                <artifactId>deltaspike-jpa-module-api</artifactId>
+                <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.deltaspike.modules</groupId>
+                <artifactId>deltaspike-jpa-module-impl</artifactId>
+                <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.deltaspike.cdictrl</groupId>
+                <artifactId>deltaspike-cdictrl-api</artifactId>
+                <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.deltaspike.cdictrl</groupId>
+                <artifactId>deltaspike-cdictrl-openejb</artifactId>
+                <version>${deltaspike.version}</version>
+            </dependency>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>sql-maven-plugin</artifactId>
-          <version>1.5</version>
+            <dependency>
+                <groupId>org.apache.tomee</groupId>
+                <artifactId>openejb-core</artifactId>
+                <version>${openejb.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-jdk14</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-          <configuration>
-            <skip>${openjpa.skipsql}</skip>
-            <driver>${h2.database.driver.name}</driver>
-            <url>${h2.database.connection.url}</url>
-            <username>${h2.database.user}</username>
-            <password>${h2.database.password}</password>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>2.2.1</version>
+            </dependency>
+
+
+            <!-- LOGGING -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- openjpa -->
+            <dependency>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa</artifactId>
+                <version>${openjpa.version}</version>
+            </dependency>
+
+            <!-- UTILS -->
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.9.9</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons.collections4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons.beanutils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.6</version>
+            </dependency>
+
+            <!-- TEST -->
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <testResources>
+            <!-- generiert die TestResourcen fuer ContainerTest -->
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/db*.properties</include>
+                    <include>**/*.list</include>
+                </includes>
+            </testResource>
+            <!--
+            <testResource>
+              <directory>src/test/resources</directory>
+              <filtering>false</filtering>
+              <includes>
+                <include>**/db*.properties</include>
+              </includes>
+            </testResource>
+            -->
+        </testResources>
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa-maven-plugin</artifactId>
+                    <version>${openjpa.version}</version>
+                    <configuration>
+                        <skip>${openjpa.skipenhance}</skip>
+                        <persistenceXmlFile>META-INF/persistence-enhancement.xml</persistenceXmlFile>
+                        <persistenceUnitName>EnhancementPU</persistenceUnitName>
+
+                        <addDefaultConstructor>true</addDefaultConstructor>
+                        <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+                        <sqlAction>${openjpa.sqlAction}</sqlAction>
+                        <sqlFile>${openjpa.outputpath}</sqlFile>
+                        <connectionDriverName>org.apache.commons.dbcp.BasicDataSource</connectionDriverName>
+                        <connectionProperties>
+                            ${openjpa.connectionProperties}
+                        </connectionProperties>
+                        <toolProperties>
+                            <!--
+                             * These are the same like in zepta-persistence.properties but without 'openjpa.' and 'jdbc.' in front.
+                             * We need them here as they are not in persistence.xml
+                            -->
+                            <MappingDefaults>ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict</MappingDefaults>
+
+                            <!-- dirty hack to prevent openjpa from generating the sequence table -->
+                            <Sequence>time</Sequence>
+                        </toolProperties>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>enhance-classes</id>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>enhance</goal>
+                            </goals>
+                            <configuration>
+                                <includes>${cryptobot-jpa-includes}</includes>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.openjpa</groupId>
+                            <artifactId>openjpa</artifactId>
+                            <version>${openjpa.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>commons-dbcp</groupId>
+                            <artifactId>commons-dbcp</artifactId>
+                            <version>1.4</version>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>com.oracle</groupId>
+                            <artifactId>ojdbc6</artifactId>
+                            <version>${ojdbc6.version}</version>
+                        </dependency>
+
+                        <dependency>
+                            <groupId>com.h2database</groupId>
+                            <artifactId>h2</artifactId>
+                            <version>${h2.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>log4j</groupId>
+                            <artifactId>log4j</artifactId>
+                            <version>${log4j.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                            <version>${slf4j.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>at.vulperium.cryptobot</groupId>
+                            <artifactId>be</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sql-maven-plugin</artifactId>
+                    <version>1.5</version>
+
+                    <configuration>
+                        <skip>${openjpa.skipsql}</skip>
+                        <driver>${h2.database.driver.name}</driver>
+                        <url>${h2.database.connection.url}</url>
+                        <username>${h2.database.user}</username>
+                        <password>${h2.database.password}</password>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

@@ -1,7 +1,6 @@
 package at.vulperium.cryptobot.entities;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -9,23 +8,23 @@ import java.util.Date;
  * Created by Ace on 24.12.2017.
  */
 @Entity
-@Table(name = "TRADEAKTION")
+@Table(name = "TRADEJOB")
 @NamedQueries({
-        @NamedQuery(name = TradeAktion.QRY_FIND_ALL,
+        @NamedQuery(name = TradeJob.QRY_FIND_ALL,
         query = "SELECT t FROM TradeAktion t "),
-        @NamedQuery(name = TradeAktion.QRY_FIND_BY_ID,
-                query = "SELECT t FROM TradeAktion t WHERE t.id = :" + TradeAktion.PARAM_ID)
+        @NamedQuery(name = TradeJob.QRY_FIND_BY_ID,
+                query = "SELECT t FROM TradeAktion t WHERE t.id = :" + TradeJob.PARAM_ID)
 })
-public class TradeAktion extends BaseEntity<Long> {
+public class TradeJob extends BaseEntity<Long> {
 
-    public static final String QRY_FIND_ALL = "tradeAktion.findAll";
-    public static final String QRY_FIND_BY_ID = "tradeAktion.findById";
+    public static final String QRY_FIND_ALL = "tradeJob.findAll";
+    public static final String QRY_FIND_BY_ID = "tradeJob.findById";
     public static final String PARAM_ID = "paramId";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TRADEAKTION_SQ")
-    @SequenceGenerator(name = "TRADEAKTION_SQ", sequenceName = "TRADEAKTION_SQ", allocationSize = 1, initialValue = 200000)
-    @Column(name = "TRADEAKTION_PK", nullable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TRADEJOB_SQ")
+    @SequenceGenerator(name = "TRADEJOB_SQ", sequenceName = "TRADEJOB_SQ", allocationSize = 1, initialValue = 200000)
+    @Column(name = "TRADEJOB_PK", nullable = false, updatable = false)
     private Long id;
 
     @Column(name = "CRYPTOWAEHRUNG", nullable = false, updatable = false)
@@ -52,8 +51,11 @@ public class TradeAktion extends BaseEntity<Long> {
     @Column(name = "CRYPTOWAEHRUNG_REFERENZ", nullable = false, updatable = false)
     private String referenzCryptoWaehrung;
 
-    @Column(name = "STATUS", nullable = false, updatable = true)
-    private String status;
+    @Column(name = "JOB_STATUS", nullable = false, updatable = true)
+    private String jobstatus;
+
+    @Column(name = "TRADE_STATUS", nullable = false, updatable = true)
+    private String tradestatus;
 
     @Column(name = "PLATTFORM", nullable = false, updatable = true)
     private String tradingplattform;
@@ -127,12 +129,20 @@ public class TradeAktion extends BaseEntity<Long> {
         this.referenzCryptoWaehrung = referenzCryptoWaehrung;
     }
 
-    public String getStatus() {
-        return status;
+    public String getJobstatus() {
+        return jobstatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setJobstatus(String jobstatus) {
+        this.jobstatus = jobstatus;
+    }
+
+    public String getTradestatus() {
+        return tradestatus;
+    }
+
+    public void setTradestatus(String tradestatus) {
+        this.tradestatus = tradestatus;
     }
 
     public String getTradingplattform() {

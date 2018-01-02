@@ -1,8 +1,9 @@
 package at.vulperium.cryptobot.transformer;
 
-import at.vulperium.cryptobot.dtos.TradeAktionDTO;
-import at.vulperium.cryptobot.entities.TradeAktion;
-import at.vulperium.cryptobot.enums.TradeAktionStatus;
+import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.entities.TradeJob;
+import at.vulperium.cryptobot.enums.TradeBasisStatus;
+import at.vulperium.cryptobot.enums.TradeJobStatus;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.services.TransformBothDirections;
 import org.joda.time.LocalDateTime;
@@ -13,20 +14,20 @@ import javax.enterprise.context.ApplicationScoped;
  * Created by Ace on 26.12.2017.
  */
 @ApplicationScoped
-public class TradeAktionDTOTransformer implements TransformBothDirections<TradeAktion, TradeAktionDTO> {
+public class TradeJobDTOTransformer implements TransformBothDirections<TradeJob, TradeJobDTO> {
 
     @Override
-    public TradeAktion transformInverse(TradeAktionDTO source) {
-        return transformInverse(source, new TradeAktion());
+    public TradeJob transformInverse(TradeJobDTO source) {
+        return transformInverse(source, new TradeJob());
     }
 
     @Override
-    public TradeAktionDTO transform(TradeAktion source) {
-        return transform(source, new TradeAktionDTO());
+    public TradeJobDTO transform(TradeJob source) {
+        return transform(source, new TradeJobDTO());
     }
 
     @Override
-    public TradeAktion transformInverse(TradeAktionDTO source, TradeAktion target) {
+    public TradeJob transformInverse(TradeJobDTO source, TradeJob target) {
 
         target.setCryptoWaehrung(source.getCryptoWaehrung());
         target.setErledigtAm(source.getErstelltAm().toDate());
@@ -36,14 +37,15 @@ public class TradeAktionDTOTransformer implements TransformBothDirections<TradeA
         target.setLetztwert(source.getLetztwert());
         target.setZielwert(source.getZielwert());
         target.setReferenzCryptoWaehrung(source.getCryptoWaehrungReferenz());
-        target.setStatus(source.getTradeAktionStatus().getCode());
+        target.setJobstatus(source.getTradeJobStatus().getCode());
+        target.setTradestatus(source.getTradeBasisStatus().name());
         target.setTradingplattform(source.getTradingPlattform().getCode());
 
         return target;
     }
 
     @Override
-    public TradeAktionDTO transform(TradeAktion source, TradeAktionDTO target) {
+    public TradeJobDTO transform(TradeJob source, TradeJobDTO target) {
 
         target.setId(source.getId());
         target.setCryptoWaehrung(source.getCryptoWaehrung());
@@ -54,7 +56,8 @@ public class TradeAktionDTOTransformer implements TransformBothDirections<TradeA
         target.setLetztwert(source.getLetztwert());
         target.setZielwert(source.getZielwert());
         target.setCryptoWaehrungReferenz(source.getReferenzCryptoWaehrung());
-        target.setTradeAktionStatus(TradeAktionStatus.getByCode(source.getStatus()));
+        target.setTradeJobStatus(TradeJobStatus.getByCode(source.getJobstatus()));
+        target.setTradeBasisStatus(TradeBasisStatus.valueOf(source.getTradestatus()));
         target.setTradingPlattform(TradingPlattform.getByCode(source.getTradingplattform()));
 
         return target;

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
 
-    <persistence-unit name="CRYPTODB" transaction-type="JTA">
-        <jta-data-source>CRYPTODB</jta-data-source>
+    <persistence-unit name="cryptodb" transaction-type="JTA">
+        <jta-data-source>cryptodb</jta-data-source>
 
         <!-- Klassen angeben -->
-        <!-- <class>at.sozvers.zepta.util.be.entities.VersionedEntity</class> -->
-        <!--<class>at.vulperium.entity.TestEntity</class> -->
-
-        <class>at.vulperium.cryptobot.entities.TradeAktion</class>
+        <class>at.vulperium.cryptobot.entities.TradeJob</class>
+        <class>at.vulperium.cryptobot.entities.CryptoWaehrung</class>
+        <class>at.vulperium.cryptobot.entities.CryptobotConfig</class>
 
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
@@ -21,6 +20,7 @@
                 <property name="openjpa.DetachState" value="IgnoreDetachedStateFieldForProxySerialization=true"/>
                 <property name="openjpa.Compatibility" value="loaded(DetachedStateField=true)"/>
             -->
+
             <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
 
             <property name="openjpa.jdbc.DBDictionary" value="(BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_10)"/>
