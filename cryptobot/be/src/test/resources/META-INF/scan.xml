@@ -1,0 +1,5 @@
+<scan>
+    <classes>
+        <class>at.vulperium.cryptobot.testdatahelper.TradeJobTestDataHelper</class>
+    </classes>
+</scan>

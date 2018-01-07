@@ -21,6 +21,17 @@
   </properties>
 
   <dependencies>
+
+    <!-- DELTASPIKE -->
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-impl</artifactId>
+    </dependency>
+
     <!-- GERONIMO -->
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>

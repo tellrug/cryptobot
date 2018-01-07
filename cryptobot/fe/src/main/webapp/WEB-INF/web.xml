@@ -31,7 +31,7 @@
     </servlet-mapping>
     -->
 
-    <!--
+
     <servlet>
         <servlet-name>CryptoBotApp</servlet-name>
         <servlet-class>com.vaadin.cdi.server.VaadinCDIServlet</servlet-class>
@@ -44,20 +44,17 @@
             <param-name>ViewProvider</param-name>
             <param-value>com.vaadin.cdi.CDIViewProvider</param-value>
         </init-param>
-        -->
-        <!--
+
         <init-param>
             <param-name>UI</param-name>
-            <param-value>at.vulperium.fe.base.BaseUI</param-value>
+            <param-value>at.vulperium.cryptobot.base.BaseUI</param-value>
         </init-param>
-
     </servlet>
 
     <servlet-mapping>
         <servlet-name>CryptoBotApp</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
-    -->
 
     <!-- Wird nicht mehr hier benoetigt da mittels CDI gearbeitet wird -->
     <!--

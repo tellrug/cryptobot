@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -13,6 +13,7 @@
   <groupId>at.vulperium.cryptobot</groupId>
   <artifactId>ear</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>ear</packaging>
   <name>ear</name>
 
 
@@ -20,12 +21,51 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-ear-plugin</artifactId>
+        <configuration>
+          <defaultLibBundleDir>lib</defaultLibBundleDir>
+          <version>6</version>
+          <modules>
+            <webModule>
+              <groupId>at.vulperium.cryptobot</groupId>
+              <artifactId>fe</artifactId>
+              <bundleFileName>cryptobot-fe.war</bundleFileName>
+            </webModule>
+          </modules>
+
+          <displayName>cryptobot-ear</displayName>
+          <!-- If I want maven to generate the application.xml, set this to true -->
+          <generateApplicationXml>false</generateApplicationXml>
+
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <!--<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
+            </manifest>
+            <manifestEntries>
+              <Implementation-Version>${maven.build.timestamp}</Implementation-Version>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Define the versions of your ear components here -->
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+      <groupId>at.vulperium.cryptobot</groupId>
+      <artifactId>fe</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>at.vulperium.cryptobot</groupId>
+      <artifactId>be</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

@@ -2,6 +2,7 @@ package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeJobStatus;
 import at.vulperium.cryptobot.enums.Trend;
 import org.apache.commons.lang.Validate;
@@ -18,11 +19,11 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService implements Tra
     public static final Logger logger = LoggerFactory.getLogger(TradeVerkaufServiceImpl.class);
 
     @Override
-    public void verarbeiteVerkaufAktion(TradeJobDTO tradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
+    public TradeJobReaktion verarbeiteVerkaufAktion(TradeJobDTO tradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
         Validate.notNull(tradeJobDTO, "tradeJobDTO ist null");
         Validate.notNull(wsCryptoCoinDTO, "wsCryptoCoinDTO ist null");
 
-        verarbeiteTradeJob(tradeJobDTO, wsCryptoCoinDTO);
+        return verarbeiteTradeJobUndErmittleBenachrichtigung(tradeJobDTO, wsCryptoCoinDTO);
     }
 
     protected boolean ermittleZielErreicht(TradeJobDTO tradeJobDTO, BigDecimal aktuellerKurs) {
@@ -36,7 +37,7 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService implements Tra
             if (trend == Trend.ABWAERTS) {
                 //Trend ist nun fallend --> Verkauf
                 logger.info("Ziel fuer Trade tradeAktionId={} wurde erreicht, Kurs faellt wieder. Es kann verkauft werden", tradeAktionId);
-                return TradeJobStatus.VERKAUF_ABGESCHLOSSEN;
+                return TradeJobStatus.VERKAUF_ZIEL_ERREICHT;
             } else {
                 //Trend ist konstant oder aufwaerts
                 logger.info("Ziel fuer Trade tradeAktionId={} wurde erreicht, jedoch wird mit VERKAUF noch gewartet.", tradeAktionId);

@@ -2,18 +2,18 @@ package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
+import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeJobStatus;
 import at.vulperium.cryptobot.enums.TradeStatusTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +25,8 @@ public class TradeJobVerwaltungServiceImpl implements TradeJobVerwaltungService 
     private @Inject TradeJobService tradeJobService;
     private @Inject TradeVerkaufService tradeVerkaufService;
     private @Inject TradeKaufService tradeKaufService;
+    private @Inject TradingPlattformService tradingPlattformService;
+    private @Inject BenachrichtigungService benachrichtigungService;
 
 
     /**
@@ -33,7 +35,7 @@ public class TradeJobVerwaltungServiceImpl implements TradeJobVerwaltungService 
     @Override
     public void verarbeiteTradeAufgaben() {
 
-        //Laden alle TradeAktionen
+        //Laden alle TradeJobs
         List<TradeJobDTO> alleTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
         List<TradeJobDTO> offeneTradeJobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, false);
 
@@ -44,40 +46,47 @@ public class TradeJobVerwaltungServiceImpl implements TradeJobVerwaltungService 
                 continue;
             }
 
-            //Fuer einzelnen TRadingPlattformen relevante TradeAktionen
+            //Fuer einzelnen TRadingPlattformen relevante TradeJobs
             List<TradeJobDTO> relevanteTradeJobDTOList = tradeJobService.filterTradeJobDTOList(offeneTradeJobDTOList, tradingPlattform);
             if (CollectionUtils.isNotEmpty(relevanteTradeJobDTOList)) {
-                // Durchfuehren der einzelnen TradeAktionen
+                // Durchfuehren der einzelnen TradeAufgaben
                 verarbeiteTradeAufgaben(relevanteTradeJobDTOList, tradingPlattform);
             }
         }
     }
 
     /**
-     * Fuehrt die offenen TradeAktionen fuer eine Trade-Plattform aus
+     * Fuehrt die offenen TradeAufgaben fuer eine Trade-Plattform aus
      */
     @Override
     public void verarbeiteTradeAufgaben(List<TradeJobDTO> tradeJobDTOList, TradingPlattform tradingPlattform) {
 
         //Abfragen der aktuellen Kurse - Aufruf von WS
-        List<WSCryptoCoinDTO> wsCryptoCoinDTOList = new ArrayList<>();
-        Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap = ermittleWSCryptoCoinMap(wsCryptoCoinDTOList);
+        Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap = tradingPlattformService.holeWSCryptoCoinMap(tradingPlattform);
 
         //Aufteilen der Aufgaben in Kauf und Verkauf
         List<TradeJobDTO> kaufJobList = tradeJobService.filterTradeJobDTOList(tradeJobDTOList, TradeStatusTyp.KAUF);
         List<TradeJobDTO> verkaufJobList = tradeJobService.filterTradeJobDTOList(tradeJobDTOList, TradeStatusTyp.VERKAUF);
 
         //Zuerst wird verkauft und anschliessend gekauft
+        List<TradeJobDTO> neuerTradeStatusTradeJobDTOList = new ArrayList<>();
         //Verkaufsaufgaben
-        verarbeiteVerkaufAufgaben(verkaufJobList, wsCryptoCoinDTOMap, tradingPlattform);
+        neuerTradeStatusTradeJobDTOList.addAll(verarbeiteVerkaufAufgaben(verkaufJobList, wsCryptoCoinDTOMap, tradingPlattform));
         //Kaufaufgaben
-        verarbeiteKaufAufgaben(kaufJobList, wsCryptoCoinDTOMap, tradingPlattform);
+        neuerTradeStatusTradeJobDTOList.addAll(verarbeiteKaufAufgaben(kaufJobList, wsCryptoCoinDTOMap, tradingPlattform));
+
+        if (CollectionUtils.isNotEmpty(neuerTradeStatusTradeJobDTOList)) {
+            //TradeJobs mit neuem Status werden fuer die Benachrichtigung vorgesehen
+            benachrichtigungService.versendeBenachrichtigung(neuerTradeStatusTradeJobDTOList, BenachrichtigungTyp.MAIL , tradingPlattform);
+        }
     }
 
-    private void verarbeiteKaufAufgaben(List<TradeJobDTO> kaufJobList, Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, TradingPlattform tradingPlattform) {
+    private List<TradeJobDTO> verarbeiteKaufAufgaben(List<TradeJobDTO> kaufJobList, Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, TradingPlattform tradingPlattform) {
+        List<TradeJobDTO> neuerTradeStatusTradeJobDTOList = new ArrayList<>();
+
         if (CollectionUtils.isEmpty(kaufJobList)) {
             logger.info("Kein offene Kaufaufgaben fuer die Trading-Plattform={} vorhanden!", tradingPlattform);
-            return;
+            return neuerTradeStatusTradeJobDTOList;
         }
 
         for (TradeJobDTO tradeJobDTO : kaufJobList) {
@@ -94,17 +103,23 @@ public class TradeJobVerwaltungServiceImpl implements TradeJobVerwaltungService 
             }
 
             //Passenede Informationen vom WS sind vorhanden
-            tradeKaufService.verarbeiteKaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+            TradeJobReaktion tradeJobReaktion = tradeKaufService.verarbeiteKaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+            if (tradeJobReaktion == TradeJobReaktion.NEUER_TRADESTATUS) {
+                neuerTradeStatusTradeJobDTOList.add(tradeJobDTO);
+            }
         }
 
         //Alle Verkaufsaufggaben sind erledigt
         logger.info("Alle Kaufaufgaben fuer die Trading-Plattform={} abgearbeitet!", tradingPlattform);
+        return neuerTradeStatusTradeJobDTOList;
     }
 
-    private void verarbeiteVerkaufAufgaben(List<TradeJobDTO> verkaufJobList, Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, TradingPlattform tradingPlattform) {
+    private List<TradeJobDTO> verarbeiteVerkaufAufgaben(List<TradeJobDTO> verkaufJobList, Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, TradingPlattform tradingPlattform) {
+        List<TradeJobDTO> neuerTradeStatusTradeJobDTOList = new ArrayList<>();
+
         if (CollectionUtils.isEmpty(verkaufJobList)) {
             logger.info("Kein offene Verkaufaufgaben fuer die Trading-Plattform={} vorhanden!", tradingPlattform);
-            return;
+            return neuerTradeStatusTradeJobDTOList;
         }
 
         for (TradeJobDTO tradeJobDTO : verkaufJobList) {
@@ -121,11 +136,15 @@ public class TradeJobVerwaltungServiceImpl implements TradeJobVerwaltungService 
             }
 
             //Passenede Informationen vom WS sind vorhanden
-            tradeVerkaufService.verarbeiteVerkaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+            TradeJobReaktion tradeJobReaktion = tradeVerkaufService.verarbeiteVerkaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+            if (tradeJobReaktion == TradeJobReaktion.NEUER_TRADESTATUS) {
+                neuerTradeStatusTradeJobDTOList.add(tradeJobDTO);
+            }
         }
 
         //Alle Verkaufsaufggaben sind erledigt
         logger.info("Alle Verkaufaufgaben fuer die Trading-Plattform={} abgearbeitet!", tradingPlattform);
+        return neuerTradeStatusTradeJobDTOList;
     }
 
     private WSCryptoCoinDTO ermittleWSCryptoCoinDTO(Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, TradeJobDTO tradeJobDTO) {
@@ -142,19 +161,5 @@ public class TradeJobVerwaltungServiceImpl implements TradeJobVerwaltungService 
 
         return wsCryptoCoinDTO;
     }
-
-
-    private Map<String, WSCryptoCoinDTO> ermittleWSCryptoCoinMap(List<WSCryptoCoinDTO> wsCryptoCoinDTOList) {
-        Validate.notNull(wsCryptoCoinDTOList, "wsCryptoCoinDTOList ist null");
-
-        Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap = new HashMap<>();
-        for (WSCryptoCoinDTO wsCryptoCoinDTO : wsCryptoCoinDTOList) {
-            wsCryptoCoinDTOMap.put(wsCryptoCoinDTO.getSymbol(), wsCryptoCoinDTO);
-        }
-
-
-        return wsCryptoCoinDTOMap;
-    }
-
 
 }

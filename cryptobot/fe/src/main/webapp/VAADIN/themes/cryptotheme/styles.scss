@@ -1,11 +1,13 @@
-@import "mytheme.scss";
+@import "cryptotheme";
 @import "addons.scss";
+@import "icons.scss";
 
 // This file prefixes all rules with the theme name to avoid causing conflicts with other themes.
 // The actual styles should be defined in mytheme.scss
 
-.mytheme {
+.cryptotheme {
   @include addons;
-  @include mytheme;
+  @include cryptotheme;
+  @include icons;
 
 }

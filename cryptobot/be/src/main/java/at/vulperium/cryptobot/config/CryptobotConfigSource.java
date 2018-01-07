@@ -61,6 +61,7 @@ public class CryptobotConfigSource implements ConfigSource {
                     Map<String, String> configProperties = getConfigProperties();
                     properties = Collections.unmodifiableMap(configProperties);
                     logger.info("Reloading config from the Properties table. item count={}", properties.size());
+                    System.out.println("Reloading config from the Properties table. item count=" + properties.size());
                     reloadAfter = now + TimeUnit.MINUTES.toMillis(30); // alle 30 sekunden neu von der DB laden
                 }
             }

@@ -11,9 +11,9 @@ import java.util.Date;
 @Table(name = "TRADEJOB")
 @NamedQueries({
         @NamedQuery(name = TradeJob.QRY_FIND_ALL,
-        query = "SELECT t FROM TradeAktion t "),
+        query = "SELECT t FROM TradeJob t "),
         @NamedQuery(name = TradeJob.QRY_FIND_BY_ID,
-                query = "SELECT t FROM TradeAktion t WHERE t.id = :" + TradeJob.PARAM_ID)
+                query = "SELECT t FROM TradeJob t WHERE t.id = :" + TradeJob.PARAM_ID)
 })
 public class TradeJob extends BaseEntity<Long> {
 

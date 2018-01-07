@@ -2,6 +2,8 @@ package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
+import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeJobStatus;
 import at.vulperium.cryptobot.enums.Trend;
 import at.vulperium.cryptobot.utils.TradeUtil;
@@ -14,8 +16,9 @@ import java.math.BigDecimal;
 public abstract class AbstractTradeService {
 
     private @Inject TradeJobService tradeJobService;
+    private @Inject BenachrichtigungService benachrichtigungService;
 
-    protected void verarbeiteTradeJob(TradeJobDTO tradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
+    protected TradeJobReaktion verarbeiteTradeJobUndErmittleBenachrichtigung(TradeJobDTO tradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
         Validate.notNull(tradeJobDTO, "tradeJobDTO ist null");
         Validate.notNull(wsCryptoCoinDTO, "wsCryptoCoinDTO ist null");
 
@@ -26,32 +29,34 @@ public abstract class AbstractTradeService {
         boolean zielErreicht = ermittleZielErreicht(tradeJobDTO, wsCryptoCoinDTO.getPrice());
         TradeJobStatus neuerTradeJobStatus = ermittleNeuenStatusWennErledigt(tradeJobDTO.getId(), zielErreicht, trend);
 
+        //Aktualisieren von Letztwert
+        tradeJobDTO.setLetztwert(wsCryptoCoinDTO.getPrice());
+
+        TradeJobReaktion tradeJobReaktion = TradeJobReaktion.WARTEN;
         //Durchfuehren von Aktion
         if(neuerTradeJobStatus != null) {
             //Verkaufsaktion durchfuehren & setzen von neuen Status
             //TODO Aktion automatisch durchfuehren
             tradeJobDTO.setErledigtAm(LocalDateTime.now());
             tradeJobDTO.setTradeJobStatus(neuerTradeJobStatus);
-
-            //Mail versenden
-            //TODO Mail senden
+            tradeJobReaktion = TradeJobReaktion.NEUER_TRADESTATUS;
         }
 
-        //Aktualisieren von Letztwert
-        tradeJobDTO.setLetztwert(wsCryptoCoinDTO.getPrice());
         tradeJobService.aktualisiereTradeJob(tradeJobDTO);
+
+        return tradeJobReaktion;
     }
 
 
     protected Trend ermittleTrend(BigDecimal alterWert, BigDecimal neuerWert) {
         BigDecimal aenderung = neuerWert.divide(alterWert, BigDecimal.ROUND_HALF_EVEN);
 
-        if (aenderung.compareTo(TradeUtil.getBigDecimal(1.0)) == 1 && (aenderung.subtract(TradeUtil.getBigDecimal(1.0))).compareTo(Trend.AENDERUNGSSATZ) == 1){
+        if (aenderung.compareTo(TradeUtil.getBigDecimal(1.0)) == 1 && (aenderung.subtract(TradeUtil.getBigDecimal(1.0))).compareTo(Trend.getAenderungssatz()) == 1){
             //wenn aenderung > 1 && (aenderung-1) > Trend.AENDERUNGSSATZ --> Aufwaertstrend
             return Trend.AUFWAERTS;
         }
 
-        if (aenderung.compareTo(TradeUtil.getBigDecimal(1.0)) == -1 && (TradeUtil.getBigDecimal(1.0).subtract(aenderung)).compareTo(Trend.AENDERUNGSSATZ) == 1){
+        if (aenderung.compareTo(TradeUtil.getBigDecimal(1.0)) == -1 && (TradeUtil.getBigDecimal(1.0).subtract(aenderung)).compareTo(Trend.getAenderungssatz()) == 1){
             //wenn aenderung < 1 && (1-aenderung) > Trend.AENDERUNGSSATZ --> Abwaertstrend
             return Trend.ABWAERTS;
         }

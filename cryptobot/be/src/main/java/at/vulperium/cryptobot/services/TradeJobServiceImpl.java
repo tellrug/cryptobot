@@ -24,6 +24,18 @@ public class TradeJobServiceImpl implements TradeJobService {
     private @Inject TradeJobDTOTransformer transformer;
 
     @Override
+    public TradeJobDTO holeTradeJob(Long id) {
+        Validate.notNull(id, "id ist null.");
+
+        TradeJob tradeJob = em.find(TradeJob.class, id);
+        if (tradeJob == null) {
+            return null;
+        }
+
+        return transformer.transform(tradeJob);
+    }
+
+    @Override
     public List<TradeJobDTO> holeAlleTradeJobs() {
         TypedQuery<TradeJob> query = em.createNamedQuery(TradeJob.QRY_FIND_ALL, TradeJob.class);
         return query.getResultList().stream().map(tradeJob -> transformer.transform(tradeJob)).collect(Collectors.toList());
@@ -57,6 +69,10 @@ public class TradeJobServiceImpl implements TradeJobService {
             throw new IllegalStateException("TradeJob kann nicht gespeichert werden. Id bereits vorhanden.");
         }
 
+        if (tradeJobDTO.getErstelltAm() == null) {
+            tradeJobDTO.setErstelltAm(LocalDateTime.now());
+        }
+
         TradeJob tradeJob = transformer.transformInverse(tradeJobDTO);
         em.persist(tradeJob);
         tradeJobDTO.setId(tradeJob.getId());
@@ -83,10 +99,10 @@ public class TradeJobServiceImpl implements TradeJobService {
     }
 
     @Override
-    public boolean erledigeTradeJob(Long tradeAktionId) {
-        Validate.notNull(tradeAktionId, "tradeAktionId ist null.");
+    public boolean erledigeTradeJob(Long tradeJobId) {
+        Validate.notNull(tradeJobId, "tradeAktionId ist null.");
 
-        TradeJob tradeJob = em.find(TradeJob.class, tradeAktionId);
+        TradeJob tradeJob = em.find(TradeJob.class, tradeJobId);
         if (tradeJob == null) {
             return false;
         }

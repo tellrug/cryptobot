@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface TradeJobService {
 
+    TradeJobDTO holeTradeJob(Long id);
+
     List<TradeJobDTO> holeAlleTradeJobs();
 
     List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeStatusTyp tradeStatusTyp);
@@ -23,5 +25,5 @@ public interface TradeJobService {
 
     boolean aktualisiereTradeJob(TradeJobDTO tradeJobDTO);
 
-    boolean erledigeTradeJob(Long tradeAktionId);
+    boolean erledigeTradeJob(Long tradeJobId);
 }

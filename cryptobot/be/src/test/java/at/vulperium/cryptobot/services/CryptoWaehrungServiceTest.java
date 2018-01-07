@@ -9,8 +9,7 @@ import javax.inject.Inject;
 
 public class CryptoWaehrungServiceTest extends ContainerTest {
 
-    private @Inject
-    CryptoWaehrungService cryptoWaehrungService;
+    private @Inject CryptoWaehrungService cryptoWaehrungService;
 
     @Test
     public void testSpeichereCryptoWaehrung() {

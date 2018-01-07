@@ -1,11 +1,11 @@
 package at.vulperium.cryptobot.webservice;
 
-import at.vulperium.cryptobot.webservice.binance.BinanceClientService;
+import at.vulperium.cryptobot.webservice.binance.BinanceClientServiceImpl;
 
 public class TestMain {
 
     public static void main( String[] args ) {
-        BinanceClientService binanceClientService = new BinanceClientService();
+        BinanceClientServiceImpl binanceClientService = new BinanceClientServiceImpl();
         binanceClientService.ermittleLetztePreise();
     }
 }

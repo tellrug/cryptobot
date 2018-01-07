@@ -1,8 +1,5 @@
 package at.vulperium.cryptobot.utils;
 
-import org.joda.time.Duration;
-import org.joda.time.Minutes;
-
 import java.math.BigDecimal;
 
 /**
@@ -10,8 +7,7 @@ import java.math.BigDecimal;
  */
 public class TradeUtil {
 
-    public static final int SCALE = 15;
-    public static final Duration VERARBEITUNG_INTERVALL = new Duration(Minutes.minutes(1).toStandardDuration());
+    public static final int SCALE = 10;
 
     public static BigDecimal getBigDecimal(String value) {
         if (value == null) {
@@ -29,5 +25,35 @@ public class TradeUtil {
     public static BigDecimal getBigDecimal(double value) {
         String stringValue = String.valueOf(value);
         return new BigDecimal(stringValue).setScale(SCALE, BigDecimal.ROUND_HALF_DOWN);
+    }
+
+
+    public static BigDecimal diffAbsolut(BigDecimal value1, BigDecimal value2) {
+        if (value1 == null || value2 == null) {
+            return null;
+        }
+        return value1.subtract(value2);
+    }
+
+    public static BigDecimal diffProzent(BigDecimal neuerWert, BigDecimal alterWert) {
+        if (neuerWert == null || alterWert == null) {
+            return null;
+        }
+
+        BigDecimal aenderung = neuerWert.divide(alterWert, BigDecimal.ROUND_HALF_EVEN);
+
+
+        BigDecimal diffProzentValue;
+        if (aenderung.compareTo(getBigDecimal(1.0)) == 1) {
+            diffProzentValue = aenderung.subtract(getBigDecimal(1.0)); //relative Aenderung
+        }
+        else if (aenderung.compareTo(TradeUtil.getBigDecimal(1.0)) == -1) {
+            diffProzentValue = (getBigDecimal(1.0).subtract(aenderung)).multiply(getBigDecimal(-1)); //relative Aenderung
+        }
+        else {
+            diffProzentValue = getBigDecimal(0); //keine Aenderung
+        }
+
+        return diffProzentValue.multiply(getBigDecimal(100.0)).setScale(4, BigDecimal.ROUND_HALF_EVEN);
     }
 }

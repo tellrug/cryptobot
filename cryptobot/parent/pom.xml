@@ -55,13 +55,15 @@
         </cryptobot-jpa-includes>
 
         <!-- DeltaSpike -->
-        <!-- <deltaspike.version>1.8.0-afx-0</deltaspike.version> -->
-        <deltaspike.version>1.8.0</deltaspike.version>
+        <deltaspike.version>1.8.0-afx-0</deltaspike.version>
         <openejb.version>7.0.1</openejb.version>
 
         <!-- Logging -->
         <slf4j.version>1.7.12</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
+
+        <!-- JavaMail -->
+        <javamail.version>1.6.0</javamail.version>
 
         <testng.version>6.11</testng.version>
 
@@ -194,6 +196,13 @@
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
                 <version>${openjpa.version}</version>
+            </dependency>
+
+            <!-- MAIL -->
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>${javamail.version}</version>
             </dependency>
 
             <!-- UTILS -->

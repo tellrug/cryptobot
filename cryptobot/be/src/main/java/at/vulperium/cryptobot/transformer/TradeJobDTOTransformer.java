@@ -30,7 +30,7 @@ public class TradeJobDTOTransformer implements TransformBothDirections<TradeJob,
     public TradeJob transformInverse(TradeJobDTO source, TradeJob target) {
 
         target.setCryptoWaehrung(source.getCryptoWaehrung());
-        target.setErledigtAm(source.getErstelltAm().toDate());
+        target.setErstelltAm(source.getErstelltAm().toDate());
         target.setErledigtAm(source.getErledigtAm() == null ?  null : source.getErledigtAm().toDate());
         target.setMenge(source.getMenge());
         target.setKaufwert(source.getKaufwert());

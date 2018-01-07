@@ -1,0 +1,30 @@
+//Styles von Buttons
+@mixin icons {
+
+  .i-standardStatusIcon {
+    background: transparent !important;
+    border: none;
+    width: auto !important;
+  }
+
+  .selected {
+    .v-icon {
+      color: white;
+    }
+  }
+
+  .v-nativebutton-only-icon-button:hover .v-icon {
+    text-decoration: none;
+    box-shadow: inset 0 0 1px 2px #b0c9d6;
+  }
+
+  .i-xxlargeIcon {
+    .v-icon {
+      font-size: xx-large;
+    }
+  }
+
+  .i-xlargeIcon {
+    font-size: x-large;
+  }
+}
