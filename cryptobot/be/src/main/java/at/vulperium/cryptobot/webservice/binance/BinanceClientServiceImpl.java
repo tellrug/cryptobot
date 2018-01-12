@@ -71,9 +71,9 @@ public class BinanceClientServiceImpl implements BinanceClientService {
         }
         else {
             Response response = starteWebServiceCall(requestURL.get(), letztePreiseReq.get());
-            Response.StatusType status = response.getStatusInfo().toEnum();
+            //Response.StatusType status = response.getStatusInfo().toEnum();
             responseText = response.readEntity(String.class);
-            logger.info("WebService-Aufruf 'letztePreise'. Antwort={}, Status={}", responseText, status.toEnum().name());
+            logger.info("WebService-Aufruf 'letztePreise'. Antwort={}, Status={}", responseText, response.getStatusInfo().toString());
         }
 
         //Umwandeln in ein JSONArray

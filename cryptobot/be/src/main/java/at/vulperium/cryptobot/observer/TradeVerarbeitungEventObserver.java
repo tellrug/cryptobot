@@ -29,8 +29,8 @@ public class TradeVerarbeitungEventObserver {
         //TODO Abspeichern von Information der zueletzt angestossenen Verarbeitung
 
         //Verarbeiten der offenen Tradeaufgaben
-        //tradeJobVerwaltungService.verarbeiteTradeAufgaben();
-        List<CryptoWaehrungKurzDTO> cL =cryptoWaehrungService.holeAlleCryptoWaehrungen();
-        logger.info("Anzahl der CRYPTOWAEHRUNGEN = {}", cL.size());
+        tradeJobVerwaltungService.verarbeiteTradeAufgaben();
+        //List<CryptoWaehrungKurzDTO> cL =cryptoWaehrungService.holeAlleCryptoWaehrungen();
+        //logger.info("Anzahl der CRYPTOWAEHRUNGEN = {}", cL.size());
     }
 }

@@ -60,8 +60,7 @@ public class TimerJobScheduler {
     public void timeout(Timer timer) {
         //Feuern eines Events zum starten der Verarbeitung
         TradeVerarbeitungEvent tradeVerarbeitung = new TradeVerarbeitungEvent(false, LocalDateTime.now());
-        //TODO wieder aktivieren!
-        //tradeVerarbeitungEvent.fire(tradeVerarbeitung);
+        tradeVerarbeitungEvent.fire(tradeVerarbeitung);
 
         //Erneutes starten des Timers
         startTimer();
