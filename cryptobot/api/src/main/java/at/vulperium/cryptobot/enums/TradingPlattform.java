@@ -4,14 +4,16 @@ package at.vulperium.cryptobot.enums;
  * Created by Ace on 24.12.2017.
  */
 public enum TradingPlattform {
-    ALLE("ALLE"),
-    BINANCE ("BIC");
+    ALLE("ALLE", null),
+    BINANCE ("BIC", "icons/bnb.svg");
 
-    TradingPlattform(String code) {
+    TradingPlattform(String code, String iconRes) {
+        this.iconRes = iconRes;
         this.code = code;
     }
 
     private String code;
+    private String iconRes;
 
     public String getCode() {
         return code;
@@ -25,5 +27,9 @@ public enum TradingPlattform {
         }
 
         return null;
+    }
+
+    public String getIconRes() {
+        return iconRes;
     }
 }

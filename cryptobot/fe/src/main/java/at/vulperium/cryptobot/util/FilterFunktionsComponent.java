@@ -1,9 +1,7 @@
 package at.vulperium.cryptobot.util;
 
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
-import at.vulperium.cryptobot.tradejobs.TradeJobBearbeitenWindow;
-import at.vulperium.cryptobot.tradejobs.vo.TradeJobVO;
 import com.vaadin.data.HasValue;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.MarginInfo;
@@ -15,9 +13,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 
 import java.util.Arrays;
 
@@ -28,7 +24,7 @@ public class FilterFunktionsComponent extends HorizontalLayout {
 
     private NativeButton addButton;
     private TextField filterTextField;
-    private ComboBox<TradeStatusTyp> tradeStatusTypComboBox;
+    private ComboBox<TradeTyp> tradeStatusTypComboBox;
     private ComboBox<TradingPlattform> tradingPlattformComboBox;
 
     public FilterFunktionsComponent() {
@@ -87,7 +83,7 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         tradeStatusTypComboBox = new ComboBox<>();
         tradeStatusTypComboBox.setPlaceholder("Kategorie");
         tradeStatusTypComboBox.setEmptySelectionAllowed(true);
-        tradeStatusTypComboBox.setItems(Arrays.asList(TradeStatusTyp.values()));
+        tradeStatusTypComboBox.setItems(Arrays.asList(TradeTyp.values()));
 
         middleLayout.addComponent(tradingPlattformComboBox);
         middleLayout.addComponent(tradeStatusTypComboBox);
@@ -111,7 +107,7 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         tradingPlattformComboBox.addValueChangeListener(valueChangeListener);
     }
 
-    public void addTradeStatusTypValueChangeListener(HasValue.ValueChangeListener<TradeStatusTyp> valueChangeListener) {
+    public void addTradeStatusTypValueChangeListener(HasValue.ValueChangeListener<TradeTyp> valueChangeListener) {
         tradeStatusTypComboBox.addValueChangeListener(valueChangeListener);
     }
 
@@ -119,7 +115,7 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         return tradingPlattformComboBox.getValue();
     }
 
-    public TradeStatusTyp getSelectedTradeStatusTyp() {
+    public TradeTyp getSelectedTradeStatusTyp() {
         return tradeStatusTypComboBox.getValue();
     }
 }

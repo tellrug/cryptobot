@@ -1,6 +1,6 @@
 package at.vulperium.cryptobot.tradejobs.vo;
 
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 
 import java.io.Serializable;
@@ -11,14 +11,14 @@ import java.io.Serializable;
 public class FilterVO implements Serializable {
 
     private TradingPlattform tradingPlattform;
-    private TradeStatusTyp tradeStatusTyp;
+    private TradeTyp tradeTyp;
 
-    public TradeStatusTyp getTradeStatusTyp() {
-        return tradeStatusTyp;
+    public TradeTyp getTradeTyp() {
+        return tradeTyp;
     }
 
-    public void setTradeStatusTyp(TradeStatusTyp tradeStatusTyp) {
-        this.tradeStatusTyp = tradeStatusTyp;
+    public void setTradeTyp(TradeTyp tradeTyp) {
+        this.tradeTyp = tradeTyp;
     }
 
     public TradingPlattform getTradingPlattform() {

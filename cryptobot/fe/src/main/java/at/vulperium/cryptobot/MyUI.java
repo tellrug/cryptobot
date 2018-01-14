@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot;
 
-import at.vulperium.cryptobot.dtos.CryptoWaehrungKurzDTO;
-import at.vulperium.cryptobot.services.CryptoWaehrungService;
+import at.vulperium.cryptobot.dtos.WaehrungKurzDTO;
+import at.vulperium.cryptobot.services.WaehrungService;
 import com.vaadin.annotations.Theme;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.server.VaadinRequest;
@@ -25,7 +25,7 @@ import java.util.List;
 @Theme("valo")
 public class MyUI extends UI {
 
-    private @Inject CryptoWaehrungService cryptoWaehrungService;
+    private @Inject WaehrungService waehrungService;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -36,20 +36,10 @@ public class MyUI extends UI {
 
         Button button = new Button("Click Me");
         button.addClickListener(e -> {
-            List<CryptoWaehrungKurzDTO> c = cryptoWaehrungService.holeAlleCryptoWaehrungen();
-            layout.addComponent(new Label("Thanks " + c.size()
-                    + ", it works!"));
         });
         
         layout.addComponents(name, button);
         
         setContent(layout);
     }
-
-    /*
-    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
-    public static class MyUIServlet extends VaadinServlet {
-    }
-    */
 }

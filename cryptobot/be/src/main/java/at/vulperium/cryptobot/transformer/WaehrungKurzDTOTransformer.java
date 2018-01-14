@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot.transformer;
 
-import at.vulperium.cryptobot.dtos.CryptoWaehrungKurzDTO;
-import at.vulperium.cryptobot.entities.CryptoWaehrung;
+import at.vulperium.cryptobot.dtos.WaehrungKurzDTO;
+import at.vulperium.cryptobot.entities.Waehrung;
 import at.vulperium.cryptobot.services.TransformBothDirections;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,20 +10,20 @@ import javax.enterprise.context.ApplicationScoped;
  * Created by Ace on 26.12.2017.
  */
 @ApplicationScoped
-public class CryptoWaehrungKurzDTOTransformer implements TransformBothDirections<CryptoWaehrung, CryptoWaehrungKurzDTO> {
+public class WaehrungKurzDTOTransformer implements TransformBothDirections<Waehrung, WaehrungKurzDTO> {
 
     @Override
-    public CryptoWaehrung transformInverse(CryptoWaehrungKurzDTO source) {
-        return transformInverse(source, new CryptoWaehrung());
+    public Waehrung transformInverse(WaehrungKurzDTO source) {
+        return transformInverse(source, new Waehrung());
     }
 
     @Override
-    public CryptoWaehrungKurzDTO transform(CryptoWaehrung source) {
-        return transform(source, new CryptoWaehrungKurzDTO());
+    public WaehrungKurzDTO transform(Waehrung source) {
+        return transform(source, new WaehrungKurzDTO());
     }
 
     @Override
-    public CryptoWaehrung transformInverse(CryptoWaehrungKurzDTO source, CryptoWaehrung target) {
+    public Waehrung transformInverse(WaehrungKurzDTO source, Waehrung target) {
 
         target.setBezeichnung(source.getBezeichnung());
         target.setKurzbezeichnung(source.getKurzbezeichnung());
@@ -33,7 +33,7 @@ public class CryptoWaehrungKurzDTOTransformer implements TransformBothDirections
     }
 
     @Override
-    public CryptoWaehrungKurzDTO transform(CryptoWaehrung source, CryptoWaehrungKurzDTO target) {
+    public WaehrungKurzDTO transform(Waehrung source, WaehrungKurzDTO target) {
 
         target.setId(source.getId());
         target.setBezeichnung(source.getBezeichnung());

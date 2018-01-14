@@ -1,8 +1,8 @@
-package at.vulperium.cryptobot.services;
+package at.vulperium.cryptobot.services.jobs;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
 import at.vulperium.cryptobot.entities.TradeJob;
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.transformer.TradeJobDTOTransformer;
 import org.apache.commons.lang.Validate;
@@ -42,10 +42,10 @@ public class TradeJobServiceImpl implements TradeJobService {
     }
 
     @Override
-    public List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeStatusTyp tradeStatusTyp) {
+    public List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeTyp tradeTyp) {
         Validate.notNull(tradeJobDTOList, "tradeJobDTOList ist null.");
-        Validate.notNull(tradeStatusTyp, "tradeStatusTyp ist null.");
-        return tradeJobDTOList.stream().filter(e -> e.getTradeJobStatus().getTradeStatusTyp() == tradeStatusTyp).collect(Collectors.toList());
+        Validate.notNull(tradeTyp, "tradeTyp ist null.");
+        return tradeJobDTOList.stream().filter(e -> e.getTradeAktionEnum().getTradeTyp() == tradeTyp).collect(Collectors.toList());
     }
 
     @Override

@@ -1,44 +1,35 @@
 package at.vulperium.cryptobot.transformer;
 
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.entities.TradeJob;
+import at.vulperium.cryptobot.dtos.AbstractTradeJobDTO;
+import at.vulperium.cryptobot.entities.AbstractTradeJob;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
-import at.vulperium.cryptobot.enums.TradeJobTyp;
 import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.services.TransformBothDirections;
 import org.joda.time.LocalDateTime;
 
-import javax.enterprise.context.ApplicationScoped;
-
 /**
- * Created by Ace on 26.12.2017.
+ * Created by 02ub0400 on 12.01.2018.
  */
-@ApplicationScoped
-public class TradeJobDTOTransformer implements TransformBothDirections<TradeJob, TradeJobDTO> {
+public abstract class AbstractTradeJobDTOTransformer<K extends AbstractTradeJob, H extends AbstractTradeJobDTO> implements TransformBothDirections<K, H> {
 
     @Override
-    public TradeJob transformInverse(TradeJobDTO source) {
-        return transformInverse(source, new TradeJob());
+    public K transformInverse(H source) {
+        throw new RuntimeException("Fehler bei Aufruf von abstrakten Transformer.");
     }
 
     @Override
-    public TradeJobDTO transform(TradeJob source) {
-        return transform(source, new TradeJobDTO());
-    }
-
-    @Override
-    public TradeJob transformInverse(TradeJobDTO source, TradeJob target) {
+    public K transformInverse(H source, K target) {
 
         target.setCryptoWaehrung(source.getCryptoWaehrung());
         target.setErstelltAm(source.getErstelltAm().toDate());
-        target.setErledigtAm(source.getErledigtAm() == null ?  null : source.getErledigtAm().toDate());
+        target.setErledigtAm(source.getErledigtAm() == null ? null : source.getErledigtAm().toDate());
         target.setMenge(source.getMenge());
         target.setKaufwert(source.getKaufwert());
         target.setLetztwert(source.getLetztwert());
         target.setZielwert(source.getZielwert());
         target.setReferenzCryptoWaehrung(source.getCryptoWaehrungReferenz());
-        target.setJobstatus(source.getTradeAktionEnum().getCode());
+        target.setTradeAktion(source.getTradeAktionEnum().getCode());
         target.setTradestatus(source.getTradeStatus().name());
         target.setTradingplattform(source.getTradingPlattform().getCode());
 
@@ -46,7 +37,12 @@ public class TradeJobDTOTransformer implements TransformBothDirections<TradeJob,
     }
 
     @Override
-    public TradeJobDTO transform(TradeJob source, TradeJobDTO target) {
+    public H transform(K source) {
+        throw new RuntimeException("Fehler bei Aufruf von abstrakten Transformer.");
+    }
+
+    @Override
+    public H transform(K source, H target) {
 
         target.setId(source.getId());
         target.setCryptoWaehrung(source.getCryptoWaehrung());
@@ -57,11 +53,10 @@ public class TradeJobDTOTransformer implements TransformBothDirections<TradeJob,
         target.setLetztwert(source.getLetztwert());
         target.setZielwert(source.getZielwert());
         target.setCryptoWaehrungReferenz(source.getReferenzCryptoWaehrung());
-        target.setTradeAktionEnum(TradeAktionEnum.getByCode(source.getJobstatus()));
+        target.setTradeAktionEnum(TradeAktionEnum.getByCode(source.getTradeAktion()));
         target.setTradeStatus(TradeStatus.valueOf(source.getTradestatus()));
         target.setTradingPlattform(TradingPlattform.getByCode(source.getTradingplattform()));
 
-        target.setTradeJobTyp(TradeJobTyp.SIMPEL);
         return target;
     }
 }

@@ -1,6 +1,7 @@
 package at.vulperium.cryptobot.util;
 
-import at.vulperium.cryptobot.enums.TradeJobStatus;
+import at.vulperium.cryptobot.enums.TradeAktionEnum;
+import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.Trend;
 import com.vaadin.icons.VaadinIcons;
 import org.joda.time.LocalDateTime;
@@ -96,22 +97,47 @@ public class ViewUtils {
     }
 
 
-    public static String transformTradeJobStatus(TradeJobStatus tradeJobStatus) {
-        switch (tradeJobStatus) {
-            case KAUF_ZIEL:
+    public static String transformTradeAktionUndStatusToIcon(TradeAktionEnum tradeAktionEnum, TradeStatus tradeStatus) {
+
+        String aktionIcon = transformTradeAktionToIcon(tradeAktionEnum);
+        String statusIcon = transformTradeStatusToIcon(tradeStatus);
+
+        if (statusIcon == null) {
+            return aktionIcon;
+        }
+        return aktionIcon + ABSTAND + statusIcon;
+    }
+
+
+    public static String transformTradeAktionToIcon(TradeAktionEnum tradeAktionEnum) {
+        switch (tradeAktionEnum) {
+            case ORDER_KAUF:
                 return VaadinIcons.MONEY_DEPOSIT.getHtml();
-            case KAUF_ZIEL_ERREICHT:
-                return VaadinIcons.MONEY_DEPOSIT.getHtml() + ABSTAND + VaadinIcons.CHECK_CIRCLE.getHtml();
-            case KAUF_FEHLER:
-                return VaadinIcons.MONEY_DEPOSIT.getHtml() + ABSTAND + VaadinIcons.CLOSE.getHtml();
-            case VERKAUF_ZIEL:
+            case KAUF_ZIEL:
+                return VaadinIcons.ARROW_CIRCLE_UP.getHtml();
+            case ORDER_VERKAUF:
                 return VaadinIcons.MONEY_WITHDRAW.getHtml();
-            case VERKAUF_ZIEL_ERREICHT:
-                return VaadinIcons.MONEY_WITHDRAW.getHtml() + ABSTAND + VaadinIcons.CHECK_CIRCLE.getHtml();
-            case VERKAUF_FEHLER:
-                return VaadinIcons.MONEY_WITHDRAW.getHtml() + ABSTAND + VaadinIcons.CLOSE.getHtml();
+            case VERKAUF_ZIEL:
+                return VaadinIcons.ARROW_CIRCLE_DOWN.getHtml();
         }
 
-        throw new IllegalArgumentException("Fehlerhafter TradeJobStatus vorhanden");
+        throw new IllegalArgumentException("Fehlerhafte TradeAktion vorhanden: " + tradeAktionEnum);
+    }
+
+    public static String transformTradeStatusToIcon(TradeStatus tradeStatus) {
+        switch (tradeStatus) {
+            case ERSTELLT:
+                return null;
+            case BEOBACHTUNG:
+                return VaadinIcons.EYE.getHtml();
+            case ABGESCHLOSSEN:
+                return VaadinIcons.CHECK_CIRCLE.getHtml();
+            case FOLGE_AKTION:
+                return VaadinIcons.ARROW_CIRCLE_RIGHT.getHtml();
+            case FEHLER:
+                return VaadinIcons.CLOSE.getHtml();
+        }
+
+        throw new IllegalArgumentException("Fehlerhafter TradeStatus vorhanden: " + tradeStatus);
     }
 }

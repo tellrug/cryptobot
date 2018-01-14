@@ -66,14 +66,14 @@ public class BinanceClientServiceImpl implements BinanceClientService {
             responseText = "[{\"symbol\": \"LTCBTC\",\"price\": \"4.00000200\"},{\"symbol\": \"ETHBTC\",\"price\": \"0.07946600\"}," +
                     "{\"symbol\": \"VK1BTC\",\"price\": \"0.0081\"}," +
                     "{\"symbol\": \"VK2BTC\",\"price\": \"0.010\"}," +
-                    "{\"symbol\": \"K1BTC\",\"price\": \"0.0039\"}]";
+                    "{\"symbol\": \"K1BTC\",\"price\": \"0.0029\"}]";
             logger.warn("Test-Modus ist aktiv: Kein WebService-Aufruf. Antwort: {}", responseText);
         }
         else {
             Response response = starteWebServiceCall(requestURL.get(), letztePreiseReq.get());
-            //Response.StatusType status = response.getStatusInfo().toEnum();
+            Response.StatusType status = response.getStatusInfo().toEnum();
             responseText = response.readEntity(String.class);
-            logger.info("WebService-Aufruf 'letztePreise'. Antwort={}, Status={}", responseText, response.getStatusInfo().toString());
+            logger.info("WebService-Aufruf 'letztePreise'. Antwort={}, Status={}", responseText, status.toEnum().name());
         }
 
         //Umwandeln in ein JSONArray
@@ -91,11 +91,24 @@ public class BinanceClientServiceImpl implements BinanceClientService {
         return wsCryptoCoinDTOList;
     }
 
+    public void ermittleInformationenZuSymbol(String symbolPair) {
+        String requestUrl = "https://api.binance.com/api/v1";
+
+        String responseText;
+        String methode = "/ticker/24hr";
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target(requestUrl);
+        Response response = webTarget.path(methode).queryParam("symbol", "symbolPair").request(MediaType.TEXT_PLAIN).get();
+        Response.StatusType status = response.getStatusInfo().toEnum();
+        responseText = response.readEntity(String.class);
+        logger.info("WebService-Aufruf 'letztePreise'. Antwort={}, Status={}", responseText, status.toEnum().name());
+    }
+
 
     private Response starteWebServiceCall(String requestUrl, String methode) {
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client.target(requestUrl);
-        Response response = webTarget.path(methode).request(MediaType.TEXT_PLAIN).get();
+        Response response = webTarget.path(methode).queryParam("symbol", "LTCBTC").request(MediaType.TEXT_PLAIN).get();
         return response;
     }
 

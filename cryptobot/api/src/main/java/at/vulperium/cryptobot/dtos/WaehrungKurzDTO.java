@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Simple Ausfuehrung eines WaherungsDTOs
  */
-public class CryptoWaehrungKurzDTO implements Serializable {
+public class WaehrungKurzDTO implements Serializable {
 
     private Long id;
     private String bezeichnung;

@@ -1,8 +1,8 @@
 package at.vulperium.cryptobot.tradejobs.service;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.enums.TradeJobStatus;
-import at.vulperium.cryptobot.services.TradeJobService;
+import at.vulperium.cryptobot.enums.TradeAktionEnum;
+import at.vulperium.cryptobot.services.jobs.TradeJobService;
 import at.vulperium.cryptobot.tradejobs.vo.TradeJobVO;
 import org.joda.time.LocalDateTime;
 
@@ -45,8 +45,8 @@ public class TradeJobViewService {
             return false;
         }
 
-        if (tradeJobVO.getTradeJobDTO().getTradeJobStatus() == TradeJobStatus.KAUF_ZIEL ||
-                tradeJobVO.getTradeJobDTO().getTradeJobStatus() == TradeJobStatus.VERKAUF_ZIEL) {
+        if (tradeJobVO.getTradeJobDTO().getTradeAktionEnum() == TradeAktionEnum.KAUF_ZIEL ||
+                tradeJobVO.getTradeJobDTO().getTradeAktionEnum() == TradeAktionEnum.VERKAUF_ZIEL) {
             tradeJobVO.getTradeJobDTO().setErledigtAm(null);
         }
         else {

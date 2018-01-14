@@ -1,9 +1,9 @@
 package at.vulperium.cryptobot.tradejobs;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.enums.TradeBasisStatus;
-import at.vulperium.cryptobot.enums.TradeJobStatus;
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeAktionEnum;
+import at.vulperium.cryptobot.enums.TradeStatus;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.messagebundles.UtilityMessages;
 import at.vulperium.cryptobot.base.components.ComponentProducer;
@@ -65,7 +65,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
         this.bearbeitungsModus = false;
         this.tradeJobVO = new TradeJobVO(new TradeJobDTO());
 
-        tradeJobVO.getTradeJobDTO().setTradeBasisStatus(TradeBasisStatus.ERSTELLT);
+        tradeJobVO.getTradeJobDTO().setTradeStatus(TradeStatus.ERSTELLT);
         initWindow();
     }
 
@@ -158,13 +158,13 @@ public class TradeJobBearbeitenWindow implements Serializable {
         Label labelJobStatus = new Label(VaadinIcons.CLIPBOARD_PULSE.getHtml() + " <strong>Job-Status</strong>");
         labelJobStatus.setContentMode(ContentMode.HTML);
 
-        ComboBox<TradeJobStatus> tradeJobStatusCombobox = new ComboBox<>();
+        ComboBox<TradeAktionEnum> tradeJobStatusCombobox = new ComboBox<>();
         tradeJobStatusCombobox.setWidth(100f, Sizeable.Unit.PERCENTAGE);
         tradeJobStatusCombobox.setEmptySelectionAllowed(false);
 
         //setzen der richtigen Items
         tradeJobStatusCombobox.setItems(ermittleRelevanteTradeJobStatusList());
-        requestBinder.forField(tradeJobStatusCombobox).bind(TradeJobDTO::getTradeJobStatus, TradeJobDTO::setTradeJobStatus);
+        requestBinder.forField(tradeJobStatusCombobox).bind(TradeJobDTO::getTradeAktionEnum, TradeJobDTO::setTradeAktionEnum);
 
 
         neuerRequestLayout.addComponent(labelJobStatus, 0, 4);
@@ -372,17 +372,17 @@ public class TradeJobBearbeitenWindow implements Serializable {
         return h;
     }
 
-    private List<TradeJobStatus> ermittleRelevanteTradeJobStatusList() {
-        List<TradeJobStatus> tradeJobStatusList = new ArrayList<>();
+    private List<TradeAktionEnum> ermittleRelevanteTradeJobStatusList() {
+        List<TradeAktionEnum> tradeAktionEnumList = new ArrayList<>();
         if (bearbeitungsModus) {
-            TradeStatusTyp tradeStatusTyp = tradeJobVO.getTradeJobDTO().getTradeJobStatus().getTradeStatusTyp();
-            tradeJobStatusList.addAll(TradeJobStatus.getByTradeStatusTyp(tradeStatusTyp));
+            TradeTyp tradeTyp = tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getTradeTyp();
+            tradeAktionEnumList.addAll(TradeAktionEnum.getByTradeTyp(tradeTyp));
         }
         else {
-            tradeJobStatusList.add(TradeJobStatus.KAUF_ZIEL);
-            tradeJobStatusList.add(TradeJobStatus.VERKAUF_ZIEL);
+            tradeAktionEnumList.add(TradeAktionEnum.KAUF_ZIEL);
+            tradeAktionEnumList.add(TradeAktionEnum.VERKAUF_ZIEL);
         }
-        return tradeJobStatusList;
+        return tradeAktionEnumList;
     }
 
     private List<TradingPlattform> ermittleRelevanteTradingPlattformList() {

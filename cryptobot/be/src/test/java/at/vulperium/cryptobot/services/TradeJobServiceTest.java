@@ -1,11 +1,13 @@
 package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.ContainerTest;
-import at.vulperium.cryptobot.testdatahelper.TradeJobTestDataHelper;
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeAktionEnum;
+import at.vulperium.cryptobot.enums.TradeStatus;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
-import org.joda.time.LocalDateTime;
+import at.vulperium.cryptobot.services.jobs.TradeJobService;
+import at.vulperium.cryptobot.testdatahelper.TradeJobTestDataHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -23,7 +25,7 @@ public class TradeJobServiceTest extends ContainerTest {
 
     @Test
     public void testSpeichereTradeJob() {
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeTradeJobDTOVerkauf();
+        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
         Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
         cleanInstances();
 
@@ -33,7 +35,7 @@ public class TradeJobServiceTest extends ContainerTest {
 
     @Test
     public void testHoleAlleTradeJobs() {
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeTradeJobDTOVerkauf();
+        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
         Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
@@ -48,11 +50,9 @@ public class TradeJobServiceTest extends ContainerTest {
 
     @Test
     public void testFilterTradeJobs() {
-        TradeJobDTO verkaufTradeJobDTO = tradeJobTestDataHelper.erzeugeTradeJobDTOVerkauf(true);
-        verkaufTradeJobDTO.setErledigtAm(LocalDateTime.now());
+        TradeJobDTO verkaufTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
 
-        TradeJobDTO kaufTradeJobDTO = tradeJobTestDataHelper.erzeugeTradeJobDTOKauf(false);
-
+        TradeJobDTO kaufTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.KAUF_ZIEL, TradeStatus.ERSTELLT);
         Long verkaufId = tradeJobService.speichereTradeJob(verkaufTradeJobDTO);
         Long kaufId = tradeJobService.speichereTradeJob(kaufTradeJobDTO);
         cleanInstances();
@@ -64,13 +64,13 @@ public class TradeJobServiceTest extends ContainerTest {
         Assert.assertTrue(!alleTradeJobDTOList.isEmpty());
 
         //Filtern nach TradeStatusTyp
-        List<TradeJobDTO> kaufTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradeStatusTyp.KAUF);
+        List<TradeJobDTO> kaufTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradeTyp.KAUF);
         boolean checked = checkListNachId(kaufId, kaufTradejobDTOList);
         Assert.assertTrue(checked);
         checked = checkListNachId(verkaufId, kaufTradejobDTOList);
         Assert.assertFalse(checked);
 
-        List<TradeJobDTO> verkaufTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradeStatusTyp.VERKAUF);
+        List<TradeJobDTO> verkaufTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradeTyp.VERKAUF);
         checked = checkListNachId(kaufId, verkaufTradejobDTOList);
         Assert.assertFalse(checked);
         checked = checkListNachId(verkaufId, verkaufTradejobDTOList);
@@ -105,7 +105,7 @@ public class TradeJobServiceTest extends ContainerTest {
 
     @Test
     public void testErledigeTradeJob() {
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeTradeJobDTOVerkauf();
+        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
         Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);

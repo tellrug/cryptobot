@@ -4,6 +4,8 @@ import at.vulperium.cryptobot.ContainerTest;
 import at.vulperium.cryptobot.config.ConfigValue;
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
 import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
+import at.vulperium.cryptobot.enums.TradeAktionEnum;
+import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.testdatahelper.TradeJobTestDataHelper;
 import org.testng.Assert;
@@ -12,7 +14,6 @@ import org.testng.annotations.Test;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Ace on 07.01.2018.
@@ -60,8 +61,8 @@ public class MailServiceTest extends ContainerTest {
         ConfigValue mailEmpfaenger = new ConfigValue("mailEmpfaenger");
         Assert.assertNotEquals(mailEmpfaenger.get(), "test@mail.com");
 
-        TradeJobDTO tj1 = tradeJobTestDataHelper.erzeugeTradeJobDTOVerkauf(true);
-        TradeJobDTO tj2 = tradeJobTestDataHelper.erzeugeTradeJobDTOKauf(true);
+        TradeJobDTO tj1 = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
+        TradeJobDTO tj2 = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.KAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
 
         List<TradeJobDTO> tradeJobDTOList = new ArrayList<>();
         tradeJobDTOList.add(tj1);

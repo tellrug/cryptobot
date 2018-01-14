@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot.tradejobs;
 
 import at.vulperium.cryptobot.base.components.ComponentProducer;
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.tradejobs.service.TradeJobViewService;
 import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
@@ -116,15 +116,15 @@ public class TradeJobComponent extends VerticalLayout {
         filterFunktionsComponent.addTradingPlattformValueChangeListener((HasValue.ValueChangeListener<TradingPlattform>) valueChangeEvent -> {
             FilterVO filterVO = new FilterVO();
             filterVO.setTradingPlattform(valueChangeEvent.getValue());
-            filterVO.setTradeStatusTyp(filterFunktionsComponent.getSelectedTradeStatusTyp());
+            filterVO.setTradeTyp(filterFunktionsComponent.getSelectedTradeStatusTyp());
             filterTradeJobs(filterVO);
         });
 
-        //TradeStatusTyp Filter-Funktion
-        filterFunktionsComponent.addTradeStatusTypValueChangeListener((HasValue.ValueChangeListener<TradeStatusTyp>) valueChangeEvent -> {
+        //TradeTyp Filter-Funktion
+        filterFunktionsComponent.addTradeStatusTypValueChangeListener((HasValue.ValueChangeListener<TradeTyp>) valueChangeEvent -> {
             FilterVO filterVO = new FilterVO();
             filterVO.setTradingPlattform(filterFunktionsComponent.getSelectedTradingPlattform());
-            filterVO.setTradeStatusTyp(valueChangeEvent.getValue());
+            filterVO.setTradeTyp(valueChangeEvent.getValue());
             filterTradeJobs(filterVO);
         });
 
@@ -163,7 +163,7 @@ public class TradeJobComponent extends VerticalLayout {
 
         //KAUFWERT & ZIELWERT
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String bezAktuellerWert = tradeJobVO.getTradeJobDTO().getTradeJobStatus().getTradeStatusTyp() == TradeStatusTyp.KAUF ? "Ausgang" : "Kauf";
+            String bezAktuellerWert = tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF ? "Ausgang" : "Kauf";
             String referenz = tradeJobVO.getTradeJobDTO().getCryptoWaehrungReferenz();
             String text =
                     ViewUtils.formatWertInfo(bezAktuellerWert, tradeJobVO.getTradeJobDTO().getKaufwert(), referenz, "Ziel", tradeJobVO.getTradeJobDTO().getZielwert(), referenz);
@@ -194,10 +194,10 @@ public class TradeJobComponent extends VerticalLayout {
 
         //STATUS
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String text = ViewUtils.transformTradeJobStatus(tradeJobVO.getTradeJobDTO().getTradeJobStatus());
+            String text = ViewUtils.transformTradeAktionUndStatusToIcon(tradeJobVO.getTradeJobDTO().getTradeAktionEnum(), tradeJobVO.getTradeJobDTO().getTradeStatus());
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName(CryptoStyles.XLARGE_STATUS_ICON);
-            label.setDescription(tradeJobVO.getTradeJobDTO().getTradeJobStatus().getAnzeigetext());
+            label.setDescription(tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getAnzeigetext());
             return label;
         }).setCaption("Status").setResizable(false).setStyleGenerator(item -> "v-align-center").setWidth(150);
 
@@ -290,9 +290,9 @@ public class TradeJobComponent extends VerticalLayout {
         }
 
         //Nach TradeTyp filtern
-        if (filterVO.getTradeStatusTyp() != null) {
-            dataProvider.setFilter((ValueProvider<TradeJobVO, TradeStatusTyp>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getTradeJobStatus().getTradeStatusTyp(),
-                    tj -> tj == filterVO.getTradeStatusTyp());
+        if (filterVO.getTradeTyp() != null) {
+            dataProvider.setFilter((ValueProvider<TradeJobVO, TradeTyp>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getTradeTyp(),
+                    tj -> tj == filterVO.getTradeTyp());
         }
     }
 }

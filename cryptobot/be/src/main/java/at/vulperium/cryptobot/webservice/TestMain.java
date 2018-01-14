@@ -6,6 +6,6 @@ public class TestMain {
 
     public static void main( String[] args ) {
         BinanceClientServiceImpl binanceClientService = new BinanceClientServiceImpl();
-        binanceClientService.ermittleLetztePreise();
+        binanceClientService.ermittleInformationenZuSymbol("LTCBTC");
     }
 }

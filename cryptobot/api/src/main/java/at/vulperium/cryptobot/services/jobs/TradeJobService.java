@@ -1,7 +1,7 @@
-package at.vulperium.cryptobot.services;
+package at.vulperium.cryptobot.services.jobs;
 
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public interface TradeJobService {
 
     List<TradeJobDTO> holeAlleTradeJobs();
 
-    List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeStatusTyp tradeStatusTyp);
+    List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeTyp tradeTyp);
 
     List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, boolean erledigt);
 

@@ -5,6 +5,8 @@ package at.vulperium.cryptobot.enums;
  */
 public enum TradeJobReaktion {
     WARTEN,
+    FOLGE_AKTION,
+    BENACHRICHTIGUNG,
     NEUER_TRADESTATUS;
 
 }

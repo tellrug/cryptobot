@@ -2,15 +2,13 @@ package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.config.ConfigValue;
 import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.entities.TradeJob;
 import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
-import at.vulperium.cryptobot.enums.TradeStatusTyp;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.Validate;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -87,7 +85,7 @@ public class BenachrichtigungServiceImpl implements BenachrichtigungService {
                 .append(reportBetreff.get())                                            //Betreff-Prefix
                 .append(tradeJobDTO.getCryptoWaehrung())                                //Coin
                 .append(" ")
-                .append(tradeJobDTO.getTradeJobStatus().name())                         //Ereignis
+                .append(tradeJobDTO.getTradeAktionEnum().name())                         //Ereignis
                 .append(" - ")
                 .append(tradeJobDTO.getTradingPlattform().name());                      //Trading-Plattform
 
@@ -98,14 +96,14 @@ public class BenachrichtigungServiceImpl implements BenachrichtigungService {
     public String erstelleBenachrichtigungsText(TradeJobDTO tradeJobDTO) {
 
         String tradeAktionInformation;
-        if (tradeJobDTO.getTradeJobStatus().getTradeStatusTyp() == TradeStatusTyp.KAUF) {
+        if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF) {
             tradeAktionInformation = erstelleKaufBenachrichtigungsText(tradeJobDTO);
         }
-        else if (tradeJobDTO.getTradeJobStatus().getTradeStatusTyp() == TradeStatusTyp.VERKAUF) {
+        else if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.VERKAUF) {
             tradeAktionInformation = erstelleVerkaufBenachrichtigungsText(tradeJobDTO);
         }
         else {
-            throw new IllegalStateException("Fehlerhafter TradeStatusTyp= " + tradeJobDTO.getTradeJobStatus().getTradeStatusTyp() + " bei TradeJob=" + tradeJobDTO.getId());
+            throw new IllegalStateException("Fehlerhafter TradeTyp= " + tradeJobDTO.getTradeAktionEnum().getTradeTyp() + " bei TradeJob=" + tradeJobDTO.getId());
         }
 
         StringBuilder stringBuilder = new StringBuilder();
