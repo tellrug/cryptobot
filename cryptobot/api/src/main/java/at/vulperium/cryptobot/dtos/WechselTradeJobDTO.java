@@ -16,10 +16,10 @@ public class WechselTradeJobDTO extends AbstractTradeJobDTO implements Serializa
 
     //Kaufen
     private BigDecimal kaufwertGrenze;       //ueber diese Grenze darf nicht gekauft werden
-    private BigDecimal mengeReferenzwert;   //wieviel darf von der Referenzwaehung ausgegeben werden
+    private BigDecimal mengeReferenzwert;   //wieviel darf von der Referenzwaehrung ausgegeben werden
 
     //Verkauf
-    private boolean ganzzahligerVerkauf;    //gibt an ob nur ganzze Waehrungseinheiten verkauft werden koennen -> wird nachher in WaehrungDTO aufgenommen
+    //private boolean ganzzahligerVerkauf;    //gibt an ob nur ganzze Waehrungseinheiten verkauft werden koennen -> wird nachher in WaehrungDTO aufgenommen
     private BigDecimal minimalZielSatz;     //gibt den minimalen relativen Satz (z.B.: 1.05 -> 5%) an, dererreicht werden soll
     private BigDecimal vorgesehenerVerkaufwert;
 
@@ -57,15 +57,6 @@ public class WechselTradeJobDTO extends AbstractTradeJobDTO implements Serializa
     menge wird auf 0 gesetzt, tradeVersuchAm auf null gesetzt, Status umstellen auf BEOBACHTEN, tradeTyp wird auf KAUF gesetzt --> TradeAktion speichern
     Relevanter Order vorhanden: Verkauf hat nicht funktioniert --> ?????
     */
-
-
-    public boolean isGanzzahligerVerkauf() {
-        return ganzzahligerVerkauf;
-    }
-
-    public void setGanzzahligerVerkauf(boolean ganzzahligerVerkauf) {
-        this.ganzzahligerVerkauf = ganzzahligerVerkauf;
-    }
 
     public BigDecimal getKaufwertGrenze() {
         return kaufwertGrenze;

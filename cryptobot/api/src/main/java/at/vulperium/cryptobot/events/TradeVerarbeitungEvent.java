@@ -1,6 +1,6 @@
 package at.vulperium.cryptobot.events;
 
-import org.joda.time.LocalDateTime;
+import at.vulperium.cryptobot.enums.TimerJobEnum;
 
 import java.io.Serializable;
 
@@ -9,19 +9,25 @@ import java.io.Serializable;
  */
 public class TradeVerarbeitungEvent implements Serializable {
 
-    private LocalDateTime startVerarbeitung;
+    private Long timerjobId;
+    private TimerJobEnum timerJobEnum;
     private boolean manuellerCheck;
 
-    public TradeVerarbeitungEvent(boolean manuellerCheck, LocalDateTime startVerarbeitung) {
+    public TradeVerarbeitungEvent(Long timerJobId, TimerJobEnum timerJobEnum, boolean manuellerCheck) {
+        this.timerjobId = timerJobId;
+        this.timerJobEnum = timerJobEnum;
         this.manuellerCheck = manuellerCheck;
-        this.startVerarbeitung = startVerarbeitung;
     }
 
     public boolean isManuellerCheck() {
         return manuellerCheck;
     }
 
-    public LocalDateTime getStartVerarbeitung() {
-        return startVerarbeitung;
+    public Long getTimerjobId() {
+        return timerjobId;
+    }
+
+    public TimerJobEnum getTimerJobEnum() {
+        return timerJobEnum;
     }
 }

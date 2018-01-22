@@ -1,12 +1,14 @@
 package at.vulperium.cryptobot.entities;
 
 import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
  * Created by 02ub0400 on 12.01.2018.
  */
+@MappedSuperclass
 public abstract class AbstractTradeJob extends BaseEntity<Long> {
 
     @Column(name = "CRYPTOWAEHRUNG", nullable = false, updatable = false)
@@ -18,7 +20,7 @@ public abstract class AbstractTradeJob extends BaseEntity<Long> {
     @Column(name = "ERLEDIGTAM", nullable = true, updatable = true)
     private Date erledigtAm;
 
-    @Column(name = "MENGE", nullable = false, updatable = true)
+    @Column(name = "MENGE", nullable = true, updatable = true)
     private BigDecimal menge;
 
     @Column(name = "KAUFWERT", nullable = false, updatable = true)
@@ -30,10 +32,13 @@ public abstract class AbstractTradeJob extends BaseEntity<Long> {
     @Column(name = "ZIELWERT", nullable = true, updatable = true)
     private BigDecimal zielwert;
 
+    @Column(name = "SPITZENWERT", nullable = true, updatable = true)
+    private BigDecimal spitzenwert;
+
     @Column(name = "CRYPTOWAEHRUNG_REFERENZ", nullable = false, updatable = false)
     private String referenzCryptoWaehrung;
 
-    @Column(name = "AKTION", nullable = false, updatable = false)
+    @Column(name = "AKTION", nullable = false, updatable = true)
     private String tradeAktion;
 
     @Column(name = "TRADE_STATUS", nullable = false, updatable = true)
@@ -41,6 +46,9 @@ public abstract class AbstractTradeJob extends BaseEntity<Long> {
 
     @Column(name = "PLATTFORM", nullable = false, updatable = true)
     private String tradingplattform;
+
+    @Column(name = "GANZ_ZAHLIG", nullable = false, updatable = true)
+    private Boolean ganzZahlig;
 
 
     public String getCryptoWaehrung() {
@@ -81,6 +89,14 @@ public abstract class AbstractTradeJob extends BaseEntity<Long> {
 
     public void setLetztwert(BigDecimal letztwert) {
         this.letztwert = letztwert;
+    }
+
+    public BigDecimal getSpitzenwert() {
+        return spitzenwert;
+    }
+
+    public void setSpitzenwert(BigDecimal spitzenwert) {
+        this.spitzenwert = spitzenwert;
     }
 
     public BigDecimal getMenge() {
@@ -129,5 +145,13 @@ public abstract class AbstractTradeJob extends BaseEntity<Long> {
 
     public void setZielwert(BigDecimal zielwert) {
         this.zielwert = zielwert;
+    }
+
+    public Boolean getGanzZahlig() {
+        return ganzZahlig;
+    }
+
+    public void setGanzZahlig(Boolean ganzZahlig) {
+        this.ganzZahlig = ganzZahlig;
     }
 }

@@ -28,10 +28,12 @@ public abstract class AbstractTradeJobDTOTransformer<K extends AbstractTradeJob,
         target.setKaufwert(source.getKaufwert());
         target.setLetztwert(source.getLetztwert());
         target.setZielwert(source.getZielwert());
+        target.setSpitzenwert(source.getSpitzenwert());
         target.setReferenzCryptoWaehrung(source.getCryptoWaehrungReferenz());
         target.setTradeAktion(source.getTradeAktionEnum().getCode());
         target.setTradestatus(source.getTradeStatus().name());
         target.setTradingplattform(source.getTradingPlattform().getCode());
+        target.setGanzZahlig(source.isGanzZahlig());
 
         return target;
     }
@@ -52,10 +54,12 @@ public abstract class AbstractTradeJobDTOTransformer<K extends AbstractTradeJob,
         target.setKaufwert(source.getKaufwert());
         target.setLetztwert(source.getLetztwert());
         target.setZielwert(source.getZielwert());
+        target.setSpitzenwert(source.getSpitzenwert());
         target.setCryptoWaehrungReferenz(source.getReferenzCryptoWaehrung());
         target.setTradeAktionEnum(TradeAktionEnum.getByCode(source.getTradeAktion()));
         target.setTradeStatus(TradeStatus.valueOf(source.getTradestatus()));
         target.setTradingPlattform(TradingPlattform.getByCode(source.getTradingplattform()));
+        target.setGanzZahlig(source.getGanzZahlig());
 
         return target;
     }

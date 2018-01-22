@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.ContainerTest;
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeStatus;
@@ -28,8 +28,8 @@ public class TradeVerkaufServiceTest extends ContainerTest {
     public void testVerarbeiteVerkaufAktion_zielNichtErreicht_keineAktionDurchfuehren() {
 
         //Offenen Tradejob anlegen
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
 
@@ -39,16 +39,16 @@ public class TradeVerkaufServiceTest extends ContainerTest {
         wsCryptoCoinDTO.setPrice(TradeUtil.getBigDecimal(0.006));
 
 
-        tradeVerkaufService.verarbeiteVerkaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+        tradeVerkaufService.verarbeiteVerkaufAktion(simpelTradeJobDTO, wsCryptoCoinDTO);
         cleanInstances();
 
         //Holen des TradeJobs
-        TradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
+        SimpelTradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
         Assert.assertNotNull(checkTradeJob);
         Assert.assertEquals(checkTradeJob.getLetztwert(), wsCryptoCoinDTO.getPrice());
-        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), tradeJobDTO.getTradeAktionEnum());
-        Assert.assertEquals(checkTradeJob.getErledigtAm(), tradeJobDTO.getErledigtAm());
-        Assert.assertEquals(checkTradeJob.getZielwert(), tradeJobDTO.getZielwert());
+        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), simpelTradeJobDTO.getTradeAktionEnum());
+        Assert.assertEquals(checkTradeJob.getErledigtAm(), simpelTradeJobDTO.getErledigtAm());
+        Assert.assertEquals(checkTradeJob.getZielwert(), simpelTradeJobDTO.getZielwert());
         Assert.assertEquals(checkTradeJob.getTradeStatus(), TradeStatus.ERSTELLT);
     }
 
@@ -56,8 +56,8 @@ public class TradeVerkaufServiceTest extends ContainerTest {
     public void testVerarbeiteVerkaufAktion_zielErreicht_beobachteAufwaertstrend() {
 
         //Offenen Tradejob anlegen
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
 
@@ -67,16 +67,16 @@ public class TradeVerkaufServiceTest extends ContainerTest {
         wsCryptoCoinDTO.setPrice(TradeUtil.getBigDecimal(0.010));
 
 
-        tradeVerkaufService.verarbeiteVerkaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+        tradeVerkaufService.verarbeiteVerkaufAktion(simpelTradeJobDTO, wsCryptoCoinDTO);
         cleanInstances();
 
         //Holen des TradeJobs
-        TradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
+        SimpelTradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
         Assert.assertNotNull(checkTradeJob);
         Assert.assertEquals(checkTradeJob.getLetztwert(), wsCryptoCoinDTO.getPrice());
-        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), tradeJobDTO.getTradeAktionEnum());
-        Assert.assertEquals(checkTradeJob.getErledigtAm(), tradeJobDTO.getErledigtAm());
-        Assert.assertEquals(checkTradeJob.getZielwert(), tradeJobDTO.getZielwert());
+        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), simpelTradeJobDTO.getTradeAktionEnum());
+        Assert.assertEquals(checkTradeJob.getErledigtAm(), simpelTradeJobDTO.getErledigtAm());
+        Assert.assertEquals(checkTradeJob.getZielwert(), simpelTradeJobDTO.getZielwert());
         Assert.assertEquals(checkTradeJob.getTradeStatus(), TradeStatus.BEOBACHTUNG);
 
     }
@@ -85,8 +85,8 @@ public class TradeVerkaufServiceTest extends ContainerTest {
     public void testVerarbeiteVerkaufAktion_zielErreicht_verkaufen() {
 
         //Offenen Tradejob anlegen
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
 
@@ -96,15 +96,15 @@ public class TradeVerkaufServiceTest extends ContainerTest {
         wsCryptoCoinDTO.setPrice(TradeUtil.getBigDecimal(0.008));
 
 
-        tradeVerkaufService.verarbeiteVerkaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+        tradeVerkaufService.verarbeiteVerkaufAktion(simpelTradeJobDTO, wsCryptoCoinDTO);
         cleanInstances();
 
         //Holen des TradeJobs
-        TradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
+        SimpelTradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
         Assert.assertNotNull(checkTradeJob);
         Assert.assertEquals(checkTradeJob.getLetztwert(), wsCryptoCoinDTO.getPrice());
-        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), tradeJobDTO.getTradeAktionEnum());
-        Assert.assertEquals(checkTradeJob.getZielwert(), tradeJobDTO.getZielwert());
+        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), simpelTradeJobDTO.getTradeAktionEnum());
+        Assert.assertEquals(checkTradeJob.getZielwert(), simpelTradeJobDTO.getZielwert());
         Assert.assertEquals(checkTradeJob.getTradeStatus(), TradeStatus.ABGESCHLOSSEN);
         Assert.assertNotNull(checkTradeJob.getErledigtAm());
     }
@@ -113,8 +113,8 @@ public class TradeVerkaufServiceTest extends ContainerTest {
     public void testVerarbeiteVerkaufAktion_nichtVerkaufen() {
 
         //Offenen Tradejob anlegen
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
 
@@ -124,15 +124,15 @@ public class TradeVerkaufServiceTest extends ContainerTest {
         wsCryptoCoinDTO.setPrice(TradeUtil.getBigDecimal(0.0065));
 
 
-        tradeVerkaufService.verarbeiteVerkaufAktion(tradeJobDTO, wsCryptoCoinDTO);
+        tradeVerkaufService.verarbeiteVerkaufAktion(simpelTradeJobDTO, wsCryptoCoinDTO);
         cleanInstances();
 
         //Holen des TradeJobs
-        TradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
+        SimpelTradeJobDTO checkTradeJob = tradeJobService.holeTradeJob(id);
         Assert.assertNotNull(checkTradeJob);
         Assert.assertEquals(checkTradeJob.getLetztwert(), wsCryptoCoinDTO.getPrice());
-        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), tradeJobDTO.getTradeAktionEnum());
-        Assert.assertEquals(checkTradeJob.getZielwert(), tradeJobDTO.getZielwert());
+        Assert.assertEquals(checkTradeJob.getTradeAktionEnum(), simpelTradeJobDTO.getTradeAktionEnum());
+        Assert.assertEquals(checkTradeJob.getZielwert(), simpelTradeJobDTO.getZielwert());
         Assert.assertEquals(checkTradeJob.getTradeStatus(), TradeStatus.BEOBACHTUNG);
         Assert.assertNull(checkTradeJob.getErledigtAm());
     }

@@ -15,6 +15,8 @@ public interface WechselTradeJobService {
 
     List<WechselTradeJobDTO> holeAlleWechselTradeJobs();
 
+    WechselTradeJobDTO holeWechselTradeJob(Long wechselTradeJobId);
+
     boolean erledigeWechselTradeJob(Long wechselTradeJobId);
 
     boolean aktualisiereWechselTradeJob(WechselTradeJobDTO wechselTradeJobDTO);

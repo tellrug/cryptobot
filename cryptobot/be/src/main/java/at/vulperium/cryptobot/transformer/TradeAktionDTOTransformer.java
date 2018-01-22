@@ -2,7 +2,9 @@ package at.vulperium.cryptobot.transformer;
 
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.entities.TradeAktion;
+import at.vulperium.cryptobot.enums.TradeJobTyp;
 import at.vulperium.cryptobot.enums.TradeStatus;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.services.TransformBothDirections;
 import org.joda.time.LocalDateTime;
@@ -14,7 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
  * Created by 02ub0400 on 11.01.2018.
  */
 @ApplicationScoped
-public class TradeAktionDTOTransfrmer implements TransformBothDirections<TradeAktion, TradeAktionDTO> {
+public class TradeAktionDTOTransformer implements TransformBothDirections<TradeAktion, TradeAktionDTO> {
 
     //private @Inject WaehrungService waehrungService;
 
@@ -31,9 +33,15 @@ public class TradeAktionDTOTransfrmer implements TransformBothDirections<TradeAk
         target.setVonWaehrung(source.getVonWaehrung());
         target.setZuWaehrung(source.getZuWaehrung());
         target.setErstelltAm(source.getErstelltAm().toDate());
+        target.setErledigtAm(source.getErledigtAm() != null ? source.getErledigtAm().toDate() : null);
         target.setUserId(source.getUserId());
         target.setStatus(source.getTradeStatus().name());
         target.setTradingplattform(source.getTradingPlattform().getCode());
+        target.setTradeTyp(source.getTradeTyp().name());
+        target.setReferenzTradeAktionId(source.getReferenzTradeAktionId());
+        target.setTradeJobId(source.getTradeJobId());
+        target.setTradeJobTyp(source.getTradeJobTyp() != null ? source.getTradeJobTyp().name() :  null);
+        target.setPreisProEinheit(source.getPreisProEinheit());
 
         return target;
     }
@@ -48,6 +56,7 @@ public class TradeAktionDTOTransfrmer implements TransformBothDirections<TradeAk
 
         target.setId(source.getId());
         target.setErstelltAm(LocalDateTime.fromDateFields(source.getErstelltAm()));
+        target.setErledigtAm(source.getErledigtAm() != null ? LocalDateTime.fromDateFields(source.getErledigtAm()) : null);
 
         //WaehrungKurzDTO vonWaehrungKurzDTO = waehrungService.holeWaehrungKurzDTO(source.getVonWaehrung());
         //WaehrungKurzDTO zuWaehrungKurzDTO = waehrungService.holeWaehrungKurzDTO(source.getZuWaehrung());
@@ -65,7 +74,12 @@ public class TradeAktionDTOTransfrmer implements TransformBothDirections<TradeAk
         target.setTradeStatus(TradeStatus.valueOf(source.getStatus()));
         target.setTradingPlattform(TradingPlattform.getByCode(source.getTradingplattform()));
         target.setUserId(source.getUserId());
+        target.setTradeTyp(TradeTyp.valueOf(source.getTradeTyp()));
+        target.setReferenzTradeAktionId(source.getReferenzTradeAktionId());
+        target.setTradeJobId(source.getTradeJobId());
+        target.setTradeJobTyp(source.getTradeJobTyp() != null ? TradeJobTyp.valueOf(source.getTradeJobTyp()) : null);
+        target.setPreisProEinheit(source.getPreisProEinheit());
 
-        return null;
+        return target;
     }
 }

@@ -34,6 +34,9 @@ public class TradeAktion extends BaseEntity<Long> {
     @Column(name = "ERSTELLTAM", nullable = false, updatable = false)
     private Date erstelltAm;
 
+    @Column(name = "ERLEDIGTAM", nullable = true, updatable = true)
+    private Date erledigtAm;
+
     @Column(name = "VON_WAEHRUNG_FK", nullable = false, updatable = false)
     private String vonWaehrung;
 
@@ -43,8 +46,11 @@ public class TradeAktion extends BaseEntity<Long> {
     @Column(name = "ZU_WAEHRUNG_FK", nullable = false, updatable = false)
     private String zuWaehrung;
 
-    @Column(name = "ZU_MENGE", nullable = false, updatable = true)
-    private BigDecimal zuMenge;
+    @Column(name = "ZU_MENGE", nullable = true, updatable = true)
+    private BigDecimal zuMenge; //TODO wird das benoetigt?
+
+    @Column(name = "PREIS_EINHEIT", nullable = false, updatable = true)
+    private BigDecimal preisProEinheit;
 
     @Column(name = "TRADE_STATUS", nullable = false, updatable = true)
     private String status;
@@ -54,6 +60,18 @@ public class TradeAktion extends BaseEntity<Long> {
 
     @Column(name = "USERID", nullable = true, updatable = true)
     private Long userId;
+
+    @Column(name = "TRADE_TYP", nullable = true, updatable = true)
+    private String tradeTyp;
+
+    @Column(name = "TRADEAKTION_FK", nullable = true, updatable = true)
+    private Long referenzTradeAktionId;
+
+    @Column(name = "TRADEJOB_FK", nullable = true, updatable = true)
+    private Long tradeJobId;
+
+    @Column(name = "TRADEJOBTYP", nullable = true, updatable = true)
+    private String tradeJobTyp;
 
 
     @Override
@@ -67,6 +85,14 @@ public class TradeAktion extends BaseEntity<Long> {
 
     public void setErstelltAm(Date erstelltAm) {
         this.erstelltAm = erstelltAm;
+    }
+
+    public Date getErledigtAm() {
+        return erledigtAm;
+    }
+
+    public void setErledigtAm(Date erledigtAm) {
+        this.erledigtAm = erledigtAm;
     }
 
     public String getStatus() {
@@ -123,5 +149,45 @@ public class TradeAktion extends BaseEntity<Long> {
 
     public void setZuMenge(BigDecimal zuMenge) {
         this.zuMenge = zuMenge;
+    }
+
+    public String getTradeTyp() {
+        return tradeTyp;
+    }
+
+    public void setTradeTyp(String tradeTyp) {
+        this.tradeTyp = tradeTyp;
+    }
+
+    public Long getReferenzTradeAktionId() {
+        return referenzTradeAktionId;
+    }
+
+    public void setReferenzTradeAktionId(Long referenzTradeAktionId) {
+        this.referenzTradeAktionId = referenzTradeAktionId;
+    }
+
+    public Long getTradeJobId() {
+        return tradeJobId;
+    }
+
+    public void setTradeJobId(Long tradeJobId) {
+        this.tradeJobId = tradeJobId;
+    }
+
+    public BigDecimal getPreisProEinheit() {
+        return preisProEinheit;
+    }
+
+    public void setPreisProEinheit(BigDecimal preisProEinheit) {
+        this.preisProEinheit = preisProEinheit;
+    }
+
+    public String getTradeJobTyp() {
+        return tradeJobTyp;
+    }
+
+    public void setTradeJobTyp(String tradeJobTyp) {
+        this.tradeJobTyp = tradeJobTyp;
     }
 }

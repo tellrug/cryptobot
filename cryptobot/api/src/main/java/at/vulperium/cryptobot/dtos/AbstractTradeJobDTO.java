@@ -22,6 +22,8 @@ public abstract class AbstractTradeJobDTO {
     private BigDecimal kaufwert;
     private BigDecimal letztwert;
     private BigDecimal zielwert;
+    private BigDecimal spitzenwert;
+    private boolean ganzZahlig;
     private TradeAktionEnum tradeAktionEnum;
     private TradeStatus tradeStatus;
     private TradingPlattform tradingPlattform;
@@ -83,6 +85,14 @@ public abstract class AbstractTradeJobDTO {
         this.letztwert = letztwert;
     }
 
+    public BigDecimal getSpitzenwert() {
+        return spitzenwert;
+    }
+
+    public void setSpitzenwert(BigDecimal spitzenwert) {
+        this.spitzenwert = spitzenwert;
+    }
+
     public BigDecimal getMenge() {
         return menge;
     }
@@ -129,5 +139,13 @@ public abstract class AbstractTradeJobDTO {
 
     public void setTradeJobTyp(TradeJobTyp tradeJobTyp) {
         this.tradeJobTyp = tradeJobTyp;
+    }
+
+    public boolean isGanzZahlig() {
+        return ganzZahlig;
+    }
+
+    public void setGanzZahlig(boolean ganzZahlig) {
+        this.ganzZahlig = ganzZahlig;
     }
 }

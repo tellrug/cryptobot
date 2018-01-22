@@ -2,6 +2,7 @@ package at.vulperium.cryptobot.util;
 
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeStatus;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.Trend;
 import com.vaadin.icons.VaadinIcons;
 import org.joda.time.LocalDateTime;
@@ -15,11 +16,11 @@ import java.math.BigDecimal;
 public class ViewUtils {
 
     public static final String DATE_TIME_FORMAT_OHNE_SEKUNDEN = "yyyy-MM-dd HH:mm";
-    private static final String NEW_LINE = "<br />";
-    private static final String ABSTAND = "&nbsp;";
-    private static final String COLOR_GREEN = "#008000";
-    private static final String COLOR_RED = "#ff0000";
-    private static final String COLOR_GRAY = "#808080";
+    public static final String NEW_LINE = "<br />";
+    public static final String ABSTAND = "&nbsp;";
+    public static final String COLOR_GREEN = "#008000";
+    public static final String COLOR_RED = "#ff0000";
+    public static final String COLOR_GRAY = "#808080";
 
 
     public static String formatWertDiffInfo(BigDecimal value1) {
@@ -81,6 +82,11 @@ public class ViewUtils {
         return localDateTime.toString(DateTimeFormat.forPattern(DATE_TIME_FORMAT_OHNE_SEKUNDEN));
     }
 
+    public static String formatTradeInfo(String s1, String s2, String symbol, TradeTyp tradeTyp) {
+        String text = s1 + " " + symbol + " " + s2;
+        return text;
+    }
+
     public static String colorDiff(Trend trend, String text) {
         if (trend == null) {
             return "<span style='color: " + COLOR_GRAY + "'>" + text + "</span>";
@@ -96,6 +102,9 @@ public class ViewUtils {
         }
     }
 
+    public static String formatColor(String text, String color) {
+        return "<span style='color: " + color + "'>" + text + "</span>";
+    }
 
     public static String transformTradeAktionUndStatusToIcon(TradeAktionEnum tradeAktionEnum, TradeStatus tradeStatus) {
 
@@ -134,6 +143,13 @@ public class ViewUtils {
                 return VaadinIcons.CHECK_CIRCLE.getHtml();
             case FOLGE_AKTION:
                 return VaadinIcons.ARROW_CIRCLE_RIGHT.getHtml();
+            case TRADE_KAUF:
+            case TRADE_VERKAUF:
+                return VaadinIcons.CLIPBOARD_PULSE.getHtml();
+            case TRADE_PRUEFUNG_KAUF:
+            case TRADE_PRUEFUNG_VERKAUF:
+                return VaadinIcons.HOURGLASS_START.getHtml();
+            case TRADE_FEHLGESCHLAGEN:
             case FEHLER:
                 return VaadinIcons.CLOSE.getHtml();
         }

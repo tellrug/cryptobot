@@ -37,9 +37,6 @@ public class WechselTradeJob extends AbstractTradeJob {
     @Column(name = "MENGE_REFERENZWERT", nullable = false, updatable = true)
     private BigDecimal mengeReferenzwert;
 
-    @Column(name = "GANZ_ZAHLIG", nullable = false, updatable = true)
-    private boolean ganzzahligerVerkauf;
-
     @Column(name = "MIN_ZIELSATZ", nullable = true, updatable = true)
     private BigDecimal minimalZielSatz;
 
@@ -58,14 +55,6 @@ public class WechselTradeJob extends AbstractTradeJob {
         return id;
     }
 
-
-    public boolean isGanzzahligerVerkauf() {
-        return ganzzahligerVerkauf;
-    }
-
-    public void setGanzzahligerVerkauf(boolean ganzzahligerVerkauf) {
-        this.ganzzahligerVerkauf = ganzzahligerVerkauf;
-    }
 
     @Override
     public void setId(Long id) {

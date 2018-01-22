@@ -107,7 +107,7 @@ public class TradeJobComponent extends VerticalLayout {
                 dataProvider.clearFilters();
             }
             else {
-                dataProvider.setFilter((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getCryptoWaehrung(),
+                dataProvider.setFilter((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getCryptoWaehrung(),
                         s -> caseInsensitiveContains(s, valueChangeEvent.getValue()));
             }
         });
@@ -140,7 +140,7 @@ public class TradeJobComponent extends VerticalLayout {
 
         //Datum
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String text = ViewUtils.dateTimeToStringOhneSkunden(tradeJobVO.getTradeJobDTO().getErstelltAm());
+            String text = ViewUtils.dateTimeToStringOhneSkunden(tradeJobVO.getSimpelTradeJobDTO().getErstelltAm());
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName("tiny");
             return label;
@@ -149,24 +149,24 @@ public class TradeJobComponent extends VerticalLayout {
 
         //SYMBOL
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            Label label = ComponentProducer.erstelleLabelHtml(tradeJobVO.getTradeJobDTO().getCryptoWaehrung());
+            Label label = ComponentProducer.erstelleLabelHtml(tradeJobVO.getSimpelTradeJobDTO().getCryptoWaehrung());
             label.addStyleName("tiny");
             return label;
         }).setCaption("Symbol").setResizable(false).setStyleGenerator(item -> "v-align-center")
                 .setWidth(90);
 
         //MENGE
-        tradeJobGrid.addColumn((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getMenge().toString())
+        tradeJobGrid.addColumn((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getMenge().toString())
                 .setCaption("Menge")
                 .setResizable(false)
                 .setStyleGenerator(item -> "v-align-center");
 
         //KAUFWERT & ZIELWERT
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String bezAktuellerWert = tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF ? "Ausgang" : "Kauf";
-            String referenz = tradeJobVO.getTradeJobDTO().getCryptoWaehrungReferenz();
+            String bezAktuellerWert = tradeJobVO.getSimpelTradeJobDTO().getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF ? "Ausgang" : "Kauf";
+            String referenz = tradeJobVO.getSimpelTradeJobDTO().getCryptoWaehrungReferenz();
             String text =
-                    ViewUtils.formatWertInfo(bezAktuellerWert, tradeJobVO.getTradeJobDTO().getKaufwert(), referenz, "Ziel", tradeJobVO.getTradeJobDTO().getZielwert(), referenz);
+                    ViewUtils.formatWertInfo(bezAktuellerWert, tradeJobVO.getSimpelTradeJobDTO().getKaufwert(), referenz, "Ziel", tradeJobVO.getSimpelTradeJobDTO().getZielwert(), referenz);
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName("tiny");
             return label;
@@ -174,8 +174,8 @@ public class TradeJobComponent extends VerticalLayout {
 
         //AKTUELLERWERT
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String referenz = tradeJobVO.getTradeJobDTO().getCryptoWaehrungReferenz();
-            String text = ViewUtils.formatWertEinheit(tradeJobVO.getTradeJobDTO().getLetztwert(), referenz);
+            String referenz = tradeJobVO.getSimpelTradeJobDTO().getCryptoWaehrungReferenz();
+            String text = ViewUtils.formatWertEinheit(tradeJobVO.getSimpelTradeJobDTO().getLetztwert(), referenz);
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName("tiny");
             return label;
@@ -183,9 +183,9 @@ public class TradeJobComponent extends VerticalLayout {
 
         //DIFFERENZ
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String referenz = tradeJobVO.getTradeJobDTO().getCryptoWaehrungReferenz();
-            BigDecimal diffAbsolut = TradeUtil.diffAbsolut(tradeJobVO.getTradeJobDTO().getLetztwert(), tradeJobVO.getTradeJobDTO().getKaufwert());
-            BigDecimal diffProzent = TradeUtil.diffProzent(tradeJobVO.getTradeJobDTO().getLetztwert(), tradeJobVO.getTradeJobDTO().getKaufwert());
+            String referenz = tradeJobVO.getSimpelTradeJobDTO().getCryptoWaehrungReferenz();
+            BigDecimal diffAbsolut = TradeUtil.diffAbsolut(tradeJobVO.getSimpelTradeJobDTO().getLetztwert(), tradeJobVO.getSimpelTradeJobDTO().getKaufwert());
+            BigDecimal diffProzent = TradeUtil.diffProzent(tradeJobVO.getSimpelTradeJobDTO().getLetztwert(), tradeJobVO.getSimpelTradeJobDTO().getKaufwert());
             String text = ViewUtils.formatWertInfo("Absolut", diffAbsolut, referenz, "Prozent", diffProzent, "%", true);
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName("tiny");
@@ -194,15 +194,15 @@ public class TradeJobComponent extends VerticalLayout {
 
         //STATUS
         tradeJobGrid.addComponentColumn((ValueProvider<TradeJobVO, Component>) tradeJobVO -> {
-            String text = ViewUtils.transformTradeAktionUndStatusToIcon(tradeJobVO.getTradeJobDTO().getTradeAktionEnum(), tradeJobVO.getTradeJobDTO().getTradeStatus());
+            String text = ViewUtils.transformTradeAktionUndStatusToIcon(tradeJobVO.getSimpelTradeJobDTO().getTradeAktionEnum(), tradeJobVO.getSimpelTradeJobDTO().getTradeStatus());
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName(CryptoStyles.XLARGE_STATUS_ICON);
-            label.setDescription(tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getAnzeigetext());
+            label.setDescription(tradeJobVO.getSimpelTradeJobDTO().getTradeAktionEnum().getAnzeigetext());
             return label;
         }).setCaption("Status").setResizable(false).setStyleGenerator(item -> "v-align-center").setWidth(150);
 
         //PLATTFORM
-        tradeJobGrid.addColumn((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getTradingPlattform().name())
+        tradeJobGrid.addColumn((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getTradingPlattform().name())
                 .setCaption("Plattform")
                 .setResizable(false)
                 .setStyleGenerator(item -> "v-align-center").setWidth(120);
@@ -255,16 +255,16 @@ public class TradeJobComponent extends VerticalLayout {
     private void setzeDaten() {
         //Sortieren der Liste
         Collections.sort(tradeJobVOList, (v1, v2) -> {
-            if (v1.getTradeJobDTO().getErstelltAm().isAfter(v2.getTradeJobDTO().getErstelltAm())) {
+            if (v1.getSimpelTradeJobDTO().getErstelltAm().isAfter(v2.getSimpelTradeJobDTO().getErstelltAm())) {
                 return -1;
             }
-            if (v2.getTradeJobDTO().getErstelltAm().isAfter(v1.getTradeJobDTO().getErstelltAm())) {
+            if (v2.getSimpelTradeJobDTO().getErstelltAm().isAfter(v1.getSimpelTradeJobDTO().getErstelltAm())) {
                 return 1;
             }
-            if (v1.getTradeJobDTO().getId() > v2.getTradeJobDTO().getId()) {
+            if (v1.getSimpelTradeJobDTO().getId() > v2.getSimpelTradeJobDTO().getId()) {
                 return -1;
             }
-            if (v2.getTradeJobDTO().getId() > v1.getTradeJobDTO().getId()) {
+            if (v2.getSimpelTradeJobDTO().getId() > v1.getSimpelTradeJobDTO().getId()) {
                 return 1;
             }
             return 0;
@@ -285,13 +285,13 @@ public class TradeJobComponent extends VerticalLayout {
 
         //Zuerst nach Plattform filtern
         if (filterVO.getTradingPlattform() != TradingPlattform.ALLE) {
-            dataProvider.setFilter((ValueProvider<TradeJobVO, TradingPlattform>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getTradingPlattform(),
+            dataProvider.setFilter((ValueProvider<TradeJobVO, TradingPlattform>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getTradingPlattform(),
                     tj -> tj == filterVO.getTradingPlattform());
         }
 
         //Nach TradeTyp filtern
         if (filterVO.getTradeTyp() != null) {
-            dataProvider.setFilter((ValueProvider<TradeJobVO, TradeTyp>) tradeJobVO -> tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getTradeTyp(),
+            dataProvider.setFilter((ValueProvider<TradeJobVO, TradeTyp>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getTradeAktionEnum().getTradeTyp(),
                     tj -> tj == filterVO.getTradeTyp());
         }
     }

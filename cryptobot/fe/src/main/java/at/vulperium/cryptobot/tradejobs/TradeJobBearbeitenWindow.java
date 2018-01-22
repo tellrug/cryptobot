@@ -1,6 +1,6 @@
 package at.vulperium.cryptobot.tradejobs;
 
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradeTyp;
@@ -57,22 +57,22 @@ public class TradeJobBearbeitenWindow implements Serializable {
     private TextField tfAktuellerWert;
 
     private TradeJobVO tradeJobVO;
-    private Binder<TradeJobDTO> requestBinder = new Binder<>();
+    private Binder<SimpelTradeJobDTO> requestBinder = new Binder<>();
 
     private final boolean bearbeitungsModus;
 
     public TradeJobBearbeitenWindow() {
         this.bearbeitungsModus = false;
-        this.tradeJobVO = new TradeJobVO(new TradeJobDTO());
+        this.tradeJobVO = new TradeJobVO(new SimpelTradeJobDTO());
 
-        tradeJobVO.getTradeJobDTO().setTradeStatus(TradeStatus.ERSTELLT);
+        tradeJobVO.getSimpelTradeJobDTO().setTradeStatus(TradeStatus.ERSTELLT);
         initWindow();
     }
 
     public TradeJobBearbeitenWindow(TradeJobVO tradeJobVO) {
         this.tradeJobVO = tradeJobVO;
 
-        if (tradeJobVO == null || tradeJobVO.getTradeJobDTO() == null || tradeJobVO.getTradeJobDTO().getId() == null) {
+        if (tradeJobVO == null || tradeJobVO.getSimpelTradeJobDTO() == null || tradeJobVO.getSimpelTradeJobDTO().getId() == null) {
             this.bearbeitungsModus = false;
         }
         else {
@@ -110,7 +110,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
         neuerRequestLayout.setSizeFull();
         neuerRequestLayout.setMargin(false);
 
-        requestBinder.setBean(tradeJobVO.getTradeJobDTO());
+        requestBinder.setBean(tradeJobVO.getSimpelTradeJobDTO());
 
         //SYMBOL
         Label labelSymbol = new Label(VaadinIcons.COINS.getHtml() + " <strong>Symbol</strong>");
@@ -164,7 +164,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
 
         //setzen der richtigen Items
         tradeJobStatusCombobox.setItems(ermittleRelevanteTradeJobStatusList());
-        requestBinder.forField(tradeJobStatusCombobox).bind(TradeJobDTO::getTradeAktionEnum, TradeJobDTO::setTradeAktionEnum);
+        requestBinder.forField(tradeJobStatusCombobox).bind(SimpelTradeJobDTO::getTradeAktionEnum, SimpelTradeJobDTO::setTradeAktionEnum);
 
 
         neuerRequestLayout.addComponent(labelJobStatus, 0, 4);
@@ -182,7 +182,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
 
         //setzen der richtigen Items
         plattformCombobox.setItems(ermittleRelevanteTradingPlattformList());
-        requestBinder.forField(plattformCombobox).bind(TradeJobDTO::getTradingPlattform, TradeJobDTO::setTradingPlattform);
+        requestBinder.forField(plattformCombobox).bind(SimpelTradeJobDTO::getTradingPlattform, SimpelTradeJobDTO::setTradingPlattform);
 
 
         neuerRequestLayout.addComponent(labelPlattform, 0, 5);
@@ -219,8 +219,8 @@ public class TradeJobBearbeitenWindow implements Serializable {
         requestBinder.forField(tfAktuellerWert)
                 .withValidator(StringUtils::isNotEmpty, "Es muss ein aktueller Wert eingegeben werden.")
                 .withValidator(new BigDecimalValidator())
-                .bind((ValueProvider<TradeJobDTO, String>) tradeJobDTO -> getBigDecimalAsString(tradeJobDTO.getKaufwert()),
-                        (Setter<TradeJobDTO, String>) (tradeJobDTO, value) -> tradeJobDTO.setKaufwert(TradeUtil.getBigDecimal(value)));
+                .bind((ValueProvider<SimpelTradeJobDTO, String>) tradeJobDTO -> getBigDecimalAsString(tradeJobDTO.getKaufwert()),
+                        (Setter<SimpelTradeJobDTO, String>) (tradeJobDTO, value) -> tradeJobDTO.setKaufwert(TradeUtil.getBigDecimal(value)));
 
         labelAktuellerWertEinheit = new Label();
         labelAktuellerWertEinheit.setWidth(100, Sizeable.Unit.PERCENTAGE);
@@ -246,8 +246,8 @@ public class TradeJobBearbeitenWindow implements Serializable {
         requestBinder.forField(tfMenge)
                 .withValidator(StringUtils::isNotEmpty, "Es muss eine Menge angegeben werden.")
                 .withValidator(new BigDecimalValidator())
-                .bind((ValueProvider<TradeJobDTO, String>) tradeJobDTO -> getBigDecimalAsString(tradeJobDTO.getMenge()),
-                        (Setter<TradeJobDTO, String>) (tradeJobDTO, value) -> tradeJobDTO.setMenge(TradeUtil.getBigDecimal(value)));
+                .bind((ValueProvider<SimpelTradeJobDTO, String>) tradeJobDTO -> getBigDecimalAsString(tradeJobDTO.getMenge()),
+                        (Setter<SimpelTradeJobDTO, String>) (tradeJobDTO, value) -> tradeJobDTO.setMenge(TradeUtil.getBigDecimal(value)));
 
         labelMengeEinheit = new Label();
         labelMengeEinheit.setWidth(100, Sizeable.Unit.PERCENTAGE);
@@ -272,7 +272,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
         tfSymbol.setDescription("Ziel-W\u00e4hrung");
         requestBinder.forField(tfSymbol)
                 .withValidator(StringUtils::isNotEmpty, "Es muss eine Symbol angegeben werden.")
-                .bind((ValueProvider<TradeJobDTO, String>) TradeJobDTO::getCryptoWaehrung, (Setter<TradeJobDTO, String>) TradeJobDTO::setCryptoWaehrung);
+                .bind((ValueProvider<SimpelTradeJobDTO, String>) SimpelTradeJobDTO::getCryptoWaehrung, (Setter<SimpelTradeJobDTO, String>) SimpelTradeJobDTO::setCryptoWaehrung);
         tfSymbol.addValueChangeListener((HasValue.ValueChangeListener<String>) valueChangeEvent -> {
             String value = valueChangeEvent.getValue();
             if (StringUtils.isEmpty(valueChangeEvent.getValue())) {
@@ -296,7 +296,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
         tfReferenzSymbol.setDescription("Referenz-W\u00e4hrung");
         requestBinder.forField(tfReferenzSymbol)
                 .withValidator(StringUtils::isNotEmpty, "Es muss eine Referenz-Symbol angegeben werden.")
-                .bind((ValueProvider<TradeJobDTO, String>) TradeJobDTO::getCryptoWaehrungReferenz, (Setter<TradeJobDTO, String>) TradeJobDTO::setCryptoWaehrungReferenz);
+                .bind((ValueProvider<SimpelTradeJobDTO, String>) SimpelTradeJobDTO::getCryptoWaehrungReferenz, (Setter<SimpelTradeJobDTO, String>) SimpelTradeJobDTO::setCryptoWaehrungReferenz);
         tfReferenzSymbol.addValueChangeListener((HasValue.ValueChangeListener<String>) valueChangeEvent -> {
             String value = valueChangeEvent.getValue();
             if (StringUtils.isEmpty(valueChangeEvent.getValue())) {
@@ -354,8 +354,8 @@ public class TradeJobBearbeitenWindow implements Serializable {
         requestBinder.forField(tfAbsolutesZiel)
                 .withValidator(StringUtils::isNotEmpty, "Es muss ein Zielwert angegeben werden.")
                 .withValidator(new BigDecimalValidator())
-                .bind((ValueProvider<TradeJobDTO, String>) tradeJobDTO -> getBigDecimalAsString(tradeJobDTO.getZielwert()),
-                        (Setter<TradeJobDTO, String>) (tradeJobDTO, value) -> tradeJobDTO.setZielwert(TradeUtil.getBigDecimal(value)));
+                .bind((ValueProvider<SimpelTradeJobDTO, String>) tradeJobDTO -> getBigDecimalAsString(tradeJobDTO.getZielwert()),
+                        (Setter<SimpelTradeJobDTO, String>) (tradeJobDTO, value) -> tradeJobDTO.setZielwert(TradeUtil.getBigDecimal(value)));
 
         labelZielEinheit = new Label();
         labelZielEinheit.setWidth(100, Sizeable.Unit.PERCENTAGE);
@@ -375,7 +375,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
     private List<TradeAktionEnum> ermittleRelevanteTradeJobStatusList() {
         List<TradeAktionEnum> tradeAktionEnumList = new ArrayList<>();
         if (bearbeitungsModus) {
-            TradeTyp tradeTyp = tradeJobVO.getTradeJobDTO().getTradeAktionEnum().getTradeTyp();
+            TradeTyp tradeTyp = tradeJobVO.getSimpelTradeJobDTO().getTradeAktionEnum().getTradeTyp();
             tradeAktionEnumList.addAll(TradeAktionEnum.getByTradeTyp(tradeTyp));
         }
         else {
@@ -421,7 +421,7 @@ public class TradeJobBearbeitenWindow implements Serializable {
         if (!istEingabeVollstaendig()) {
             return null;
         }
-        requestBinder.writeBeanIfValid(tradeJobVO.getTradeJobDTO());
+        requestBinder.writeBeanIfValid(tradeJobVO.getSimpelTradeJobDTO());
         return tradeJobVO;
     }
 

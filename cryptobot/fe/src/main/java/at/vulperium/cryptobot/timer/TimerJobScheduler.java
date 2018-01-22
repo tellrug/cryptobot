@@ -2,7 +2,9 @@ package at.vulperium.cryptobot.timer;
 
 
 import at.vulperium.cryptobot.config.ConfigValue;
+import at.vulperium.cryptobot.dtos.TimerJobDTO;
 import at.vulperium.cryptobot.events.TradeVerarbeitungEvent;
+import at.vulperium.cryptobot.services.TimerJobService;
 import at.vulperium.cryptobot.utils.ConfigUtil;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
@@ -23,6 +25,8 @@ import javax.ejb.TimerService;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 02ub0400 on 02.01.2018.
@@ -41,6 +45,7 @@ public class TimerJobScheduler {
     private @Resource TimerService timerService;
 
     private @Inject Event<TradeVerarbeitungEvent> tradeVerarbeitungEvent;
+    private @Inject TimerJobService timerJobService;
 
     @PostConstruct
     private void initTimer() {
@@ -59,8 +64,16 @@ public class TimerJobScheduler {
     @Timeout
     public void timeout(Timer timer) {
         //Feuern eines Events zum starten der Verarbeitung
-        TradeVerarbeitungEvent tradeVerarbeitung = new TradeVerarbeitungEvent(false, LocalDateTime.now());
-        tradeVerarbeitungEvent.fire(tradeVerarbeitung);
+
+        List<TimerJobDTO> alleTimerjobs = timerJobService.holeAlleTimerJobs();
+
+        //Durchfuehren der offenen Jobs
+        for (TimerJobDTO timerJobDTO : alleTimerjobs) {
+            if (timerJobDTO.getNaechsteDurchfuehrungAm() == null || timerJobDTO.getNaechsteDurchfuehrungAm().isBefore(LocalDateTime.now())) {
+                //Job kann durchgefuehrt werden
+                tradeVerarbeitungEvent.fire(new TradeVerarbeitungEvent(timerJobDTO.getId(), timerJobDTO.getTimerJobEnum(), false));
+            }
+        }
 
         //Erneutes starten des Timers
         startTimer();

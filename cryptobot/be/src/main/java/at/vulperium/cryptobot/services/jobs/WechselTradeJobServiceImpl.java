@@ -6,13 +6,13 @@ import at.vulperium.cryptobot.services.trades.WechselTradeJobService;
 import at.vulperium.cryptobot.transformer.AbstractTradeJobDTOTransformer;
 import at.vulperium.cryptobot.transformer.WechselTradeJobDTOTransformer;
 import org.apache.commons.lang.Validate;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +39,12 @@ public class WechselTradeJobServiceImpl extends AbstractTradeJobServiceImpl<Wech
         List<WechselTradeJob> resultlist = query.getResultList();
 
         return resultlist.stream().map(e -> transformer.transform(e)).collect(Collectors.toList());
+    }
+
+    @Override
+    public WechselTradeJobDTO holeWechselTradeJob(Long wechselTradeJobId) {
+        Validate.notNull(wechselTradeJobId, "wechselTradeJobId ist null.");
+        return holeTradeJob(wechselTradeJobId, WechselTradeJob.class);
     }
 
     @Override

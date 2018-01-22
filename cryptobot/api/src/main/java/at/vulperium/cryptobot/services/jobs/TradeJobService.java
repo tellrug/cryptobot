@@ -1,6 +1,6 @@
 package at.vulperium.cryptobot.services.jobs;
 
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 
@@ -11,19 +11,19 @@ import java.util.List;
  */
 public interface TradeJobService {
 
-    TradeJobDTO holeTradeJob(Long id);
+    SimpelTradeJobDTO holeTradeJob(Long id);
 
-    List<TradeJobDTO> holeAlleTradeJobs();
+    List<SimpelTradeJobDTO> holeAlleTradeJobs();
 
-    List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeTyp tradeTyp);
+    List<SimpelTradeJobDTO> filterTradeJobDTOList(List<SimpelTradeJobDTO> simpelTradeJobDTOList, TradeTyp tradeTyp);
 
-    List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, boolean erledigt);
+    List<SimpelTradeJobDTO> filterTradeJobDTOList(List<SimpelTradeJobDTO> simpelTradeJobDTOList, boolean erledigt);
 
-    List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradingPlattform tradingPlattform);
+    List<SimpelTradeJobDTO> filterTradeJobDTOList(List<SimpelTradeJobDTO> simpelTradeJobDTOList, TradingPlattform tradingPlattform);
 
-    Long speichereTradeJob(TradeJobDTO tradeJobDTO);
+    Long speichereTradeJob(SimpelTradeJobDTO simpelTradeJobDTO);
 
-    boolean aktualisiereTradeJob(TradeJobDTO tradeJobDTO);
+    boolean aktualisiereTradeJob(SimpelTradeJobDTO simpelTradeJobDTO);
 
     boolean erledigeTradeJob(Long tradeJobId);
 }

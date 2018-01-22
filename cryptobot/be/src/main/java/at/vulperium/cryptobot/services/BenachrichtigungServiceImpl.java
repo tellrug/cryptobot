@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.config.ConfigValue;
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
@@ -26,17 +26,17 @@ public class BenachrichtigungServiceImpl implements BenachrichtigungService {
     private static final ConfigValue reportBetreff = new ConfigValue("reportBetreff");
 
     @Override
-    public void versendeBenachrichtigung(List<TradeJobDTO> tradeJobDTOList, BenachrichtigungTyp benachrichtigungTyp, TradingPlattform tradingPlattform) {
-        if (CollectionUtils.isEmpty(tradeJobDTOList)) {
+    public void versendeBenachrichtigung(List<SimpelTradeJobDTO> simpelTradeJobDTOList, BenachrichtigungTyp benachrichtigungTyp, TradingPlattform tradingPlattform) {
+        if (CollectionUtils.isEmpty(simpelTradeJobDTOList)) {
             return;
         }
 
         if (benachrichtigungTyp == BenachrichtigungTyp.MAIL) {
-            String betreff = erstelleBenachrichtigungsBetreff(tradeJobDTOList, tradingPlattform);
+            String betreff = erstelleBenachrichtigungsBetreff(simpelTradeJobDTOList, tradingPlattform);
 
             StringBuilder textStrBuilder = new StringBuilder();
-            for (TradeJobDTO tradeJobDTO : tradeJobDTOList) {
-                String tmpText = erstelleBenachrichtigungsText(tradeJobDTO);
+            for (SimpelTradeJobDTO simpelTradeJobDTO : simpelTradeJobDTOList) {
+                String tmpText = erstelleBenachrichtigungsText(simpelTradeJobDTO);
                 textStrBuilder.append(tmpText);
                 textStrBuilder.append(NEW_LINE);
                 textStrBuilder.append(TRENNER);
@@ -52,92 +52,92 @@ public class BenachrichtigungServiceImpl implements BenachrichtigungService {
     }
 
     @Override
-    public void versendeBenachrichtigung(TradeJobDTO tradeJobDTO, BenachrichtigungTyp benachrichtigungTyp) {
+    public void versendeBenachrichtigung(SimpelTradeJobDTO simpelTradeJobDTO, BenachrichtigungTyp benachrichtigungTyp) {
         if (benachrichtigungTyp == BenachrichtigungTyp.MAIL) {
             //versende Mail-Benachrichtigung
-            String betreff = erstelleBenachrichtigungsBetreff(tradeJobDTO);
-            String text = erstelleBenachrichtigungsText(tradeJobDTO);
+            String betreff = erstelleBenachrichtigungsBetreff(simpelTradeJobDTO);
+            String text = erstelleBenachrichtigungsText(simpelTradeJobDTO);
             mailService.versendeMail(betreff, text);
             return;
         }
         //TODO weitere BenachrichtigungsTypen hinzufuegen
-        throw new IllegalStateException("Benachrichtigung von TradeJob=" + tradeJobDTO.getId() + " fehlgeschlagen. BenachrichtigungTyp="
+        throw new IllegalStateException("Benachrichtigung von TradeJob=" + simpelTradeJobDTO.getId() + " fehlgeschlagen. BenachrichtigungTyp="
                 + benachrichtigungTyp + " nicht vorgesehen!");
     }
 
     @Override
-    public String erstelleBenachrichtigungsBetreff(List<TradeJobDTO> tradeJobDTOList, TradingPlattform tradingPlattform) {
+    public String erstelleBenachrichtigungsBetreff(List<SimpelTradeJobDTO> simpelTradeJobDTOList, TradingPlattform tradingPlattform) {
         Validate.notNull(tradingPlattform, "tradingPlattform ist null.");
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(reportBetreff.get());
-        for (TradeJobDTO tradeJobDTO : tradeJobDTOList) {
-            stringBuilder.append(tradeJobDTO.getCryptoWaehrung()).append(" ");
+        for (SimpelTradeJobDTO simpelTradeJobDTO : simpelTradeJobDTOList) {
+            stringBuilder.append(simpelTradeJobDTO.getCryptoWaehrung()).append(" ");
         }
         stringBuilder.append( " - ").append(tradingPlattform.name());
         return stringBuilder.toString();
     }
 
     @Override
-    public String erstelleBenachrichtigungsBetreff(TradeJobDTO tradeJobDTO) {
+    public String erstelleBenachrichtigungsBetreff(SimpelTradeJobDTO simpelTradeJobDTO) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append(reportBetreff.get())                                            //Betreff-Prefix
-                .append(tradeJobDTO.getCryptoWaehrung())                                //Coin
+                .append(simpelTradeJobDTO.getCryptoWaehrung())                                //Coin
                 .append(" ")
-                .append(tradeJobDTO.getTradeAktionEnum().name())                         //Ereignis
+                .append(simpelTradeJobDTO.getTradeAktionEnum().name())                         //Ereignis
                 .append(" - ")
-                .append(tradeJobDTO.getTradingPlattform().name());                      //Trading-Plattform
+                .append(simpelTradeJobDTO.getTradingPlattform().name());                      //Trading-Plattform
 
         return stringBuilder.toString();
     }
 
     @Override
-    public String erstelleBenachrichtigungsText(TradeJobDTO tradeJobDTO) {
+    public String erstelleBenachrichtigungsText(SimpelTradeJobDTO simpelTradeJobDTO) {
 
         String tradeAktionInformation;
-        if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF) {
-            tradeAktionInformation = erstelleKaufBenachrichtigungsText(tradeJobDTO);
+        if (simpelTradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF) {
+            tradeAktionInformation = erstelleKaufBenachrichtigungsText(simpelTradeJobDTO);
         }
-        else if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.VERKAUF) {
-            tradeAktionInformation = erstelleVerkaufBenachrichtigungsText(tradeJobDTO);
+        else if (simpelTradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.VERKAUF) {
+            tradeAktionInformation = erstelleVerkaufBenachrichtigungsText(simpelTradeJobDTO);
         }
         else {
-            throw new IllegalStateException("Fehlerhafter TradeTyp= " + tradeJobDTO.getTradeAktionEnum().getTradeTyp() + " bei TradeJob=" + tradeJobDTO.getId());
+            throw new IllegalStateException("Fehlerhafter TradeTyp= " + simpelTradeJobDTO.getTradeAktionEnum().getTradeTyp() + " bei TradeJob=" + simpelTradeJobDTO.getId());
         }
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
-                .append("Trade: ").append(tradeJobDTO.getCryptoWaehrung()).append(" <--> ").append(tradeJobDTO.getCryptoWaehrungReferenz())
-                .append("   -   ").append(tradeJobDTO.getTradingPlattform().name())
+                .append("Trade: ").append(simpelTradeJobDTO.getCryptoWaehrung()).append(" <--> ").append(simpelTradeJobDTO.getCryptoWaehrungReferenz())
+                .append("   -   ").append(simpelTradeJobDTO.getTradingPlattform().name())
                 .append(NEW_LINE)
                 .append(tradeAktionInformation);
         return stringBuilder.toString();
     }
 
-    private String erstelleKaufBenachrichtigungsText(TradeJobDTO tradeJobDTO) {
+    private String erstelleKaufBenachrichtigungsText(SimpelTradeJobDTO simpelTradeJobDTO) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
-                .append("TradeAktion: Kauf von ").append(tradeJobDTO.getMenge()).append(" ").append(tradeJobDTO.getCryptoWaehrung())
+                .append("TradeAktion: Kauf von ").append(simpelTradeJobDTO.getMenge()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrung())
                 .append(NEW_LINE)
-                .append("Zielwert: ").append(tradeJobDTO.getZielwert()).append(" ").append(tradeJobDTO.getCryptoWaehrungReferenz())
+                .append("Zielwert: ").append(simpelTradeJobDTO.getZielwert()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrungReferenz())
                 .append(NEW_LINE)
-                .append("AktuellerWert: ").append(tradeJobDTO.getLetztwert()).append(" ").append(tradeJobDTO.getCryptoWaehrungReferenz())
-                .append("Erledigt am: ").append(tradeJobDTO.getErledigtAm());
+                .append("AktuellerWert: ").append(simpelTradeJobDTO.getLetztwert()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrungReferenz())
+                .append("Erledigt am: ").append(simpelTradeJobDTO.getErledigtAm());
         return stringBuilder.toString();
     }
 
-    private String erstelleVerkaufBenachrichtigungsText(TradeJobDTO tradeJobDTO) {
+    private String erstelleVerkaufBenachrichtigungsText(SimpelTradeJobDTO simpelTradeJobDTO) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
-                .append("TradeAktion: Verkauf von ").append(tradeJobDTO.getMenge()).append(" ").append(tradeJobDTO.getCryptoWaehrung())
+                .append("TradeAktion: Verkauf von ").append(simpelTradeJobDTO.getMenge()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrung())
                 .append(NEW_LINE)
-                .append("Kaufwert: ").append(tradeJobDTO.getKaufwert()).append(" ").append(tradeJobDTO.getCryptoWaehrungReferenz())
+                .append("Kaufwert: ").append(simpelTradeJobDTO.getKaufwert()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrungReferenz())
                 .append(NEW_LINE)
-                .append("Zielwert: ").append(tradeJobDTO.getZielwert()).append(" ").append(tradeJobDTO.getCryptoWaehrungReferenz())
+                .append("Zielwert: ").append(simpelTradeJobDTO.getZielwert()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrungReferenz())
                 .append(NEW_LINE)
-                .append("AktuellerWert: ").append(tradeJobDTO.getLetztwert()).append(" ").append(tradeJobDTO.getCryptoWaehrungReferenz())
-                .append("Erledigt am: ").append(tradeJobDTO.getErledigtAm());
+                .append("AktuellerWert: ").append(simpelTradeJobDTO.getLetztwert()).append(" ").append(simpelTradeJobDTO.getCryptoWaehrungReferenz())
+                .append("Erledigt am: ").append(simpelTradeJobDTO.getErledigtAm());
         return stringBuilder.toString();
     }
 

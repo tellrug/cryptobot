@@ -1,5 +1,6 @@
 package at.vulperium.cryptobot.services;
 
+import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface TradingPlattformClient {
     boolean ping();
 
     List<WSCryptoCoinDTO> ermittleLetztePreise();
+
+    HoldingOrderDTO ermittleHoldingOrderInformationen();
 }

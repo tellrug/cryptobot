@@ -1,5 +1,6 @@
 package at.vulperium.cryptobot.services.trades;
 
+import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.WechselTradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 
@@ -9,4 +10,6 @@ import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 public interface WechselTradeKaufService {
 
     void verarbeiteWechselJobKauf(WechselTradeJobDTO wechselTradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO);
+
+    void aktualisiereTradeJobNachTradeAktion(WechselTradeJobDTO tradeJobDTO, TradeAktionDTO tradeAktionDTO);
 }

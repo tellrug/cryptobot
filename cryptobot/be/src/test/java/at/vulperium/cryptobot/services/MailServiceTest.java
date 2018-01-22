@@ -2,7 +2,7 @@ package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.ContainerTest;
 import at.vulperium.cryptobot.config.ConfigValue;
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeStatus;
@@ -61,13 +61,13 @@ public class MailServiceTest extends ContainerTest {
         ConfigValue mailEmpfaenger = new ConfigValue("mailEmpfaenger");
         Assert.assertNotEquals(mailEmpfaenger.get(), "test@mail.com");
 
-        TradeJobDTO tj1 = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
-        TradeJobDTO tj2 = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.KAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
+        SimpelTradeJobDTO tj1 = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
+        SimpelTradeJobDTO tj2 = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.KAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
 
-        List<TradeJobDTO> tradeJobDTOList = new ArrayList<>();
-        tradeJobDTOList.add(tj1);
-        tradeJobDTOList.add(tj2);
+        List<SimpelTradeJobDTO> simpelTradeJobDTOList = new ArrayList<>();
+        simpelTradeJobDTOList.add(tj1);
+        simpelTradeJobDTOList.add(tj2);
 
-        benachrichtigungService.versendeBenachrichtigung(tradeJobDTOList, BenachrichtigungTyp.MAIL, TradingPlattform.BINANCE);
+        benachrichtigungService.versendeBenachrichtigung(simpelTradeJobDTOList, BenachrichtigungTyp.MAIL, TradingPlattform.BINANCE);
     }
 }

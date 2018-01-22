@@ -11,6 +11,7 @@ public enum MenuBarItem {
 
     DASHBOARD("Dashboard", VaadinIcons.PIE_BAR_CHART, ViewId.DASHBOARD),
     TRADE_JOBS("Jobs", VaadinIcons.CALC_BOOK, ViewId.TRADE_JOBS),
+    WECHSEL_JOBS("Wechsel", VaadinIcons.REFRESH, ViewId.WECHSEL_JOBS),
     TRADE_AKTION("Aktionen", VaadinIcons.TOUCH, ViewId.TRADE_AKTIONEN);
 
     private String bezeichnung;

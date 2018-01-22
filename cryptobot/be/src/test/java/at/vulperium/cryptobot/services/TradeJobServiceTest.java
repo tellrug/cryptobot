@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.ContainerTest;
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradeTyp;
@@ -25,8 +25,8 @@ public class TradeJobServiceTest extends ContainerTest {
 
     @Test
     public void testSpeichereTradeJob() {
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
 
         Assert.assertNotNull(id);
@@ -35,87 +35,87 @@ public class TradeJobServiceTest extends ContainerTest {
 
     @Test
     public void testHoleAlleTradeJobs() {
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ERSTELLT);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
 
-        List<TradeJobDTO> tradeJobDTOList = tradeJobService.holeAlleTradeJobs();
-        Assert.assertNotNull(tradeJobDTOList);
-        Assert.assertTrue(!tradeJobDTOList.isEmpty());
+        List<SimpelTradeJobDTO> simpelTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
+        Assert.assertNotNull(simpelTradeJobDTOList);
+        Assert.assertTrue(!simpelTradeJobDTOList.isEmpty());
 
-        boolean checked = checkListNachId(id, tradeJobDTOList);
+        boolean checked = checkListNachId(id, simpelTradeJobDTOList);
         Assert.assertTrue(checked);
     }
 
     @Test
     public void testFilterTradeJobs() {
-        TradeJobDTO verkaufTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
+        SimpelTradeJobDTO verkaufSimpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.ABGESCHLOSSEN);
 
-        TradeJobDTO kaufTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.KAUF_ZIEL, TradeStatus.ERSTELLT);
-        Long verkaufId = tradeJobService.speichereTradeJob(verkaufTradeJobDTO);
-        Long kaufId = tradeJobService.speichereTradeJob(kaufTradeJobDTO);
+        SimpelTradeJobDTO kaufSimpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.KAUF_ZIEL, TradeStatus.ERSTELLT);
+        Long verkaufId = tradeJobService.speichereTradeJob(verkaufSimpelTradeJobDTO);
+        Long kaufId = tradeJobService.speichereTradeJob(kaufSimpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(verkaufId);
         Assert.assertNotNull(kaufId);
 
-        List<TradeJobDTO> alleTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
-        Assert.assertNotNull(alleTradeJobDTOList);
-        Assert.assertTrue(!alleTradeJobDTOList.isEmpty());
+        List<SimpelTradeJobDTO> alleSimpelTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
+        Assert.assertNotNull(alleSimpelTradeJobDTOList);
+        Assert.assertTrue(!alleSimpelTradeJobDTOList.isEmpty());
 
         //Filtern nach TradeStatusTyp
-        List<TradeJobDTO> kaufTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradeTyp.KAUF);
-        boolean checked = checkListNachId(kaufId, kaufTradejobDTOList);
+        List<SimpelTradeJobDTO> kaufTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, TradeTyp.KAUF);
+        boolean checked = checkListNachId(kaufId, kaufTradejobDTOListSimpel);
         Assert.assertTrue(checked);
-        checked = checkListNachId(verkaufId, kaufTradejobDTOList);
+        checked = checkListNachId(verkaufId, kaufTradejobDTOListSimpel);
         Assert.assertFalse(checked);
 
-        List<TradeJobDTO> verkaufTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradeTyp.VERKAUF);
-        checked = checkListNachId(kaufId, verkaufTradejobDTOList);
+        List<SimpelTradeJobDTO> verkaufTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, TradeTyp.VERKAUF);
+        checked = checkListNachId(kaufId, verkaufTradejobDTOListSimpel);
         Assert.assertFalse(checked);
-        checked = checkListNachId(verkaufId, verkaufTradejobDTOList);
+        checked = checkListNachId(verkaufId, verkaufTradejobDTOListSimpel);
         Assert.assertTrue(checked);
 
         //Filtern nach erledigt
-        List<TradeJobDTO> erledigtTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, true);
-        checked = checkListNachId(verkaufId, erledigtTradejobDTOList);
+        List<SimpelTradeJobDTO> erledigtTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, true);
+        checked = checkListNachId(verkaufId, erledigtTradejobDTOListSimpel);
         Assert.assertTrue(checked);
-        checked = checkListNachId(kaufId, erledigtTradejobDTOList);
+        checked = checkListNachId(kaufId, erledigtTradejobDTOListSimpel);
         Assert.assertFalse(checked);
 
-        List<TradeJobDTO> nichtErledigtTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, false);
-        checked = checkListNachId(kaufId, nichtErledigtTradejobDTOList);
+        List<SimpelTradeJobDTO> nichtErledigtTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, false);
+        checked = checkListNachId(kaufId, nichtErledigtTradejobDTOListSimpel);
         Assert.assertTrue(checked);
-        checked = checkListNachId(verkaufId, nichtErledigtTradejobDTOList);
+        checked = checkListNachId(verkaufId, nichtErledigtTradejobDTOListSimpel);
         Assert.assertFalse(checked);
 
         //Filtern nach TradingPlattform
-        List<TradeJobDTO> binanceTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradingPlattform.BINANCE);
-        checked = checkListNachId(verkaufId, binanceTradejobDTOList);
+        List<SimpelTradeJobDTO> binanceTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, TradingPlattform.BINANCE);
+        checked = checkListNachId(verkaufId, binanceTradejobDTOListSimpel);
         Assert.assertTrue(checked);
-        checked = checkListNachId(kaufId, binanceTradejobDTOList);
+        checked = checkListNachId(kaufId, binanceTradejobDTOListSimpel);
         Assert.assertTrue(checked);
 
-        List<TradeJobDTO> allTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, TradingPlattform.ALLE);
-        checked = checkListNachId(kaufId, allTradejobDTOList);
+        List<SimpelTradeJobDTO> allTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, TradingPlattform.ALLE);
+        checked = checkListNachId(kaufId, allTradejobDTOListSimpel);
         Assert.assertFalse(checked);
-        checked = checkListNachId(verkaufId, allTradejobDTOList);
+        checked = checkListNachId(verkaufId, allTradejobDTOListSimpel);
         Assert.assertFalse(checked);
     }
 
     @Test
     public void testErledigeTradeJob() {
-        TradeJobDTO tradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
-        Long id = tradeJobService.speichereTradeJob(tradeJobDTO);
+        SimpelTradeJobDTO simpelTradeJobDTO = tradeJobTestDataHelper.erzeugeSimpleTradeJobDTO(TradeAktionEnum.VERKAUF_ZIEL, TradeStatus.BEOBACHTUNG);
+        Long id = tradeJobService.speichereTradeJob(simpelTradeJobDTO);
         cleanInstances();
         Assert.assertNotNull(id);
 
-        List<TradeJobDTO> alleTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
-        Assert.assertNotNull(alleTradeJobDTOList);
-        Assert.assertTrue(!alleTradeJobDTOList.isEmpty());
+        List<SimpelTradeJobDTO> alleSimpelTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
+        Assert.assertNotNull(alleSimpelTradeJobDTOList);
+        Assert.assertTrue(!alleSimpelTradeJobDTOList.isEmpty());
 
-        List<TradeJobDTO> nichtErledigtTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, false);
-        boolean checked = checkListNachId(id, nichtErledigtTradejobDTOList);
+        List<SimpelTradeJobDTO> nichtErledigtTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, false);
+        boolean checked = checkListNachId(id, nichtErledigtTradejobDTOListSimpel);
         Assert.assertTrue(checked);
 
         //Erledigen des Jobs
@@ -123,18 +123,18 @@ public class TradeJobServiceTest extends ContainerTest {
         cleanInstances();
         Assert.assertTrue(erledigt);
 
-        alleTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
-        Assert.assertNotNull(alleTradeJobDTOList);
-        Assert.assertTrue(!alleTradeJobDTOList.isEmpty());
+        alleSimpelTradeJobDTOList = tradeJobService.holeAlleTradeJobs();
+        Assert.assertNotNull(alleSimpelTradeJobDTOList);
+        Assert.assertTrue(!alleSimpelTradeJobDTOList.isEmpty());
 
-        List<TradeJobDTO> erledigtTradejobDTOList = tradeJobService.filterTradeJobDTOList(alleTradeJobDTOList, true);
-        checked = checkListNachId(id, erledigtTradejobDTOList);
+        List<SimpelTradeJobDTO> erledigtTradejobDTOListSimpel = tradeJobService.filterTradeJobDTOList(alleSimpelTradeJobDTOList, true);
+        checked = checkListNachId(id, erledigtTradejobDTOListSimpel);
         Assert.assertTrue(checked);
     }
 
 
-    private boolean checkListNachId(Long id, List<TradeJobDTO> tradeJobDTOList) {
-        for (TradeJobDTO jobDTO : tradeJobDTOList) {
+    private boolean checkListNachId(Long id, List<SimpelTradeJobDTO> simpelTradeJobDTOList) {
+        for (SimpelTradeJobDTO jobDTO : simpelTradeJobDTOList) {
             if (jobDTO.getId().equals(id)) {
                 return true;
             }

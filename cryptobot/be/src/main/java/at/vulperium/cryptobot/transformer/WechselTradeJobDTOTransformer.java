@@ -26,7 +26,6 @@ public class WechselTradeJobDTOTransformer extends AbstractTradeJobDTOTransforme
 
         target.setKaufwertGrenze(source.getKaufwertGrenze());
         target.setMengeReferenzwert(source.getMengeReferenzwert());
-        target.setGanzzahligerVerkauf(source.isGanzzahligerVerkauf());
         target.setMinimalZielSatz(source.getMinimalZielSatz());
         target.setVorgesehenerVerkaufwert(source.getVorgesehenerVerkaufwert());
 
@@ -48,7 +47,6 @@ public class WechselTradeJobDTOTransformer extends AbstractTradeJobDTOTransforme
 
         target.setKaufwertGrenze(source.getKaufwertGrenze());
         target.setMengeReferenzwert(source.getMengeReferenzwert());
-        target.setGanzzahligerVerkauf(source.isGanzzahligerVerkauf());
         target.setMinimalZielSatz(source.getMinimalZielSatz());
         target.setVorgesehenerVerkaufwert(source.getVorgesehenerVerkaufwert());
 

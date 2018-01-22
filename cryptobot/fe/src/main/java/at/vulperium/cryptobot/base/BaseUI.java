@@ -2,6 +2,7 @@ package at.vulperium.cryptobot.base;
 
 import at.vulperium.cryptobot.base.components.MainLayout;
 import at.vulperium.cryptobot.base.navigator.CryptobotNavigator;
+import at.vulperium.cryptobot.mainbar.BottomBarComponent;
 import at.vulperium.cryptobot.mainbar.MenuBarComponent;
 import at.vulperium.cryptobot.mainbar.TopBarComponent;
 import com.vaadin.annotations.Theme;
@@ -26,9 +27,10 @@ public class BaseUI extends UI implements Serializable {
 
         final MenuBarComponent menuBarComponent = getMenuBarComponent();
         final TopBarComponent topBarComponent = getTopBarComponent();
+        final BottomBarComponent bottomBarComponent = getBottomBarComponent();
 
 
-        final MainLayout mainlayout = new MainLayout(menuBarComponent, topBarComponent);
+        final MainLayout mainlayout = new MainLayout(menuBarComponent, topBarComponent, bottomBarComponent);
 
         //Initialisierung Navigator
         setupNavigator(mainlayout);
@@ -56,5 +58,12 @@ public class BaseUI extends UI implements Serializable {
         BeanProvider.injectFields(menuBarComponent);
         menuBarComponent.postConstruct();
         return menuBarComponent;
+    }
+
+    private BottomBarComponent getBottomBarComponent() {
+        BottomBarComponent bottomBarComponent = new BottomBarComponent();
+        BeanProvider.injectFields(bottomBarComponent);
+        bottomBarComponent.postConstruct();
+        return bottomBarComponent;
     }
 }

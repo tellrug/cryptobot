@@ -1,6 +1,6 @@
 package at.vulperium.cryptobot.services;
 
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 
@@ -11,13 +11,13 @@ import java.util.List;
  */
 public interface BenachrichtigungService {
 
-    void versendeBenachrichtigung(List<TradeJobDTO> tradeJobDTOList, BenachrichtigungTyp benachrichtigungTyp, TradingPlattform tradingPlattform);
+    void versendeBenachrichtigung(List<SimpelTradeJobDTO> simpelTradeJobDTOList, BenachrichtigungTyp benachrichtigungTyp, TradingPlattform tradingPlattform);
 
-    void versendeBenachrichtigung(TradeJobDTO tradeJobDTO, BenachrichtigungTyp benachrichtigungTyp);
+    void versendeBenachrichtigung(SimpelTradeJobDTO simpelTradeJobDTO, BenachrichtigungTyp benachrichtigungTyp);
 
-    String erstelleBenachrichtigungsBetreff(List<TradeJobDTO> tradeJobDTOList, TradingPlattform tradingPlattform);
+    String erstelleBenachrichtigungsBetreff(List<SimpelTradeJobDTO> simpelTradeJobDTOList, TradingPlattform tradingPlattform);
 
-    String erstelleBenachrichtigungsBetreff(TradeJobDTO tradeJobDTO);
+    String erstelleBenachrichtigungsBetreff(SimpelTradeJobDTO simpelTradeJobDTO);
 
-    String erstelleBenachrichtigungsText(TradeJobDTO tradeJobDTO);
+    String erstelleBenachrichtigungsText(SimpelTradeJobDTO simpelTradeJobDTO);
 }

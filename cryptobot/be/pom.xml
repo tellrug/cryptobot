@@ -141,6 +141,13 @@
             <artifactId>javax.mail</artifactId>
         </dependency>
 
+        <!-- BINANCE-API -->
+        <dependency>
+            <groupId>com.webcerebrium</groupId>
+            <artifactId>binance-api</artifactId>
+            <version>1.0.8</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>

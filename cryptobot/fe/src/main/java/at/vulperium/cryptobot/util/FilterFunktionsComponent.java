@@ -94,6 +94,9 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         return middleLayout;
     }
 
+    public Button getAddButton() {
+        return addButton;
+    }
 
     public void addButtonListener(Button.ClickListener buttonClickListener) {
         addButton.addClickListener(buttonClickListener);

@@ -1,5 +1,6 @@
 package at.vulperium.cryptobot.services.trades;
 
+import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.WechselTradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
@@ -25,6 +26,8 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
     public static final Logger logger = LoggerFactory.getLogger(WechselTradeVerkaufServiceImpl.class);
 
     private @Inject WechselTradeJobService wechselTradeJobService;
+    private @Inject TradeAktionService tradeAktionService;
+    private @Inject TradeAktionVerwaltungService tradeAktionVerwaltungService;
 
     @Override
     public void verarbeiteWechselJobVerkauf(WechselTradeJobDTO wechselTradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
@@ -35,12 +38,6 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
             //Job wurde erstellt  bzw. es wird auf Verkaufmoment gewartet
             //Ueberpruefen ob Verkaufmoment eingetreten ist
             verarbeiteTradeJob(wechselTradeJobDTO, wsCryptoCoinDTO);
-        }
-
-        //TradeStatus koennte sich veraendert haben --> deswegen wird hier gleich die naechste Aufgabe durchgefuehrt
-        if (wechselTradeJobDTO.getTradeStatus() == TradeStatus.TRADE_PRUEFUNG_VERKAUF) {
-            //Ueberpruefen ob Order gestellt wurde
-            ueberpruefeVerkaufTrade(wechselTradeJobDTO);
         }
     }
 
@@ -74,7 +71,6 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
         return TradeJobReaktion.WARTEN;
     }
 
-    @Override
     protected void aktualisiereTradeJob(WechselTradeJobDTO tradeJobDTO) {
         wechselTradeJobService.aktualisiereWechselTradeJob(tradeJobDTO);
     }
@@ -83,61 +79,84 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
     protected TradeStatus fuehreFolgeaktionDurch(WechselTradeJobDTO tradeJobDTO) {
         if (tradeJobDTO.getTradeAktionEnum() == TradeAktionEnum.ORDER_VERKAUF && tradeJobDTO.getTradeStatus() == TradeStatus.TRADE_VERKAUF) {
             //Verkauf-Order erstellen
-            //TODO Aufruf von Service
-            boolean orderErfolgreichAbgesetzt = true;
-            if (orderErfolgreichAbgesetzt) {
-                //Verkauf-Informationen setzen
-                //tradeJobDTO.setVorgesehenerVerkaufwert();
 
+            //Erstellen von entsprechender TradeAktion
+            TradeAktionDTO verkaufTradeAktion = erstelleTradeAktion(tradeJobDTO);
+
+            //Order erstellen
+            if (tradeAktionVerwaltungService.fuehreTradeAktionDurch(verkaufTradeAktion)) {
+                tradeJobDTO.setVorgesehenerVerkaufwert(verkaufTradeAktion.getPreisProEinheit());
                 tradeJobDTO.setTradeVersuchAm(LocalDateTime.now());
                 tradeJobDTO.setTradeStatus(TradeStatus.TRADE_PRUEFUNG_VERKAUF);
-                return null;
             }
             else {
                 //Fehler beim Erstellen des Trades
-                tradeJobDTO.setTradeStatus(TradeStatus.FEHLER);
-                return null;
+                tradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
             }
+            //TODO wird das hier noch benoetigt?
+            return null;
         }
         logger.error("Zu TradeJob mit wechselTradeJobId={} konnte keine Folgeaktion durchgefuehrt werden.", tradeJobDTO.getId());
         throw new IllegalStateException("Zu TradeJob mit wechselTradeJobId=" + tradeJobDTO.getId() + " konnte keine Folgeaktion durchgefuehrt werden.");
     }
 
-    private void ueberpruefeVerkaufTrade(WechselTradeJobDTO tradeJobDTO) {
-        /*
-        Es werden offene Orders betrachtet. Ueberpruefen ob relevante offene Order vorhanden ist:
-        *Einheit und ReferenzEinheit
-        *Menge
-        *vorgesehenerVerkaufwert aus offenen Order vergleichen (VERKAUF)
+    @Override
+    public void aktualisiereTradeJobNachTradeAktion(WechselTradeJobDTO tradeJobDTO, TradeAktionDTO tradeAktionDTO) {
+        Validate.notNull(tradeJobDTO, "wechselTradeJobDTO ist null.");
+        Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
-        Keine relevante Order vorhanden: Verauf war erfolgreich --> Kaufwert wird auf 0 gesetzt, Zielwert wird auf 0 gesetzt, vorgesehenerVerkaufwert wird auf 0 gesetzt,
-        menge wird auf 0 gesetzt, tradeVersuchAm auf null gesetzt, Status umstellen auf BEOBACHTEN, tradeTyp wird auf KAUF gesetzt --> TradeAktion speichern
-        Relevanter Order vorhanden: Verkauf hat nicht funktioniert --> ?????
-        */
-
-        boolean verkaufErfolgreich = true;
-        if (verkaufErfolgreich) {
-            tradeJobDTO.setKaufwert(null);
+        if (tradeAktionDTO.getTradeStatus() == TradeStatus.ABGESCHLOSSEN) {
+            //Verkauf ist erledigt --> WechselJob muss umgestellt werden
+            tradeJobDTO.setKaufwert(tradeJobDTO.getLetztwert()); //Darf nicht auf NULL gesetzt werden wegen Trend-Bestimmung
             tradeJobDTO.setMenge(null);
             tradeJobDTO.setZielwert(null);
             tradeJobDTO.setVorgesehenerVerkaufwert(null);
 
             tradeJobDTO.setTradeVersuchAm(null);
 
-            tradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
+            tradeJobDTO.setTradeStatus(TradeStatus.ERSTELLT);
+            tradeJobDTO.setTradeAktionEnum(TradeAktionEnum.ORDER_KAUF);
             tradeJobDTO.setTradeTyp(TradeTyp.KAUF);
 
             //Aktualisieren von TradeJob
             aktualisiereTradeJob(tradeJobDTO);
 
-            //speichern von TradeAktion
-            //TODO speichern von TradeAktion
-
             logger.info("Verkauf erfolgreich. Der TradeTyp von WechselTradeJob mit wechselTradeJobId={} wurde umgesetzt", tradeJobDTO.getId(), tradeJobDTO.getTradeTyp());
         }
-        else {
+        else if (tradeAktionDTO.getTradeStatus() == TradeStatus.TRADE_FEHLGESCHLAGEN) {
             logger.warn("Keinen Kauefer von {} bei WechselTradeJob mit wechselTradeJobId={} gefunden.", tradeJobDTO.getCryptoWaehrung(), tradeJobDTO.getId());
-            //TODO Trade stornieren? alles wieder zuruecksetzen so dass neue Verkauf-Order erstellt wird
+
+            //alles wieder zuruecksetzen so dass neue Kauf-Order erstellt wird
+            tradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
+            //Aktualisieren von TradeJob
+            aktualisiereTradeJob(tradeJobDTO);
         }
+
+    }
+
+    private TradeAktionDTO erstelleTradeAktion(WechselTradeJobDTO tradeJobDTO) {
+        //Es wird eine TradeAktion erstellt: Verkauf
+
+        TradeAktionDTO tradeAktionDTO = new TradeAktionDTO();
+        tradeAktionDTO.setTradeTyp(TradeTyp.VERKAUF);
+        tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_VERKAUF);
+        tradeAktionDTO.setErstelltAm(LocalDateTime.now());
+        tradeAktionDTO.setTradingPlattform(tradeJobDTO.getTradingPlattform());
+
+        tradeAktionDTO.setTradeJobId(tradeJobDTO.getId());
+        tradeAktionDTO.setTradeJobTyp(tradeJobDTO.getTradeJobTyp());
+        //tradeAktionDTO.setUserId(); //TODO technischen User setzen
+
+        tradeAktionDTO.setVonMenge(ermittleRelevanteTradeMenge(tradeJobDTO.getMenge(), tradeJobDTO.isGanzZahlig()));
+        //tradeAktionDTO.setZuMenge(); wird das hier benoetigt
+        tradeAktionDTO.setVonWaehrung(tradeJobDTO.getCryptoWaehrung());
+        tradeAktionDTO.setZuWaehrung(tradeJobDTO.getCryptoWaehrungReferenz());
+
+        //Ermitteln des Preises
+        tradeAktionDTO.setPreisProEinheit(ermittleOrderWert(tradeJobDTO));
+
+        //Speichern der TradeAktion
+        Long tradeAktionId = tradeAktionService.speichereTradeAktion(tradeAktionDTO);
+        return tradeAktionDTO;
     }
 }

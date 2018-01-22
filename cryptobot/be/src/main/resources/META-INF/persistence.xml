@@ -5,11 +5,13 @@
         <jta-data-source>cryptodb</jta-data-source>
 
         <!-- Klassen angeben -->
-        <class>at.vulperium.cryptobot.entities.TradeJob</class>
+        <class>at.vulperium.cryptobot.entities.AbstractTradeJob</class>
+        <class>at.vulperium.cryptobot.entities.SimpelTradeJob</class>
         <class>at.vulperium.cryptobot.entities.Waehrung</class>
         <class>at.vulperium.cryptobot.entities.CryptobotConfig</class>
         <class>at.vulperium.cryptobot.entities.WechselTradeJob</class>
         <class>at.vulperium.cryptobot.entities.TradeAktion</class>
+        <class>at.vulperium.cryptobot.entities.TimerJob</class>
 
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>

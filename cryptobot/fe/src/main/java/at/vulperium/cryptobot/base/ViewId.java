@@ -7,5 +7,6 @@ public final class ViewId {
 
     public static final String DASHBOARD = "dashboard";
     public static final String TRADE_JOBS = "tradejobs";
+    public static final String WECHSEL_JOBS = "wechseljobs";
     public static final String TRADE_AKTIONEN = "tradeaktion";
 }

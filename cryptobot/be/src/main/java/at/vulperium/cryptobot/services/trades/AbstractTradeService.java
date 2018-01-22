@@ -4,6 +4,7 @@ import at.vulperium.cryptobot.dtos.AbstractTradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeStatus;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.Trend;
 import at.vulperium.cryptobot.utils.TradeUtil;
 import org.apache.commons.lang.Validate;
@@ -18,14 +19,17 @@ public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
         Validate.notNull(wsCryptoCoinDTO, "wsCryptoCoinDTO ist null");
 
         //Bestimmen des Trends
-        Trend trend = ermittleTrend(tradeJobDTO.getLetztwert() != null ? tradeJobDTO.getLetztwert() : tradeJobDTO.getKaufwert(), wsCryptoCoinDTO.getPrice());
+        Trend trend = ermittleTrend(tradeJobDTO.getSpitzenwert() != null ? tradeJobDTO.getSpitzenwert() : tradeJobDTO.getKaufwert(), wsCryptoCoinDTO.getPrice());
+
+        //Aktualisieren von Letztwert
+        tradeJobDTO.setLetztwert(wsCryptoCoinDTO.getPrice());
+        //Setzen von Spitzenwert
+        setzeSpitzenWert(tradeJobDTO, wsCryptoCoinDTO.getPrice());
 
         //Ueberpruefen ob Zielwertueberschritten wurde
         boolean zielErreicht = ermittleZielErreicht(tradeJobDTO, wsCryptoCoinDTO.getPrice());
         TradeJobReaktion tradeJobReaktion = ermittleTradeJobReaktion(tradeJobDTO, zielErreicht, trend);
 
-        //Aktualisieren von Letztwert
-        tradeJobDTO.setLetztwert(wsCryptoCoinDTO.getPrice());
 
         if (TradeJobReaktion.FOLGE_AKTION == tradeJobReaktion) {
             fuehreFolgeaktionDurch(tradeJobDTO);
@@ -60,8 +64,51 @@ public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
         return Trend.KONSTANT;
     }
 
-    protected abstract boolean ermittleZielErreicht(T tradeJobDTO, BigDecimal aktuellerKurs);
+    protected BigDecimal ermittleOrderWert(T tradeJobDTO) {
+        BigDecimal abschlag;
+        if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF) {
+            abschlag = TradeUtil.getBigDecimal("1.008"); // Abschlag damit schneller erfolgreich gekauft wird
+        }
+        else if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.VERKAUF) {
+            abschlag = TradeUtil.getBigDecimal("0.99"); // Abschlag damit schneller erfolgreich verkauft wird
+        }
+        else {
+            throw new IllegalStateException("Fehler bei der Ermittlung von TradeTyp bei Tradejob=" + tradeJobDTO.getId());
+        }
 
+        return tradeJobDTO.getLetztwert().multiply(abschlag);
+    }
+
+    protected BigDecimal ermittleRelevanteTradeMenge(BigDecimal menge, boolean ganzzahligeMenge) {
+        if (ganzzahligeMenge) {
+            return menge.setScale(0, BigDecimal.ROUND_DOWN).setScale(TradeUtil.SCALE, BigDecimal.ROUND_DOWN);
+        }
+        return menge;
+    }
+
+    private void setzeSpitzenWert(T tradeJobDTO, BigDecimal aktuellerWert) {
+
+        if (tradeJobDTO.getSpitzenwert() == null) {
+            tradeJobDTO.setSpitzenwert(aktuellerWert);
+            return;
+        }
+
+        if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.KAUF) {
+            if (aktuellerWert.compareTo(tradeJobDTO.getSpitzenwert()) == -1) {
+                tradeJobDTO.setSpitzenwert(aktuellerWert);
+            }
+        }
+        else if (tradeJobDTO.getTradeAktionEnum().getTradeTyp() == TradeTyp.VERKAUF) {
+            if (aktuellerWert.compareTo(tradeJobDTO.getSpitzenwert()) == 1) {
+                tradeJobDTO.setSpitzenwert(aktuellerWert);
+            }
+        }
+        else {
+            throw new IllegalStateException("Fuer den TradeJob mit tradejobId=" + tradeJobDTO.getId() + "konnte kein TradeTyp ermittelt werden!");
+        }
+    }
+
+    protected abstract boolean ermittleZielErreicht(T tradeJobDTO, BigDecimal aktuellerKurs);
 
     protected abstract TradeJobReaktion ermittleTradeJobReaktion(T tradeJobDTO, boolean zielErreicht, Trend trend);
 

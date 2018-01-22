@@ -2,9 +2,12 @@ package at.vulperium.cryptobot.webservice.binance;
 
 
 import at.vulperium.cryptobot.config.ConfigValue;
+import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.services.BinanceClientService;
 import at.vulperium.cryptobot.utils.ConfigUtil;
+import at.vulperium.cryptobot.utils.TradeUtil;
 import org.apache.johnzon.mapper.Mapper;
 import org.apache.johnzon.mapper.MapperBuilder;
 import org.json.JSONArray;
@@ -66,6 +69,8 @@ public class BinanceClientServiceImpl implements BinanceClientService {
             responseText = "[{\"symbol\": \"LTCBTC\",\"price\": \"4.00000200\"},{\"symbol\": \"ETHBTC\",\"price\": \"0.07946600\"}," +
                     "{\"symbol\": \"VK1BTC\",\"price\": \"0.0081\"}," +
                     "{\"symbol\": \"VK2BTC\",\"price\": \"0.010\"}," +
+                    "{\"symbol\": \"WJCKBTC\",\"price\": \"0.3\"}," +
+                    "{\"symbol\": \"WJCVBTC\",\"price\": \"0.8\"}," +
                     "{\"symbol\": \"K1BTC\",\"price\": \"0.0029\"}]";
             logger.warn("Test-Modus ist aktiv: Kein WebService-Aufruf. Antwort: {}", responseText);
         }
@@ -104,6 +109,22 @@ public class BinanceClientServiceImpl implements BinanceClientService {
         logger.info("WebService-Aufruf 'letztePreise'. Antwort={}, Status={}", responseText, status.toEnum().name());
     }
 
+    @Override
+    public HoldingOrderDTO ermittleHoldingOrderInformationen() {
+
+        HoldingOrderDTO holdingOrderDTO = new HoldingOrderDTO();
+        holdingOrderDTO.setTradingPlattform(TradingPlattform.BINANCE);
+
+        if (ConfigUtil.toBoolean(testModus)) {
+            holdingOrderDTO.getHoldingMap().put("LTC", TradeUtil.getBigDecimal(100));
+            holdingOrderDTO.getHoldingMap().put("BTC", TradeUtil.getBigDecimal(0.03));
+            holdingOrderDTO.getHoldingMap().put("WJCV", TradeUtil.getBigDecimal(300));
+        }
+        else {
+            //TODO
+        }
+        return holdingOrderDTO;
+    }
 
     private Response starteWebServiceCall(String requestUrl, String methode) {
         Client client = ClientBuilder.newClient();

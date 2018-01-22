@@ -1,10 +1,10 @@
 package at.vulperium.cryptobot.services.jobs;
 
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
-import at.vulperium.cryptobot.entities.TradeJob;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
+import at.vulperium.cryptobot.entities.SimpelTradeJob;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
-import at.vulperium.cryptobot.transformer.TradeJobDTOTransformer;
+import at.vulperium.cryptobot.transformer.SimpelTradeJobDTOTransformer;
 import org.apache.commons.lang.Validate;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.joda.time.LocalDateTime;
@@ -21,94 +21,94 @@ import java.util.stream.Collectors;
 public class TradeJobServiceImpl implements TradeJobService {
 
     private @Inject EntityManager em;
-    private @Inject TradeJobDTOTransformer transformer;
+    private @Inject SimpelTradeJobDTOTransformer transformer;
 
     @Override
-    public TradeJobDTO holeTradeJob(Long id) {
+    public SimpelTradeJobDTO holeTradeJob(Long id) {
         Validate.notNull(id, "id ist null.");
 
-        TradeJob tradeJob = em.find(TradeJob.class, id);
-        if (tradeJob == null) {
+        SimpelTradeJob simpelTradeJob = em.find(SimpelTradeJob.class, id);
+        if (simpelTradeJob == null) {
             return null;
         }
 
-        return transformer.transform(tradeJob);
+        return transformer.transform(simpelTradeJob);
     }
 
     @Override
-    public List<TradeJobDTO> holeAlleTradeJobs() {
-        TypedQuery<TradeJob> query = em.createNamedQuery(TradeJob.QRY_FIND_ALL, TradeJob.class);
+    public List<SimpelTradeJobDTO> holeAlleTradeJobs() {
+        TypedQuery<SimpelTradeJob> query = em.createNamedQuery(SimpelTradeJob.QRY_FIND_ALL, SimpelTradeJob.class);
         return query.getResultList().stream().map(tradeJob -> transformer.transform(tradeJob)).collect(Collectors.toList());
     }
 
     @Override
-    public List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradeTyp tradeTyp) {
-        Validate.notNull(tradeJobDTOList, "tradeJobDTOList ist null.");
+    public List<SimpelTradeJobDTO> filterTradeJobDTOList(List<SimpelTradeJobDTO> simpelTradeJobDTOList, TradeTyp tradeTyp) {
+        Validate.notNull(simpelTradeJobDTOList, "tradeJobDTOList ist null.");
         Validate.notNull(tradeTyp, "tradeTyp ist null.");
-        return tradeJobDTOList.stream().filter(e -> e.getTradeAktionEnum().getTradeTyp() == tradeTyp).collect(Collectors.toList());
+        return simpelTradeJobDTOList.stream().filter(e -> e.getTradeAktionEnum().getTradeTyp() == tradeTyp).collect(Collectors.toList());
     }
 
     @Override
-    public List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, boolean erledigt) {
-        Validate.notNull(tradeJobDTOList, "tradeJobDTOList ist null.");
-        return tradeJobDTOList.stream().filter(e -> (e.getErledigtAm() != null) == erledigt).collect(Collectors.toList());
+    public List<SimpelTradeJobDTO> filterTradeJobDTOList(List<SimpelTradeJobDTO> simpelTradeJobDTOList, boolean erledigt) {
+        Validate.notNull(simpelTradeJobDTOList, "tradeJobDTOList ist null.");
+        return simpelTradeJobDTOList.stream().filter(e -> (e.getErledigtAm() != null) == erledigt).collect(Collectors.toList());
     }
 
     @Override
-    public List<TradeJobDTO> filterTradeJobDTOList(List<TradeJobDTO> tradeJobDTOList, TradingPlattform tradingPlattform) {
-        Validate.notNull(tradeJobDTOList, "tradeJobDTOList ist null.");
+    public List<SimpelTradeJobDTO> filterTradeJobDTOList(List<SimpelTradeJobDTO> simpelTradeJobDTOList, TradingPlattform tradingPlattform) {
+        Validate.notNull(simpelTradeJobDTOList, "tradeJobDTOList ist null.");
         Validate.notNull(tradingPlattform, "tradingPlattform ist null.");
-        return tradeJobDTOList.stream().filter(e -> e.getTradingPlattform() == tradingPlattform).collect(Collectors.toList());
+        return simpelTradeJobDTOList.stream().filter(e -> e.getTradingPlattform() == tradingPlattform).collect(Collectors.toList());
     }
 
     @Override
-    public Long speichereTradeJob(TradeJobDTO tradeJobDTO) {
-        Validate.notNull(tradeJobDTO, "tradeJobDTO ist null.");
+    public Long speichereTradeJob(SimpelTradeJobDTO simpelTradeJobDTO) {
+        Validate.notNull(simpelTradeJobDTO, "tradeJobDTO ist null.");
 
-        if (tradeJobDTO.getId() != null) {
+        if (simpelTradeJobDTO.getId() != null) {
             throw new IllegalStateException("TradeJob kann nicht gespeichert werden. Id bereits vorhanden.");
         }
 
-        if (tradeJobDTO.getErstelltAm() == null) {
-            tradeJobDTO.setErstelltAm(LocalDateTime.now());
+        if (simpelTradeJobDTO.getErstelltAm() == null) {
+            simpelTradeJobDTO.setErstelltAm(LocalDateTime.now());
         }
 
-        TradeJob tradeJob = transformer.transformInverse(tradeJobDTO);
-        em.persist(tradeJob);
-        tradeJobDTO.setId(tradeJob.getId());
-        return tradeJob.getId();
+        SimpelTradeJob simpelTradeJob = transformer.transformInverse(simpelTradeJobDTO);
+        em.persist(simpelTradeJob);
+        simpelTradeJobDTO.setId(simpelTradeJob.getId());
+        return simpelTradeJob.getId();
     }
 
     @Override
-    public boolean aktualisiereTradeJob(TradeJobDTO tradeJobDTO) {
-        Validate.notNull(tradeJobDTO, "tradeJobDTO ist null.");
+    public boolean aktualisiereTradeJob(SimpelTradeJobDTO simpelTradeJobDTO) {
+        Validate.notNull(simpelTradeJobDTO, "tradeJobDTO ist null.");
 
-        if (tradeJobDTO.getId() == null) {
+        if (simpelTradeJobDTO.getId() == null) {
             //Id ist nicht vorhanden
             throw new IllegalStateException("TradeJob kann nicht aktualisiert werden. Id ist nicht vorhanden.");
         }
 
-        TradeJob tradeJob = em.find(TradeJob.class, tradeJobDTO.getId());
-        if (tradeJob == null) {
+        SimpelTradeJob simpelTradeJob = em.find(SimpelTradeJob.class, simpelTradeJobDTO.getId());
+        if (simpelTradeJob == null) {
             return false;
         }
 
-        transformer.transformInverse(tradeJobDTO, tradeJob);
-        em.merge(tradeJob);
+        transformer.transformInverse(simpelTradeJobDTO, simpelTradeJob);
+        em.merge(simpelTradeJob);
         return true;
     }
 
     @Override
     public boolean erledigeTradeJob(Long tradeJobId) {
-        Validate.notNull(tradeJobId, "tradeAktionId ist null.");
+        Validate.notNull(tradeJobId, "tradeJobId ist null.");
 
-        TradeJob tradeJob = em.find(TradeJob.class, tradeJobId);
-        if (tradeJob == null) {
+        SimpelTradeJob simpelTradeJob = em.find(SimpelTradeJob.class, tradeJobId);
+        if (simpelTradeJob == null) {
             return false;
         }
 
-        tradeJob.setErledigtAm(LocalDateTime.now().toDate());
-        em.merge(tradeJob);
+        simpelTradeJob.setErledigtAm(LocalDateTime.now().toDate());
+        em.merge(simpelTradeJob);
         return true;
     }
 }

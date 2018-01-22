@@ -1,6 +1,6 @@
 package at.vulperium.cryptobot.tradejobs.vo;
 
-import at.vulperium.cryptobot.dtos.TradeJobDTO;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 
 import java.io.Serializable;
 
@@ -9,17 +9,17 @@ import java.io.Serializable;
  */
 public class TradeJobVO implements Serializable {
 
-    private TradeJobDTO tradeJobDTO;
+    private SimpelTradeJobDTO simpelTradeJobDTO;
 
-    public TradeJobVO(TradeJobDTO tradeJobDTO) {
-        this.tradeJobDTO = tradeJobDTO;
+    public TradeJobVO(SimpelTradeJobDTO simpelTradeJobDTO) {
+        this.simpelTradeJobDTO = simpelTradeJobDTO;
     }
 
-    public TradeJobDTO getTradeJobDTO() {
-        return tradeJobDTO;
+    public SimpelTradeJobDTO getSimpelTradeJobDTO() {
+        return simpelTradeJobDTO;
     }
 
-    public void setTradeJobDTO(TradeJobDTO tradeJobDTO) {
-        this.tradeJobDTO = tradeJobDTO;
+    public void setSimpelTradeJobDTO(SimpelTradeJobDTO simpelTradeJobDTO) {
+        this.simpelTradeJobDTO = simpelTradeJobDTO;
     }
 }
