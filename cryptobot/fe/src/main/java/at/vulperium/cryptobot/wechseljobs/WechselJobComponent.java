@@ -1,15 +1,9 @@
 package at.vulperium.cryptobot.wechseljobs;
 
 import at.vulperium.cryptobot.base.components.ComponentProducer;
-import at.vulperium.cryptobot.dtos.WechselTradeJobDTO;
-import at.vulperium.cryptobot.enums.TradeTyp;
-import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.tradeaktionen.TradeAktionWindow;
 import at.vulperium.cryptobot.tradeaktionen.service.TradeAktionViewService;
 import at.vulperium.cryptobot.tradeaktionen.vo.TradeAktionVO;
-import at.vulperium.cryptobot.tradejobs.TradeJobBearbeitenWindow;
-import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
-import at.vulperium.cryptobot.tradejobs.vo.TradeJobVO;
 import at.vulperium.cryptobot.util.CryptoStyles;
 import at.vulperium.cryptobot.util.FilterFunktionsComponent;
 import at.vulperium.cryptobot.util.Filterable;
@@ -45,7 +39,7 @@ public class WechselJobComponent extends VerticalLayout {
     private TradeAktionViewService tradeAktionViewService = BeanProvider.getContextualReference(TradeAktionViewService.class);
 
     private List<WechselTradeJobVO> wechselTradeJobVOList;
-    private Grid<WechselTradeJobVO> wechselJobGrid;
+    private Grid<WechselTradeJobVO> wechselJobGrid = new Grid<>();
 
 
     public WechselJobComponent(List<WechselTradeJobVO> wechselTradeJobVOList) {
@@ -62,10 +56,10 @@ public class WechselJobComponent extends VerticalLayout {
     }
 
     private void initContent() {
-        //Funktionsleiste
-        Component funktionsLeiste = initFunktionsleiste();
         //Tabelle
         Component jobTabelle = initJobTabelle();
+        //Funktionsleiste
+        Component funktionsLeiste = initFunktionsleiste();
 
 
         addComponent(funktionsLeiste);
@@ -76,7 +70,7 @@ public class WechselJobComponent extends VerticalLayout {
     }
 
     private Component initFunktionsleiste() {
-        FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent();
+        FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent((ListDataProvider<? extends Filterable>) wechselJobGrid.getDataProvider());
         //Funktion Add-Button
         filterFunktionsComponent.addButtonListener((Button.ClickListener) clickEvent -> {
             WechselJobBearbeitenWindow wechselJobBearbeitenWindow = new WechselJobBearbeitenWindow();
@@ -113,28 +107,11 @@ public class WechselJobComponent extends VerticalLayout {
             }
         });
 
-        //TradingPlattform Filter-Funktion
-        filterFunktionsComponent.addTradingPlattformValueChangeListener((HasValue.ValueChangeListener<TradingPlattform>) valueChangeEvent -> {
-            FilterVO filterVO = new FilterVO();
-            filterVO.setTradingPlattform(valueChangeEvent.getValue());
-            filterVO.setTradeTyp(filterFunktionsComponent.getSelectedTradeStatusTyp());
-            filterTradeJobs(filterVO);
-        });
-
-        //TradeTyp Filter-Funktion
-        filterFunktionsComponent.addTradeStatusTypValueChangeListener((HasValue.ValueChangeListener<TradeTyp>) valueChangeEvent -> {
-            FilterVO filterVO = new FilterVO();
-            filterVO.setTradingPlattform(filterFunktionsComponent.getSelectedTradingPlattform());
-            filterVO.setTradeTyp(valueChangeEvent.getValue());
-            filterTradeJobs(filterVO);
-        });
-
         return filterFunktionsComponent;
     }
 
 
     private Component initJobTabelle() {
-        wechselJobGrid = new Grid<>();
         wechselJobGrid.setSizeFull();
         wechselJobGrid.setSelectionMode(Grid.SelectionMode.NONE);
 
@@ -284,20 +261,5 @@ public class WechselJobComponent extends VerticalLayout {
 
     private Boolean caseInsensitiveContains(String where, String what) {
         return where.toLowerCase().contains(what.toLowerCase());
-    }
-
-
-    private void filterTradeJobs(FilterVO filterVO) {
-        ListDataProvider<? extends Filterable> dataProvider = (ListDataProvider<? extends Filterable>) wechselJobGrid.getDataProvider();
-        dataProvider.clearFilters();
-
-        //Zuerst nach Plattform filtern
-        if (filterVO.getTradingPlattform() != TradingPlattform.ALLE) {
-            dataProvider.setFilter(w -> w.filteringTradingPlattform(filterVO.getTradingPlattform()));
-        }
-        //Nach TradeTyp filtern
-        if (filterVO.getTradeTyp() != null) {
-            dataProvider.setFilter(w -> w.filteringTradeTyp(filterVO.getTradeTyp()));
-        }
     }
 }

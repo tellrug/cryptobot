@@ -12,6 +12,7 @@ public class FilterVO implements Serializable {
 
     private TradingPlattform tradingPlattform;
     private TradeTyp tradeTyp;
+    private boolean zeigeAbgeschlossen;
 
     public TradeTyp getTradeTyp() {
         return tradeTyp;
@@ -27,5 +28,13 @@ public class FilterVO implements Serializable {
 
     public void setTradingPlattform(TradingPlattform tradingPlattform) {
         this.tradingPlattform = tradingPlattform;
+    }
+
+    public boolean isZeigeAbgeschlossen() {
+        return zeigeAbgeschlossen;
+    }
+
+    public void setZeigeAbgeschlossen(boolean zeigeAbgeschlossen) {
+        this.zeigeAbgeschlossen = zeigeAbgeschlossen;
     }
 }

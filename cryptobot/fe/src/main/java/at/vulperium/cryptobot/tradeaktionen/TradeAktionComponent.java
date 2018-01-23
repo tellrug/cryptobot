@@ -1,9 +1,6 @@
 package at.vulperium.cryptobot.tradeaktionen;
 
-import at.vulperium.cryptobot.enums.TradeTyp;
-import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.tradeaktionen.vo.TradeAktionVO;
-import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
 import at.vulperium.cryptobot.util.FilterFunktionsComponent;
 import at.vulperium.cryptobot.util.Filterable;
 import com.vaadin.data.HasValue;
@@ -38,12 +35,13 @@ public class TradeAktionComponent extends VerticalLayout {
 
 
     private void initContent(List<TradeAktionVO> tradeAktionVOList) {
-        //Funktionsleiste
-        Component funktionsLeiste = initFunktionsleiste();
         //Tabelle
         TradeAktionGrid tradeAktionGrid = new TradeAktionGrid();
         tradeAktionGrid.initTradeAktionGrid(tradeAktionVOList);
         grid = tradeAktionGrid.getTabelle();
+
+        //Funktionsleiste
+        Component funktionsLeiste = initFunktionsleiste();
 
         addComponent(funktionsLeiste);
         addComponent(grid);
@@ -55,7 +53,7 @@ public class TradeAktionComponent extends VerticalLayout {
 
     private Component initFunktionsleiste() {
 
-        FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent();
+        FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent((ListDataProvider<? extends Filterable>) grid.getDataProvider());
         filterFunktionsComponent.getAddButton().setEnabled(false);
 
         //Symbol Filter-Funktion
@@ -67,40 +65,16 @@ public class TradeAktionComponent extends VerticalLayout {
             }
             else {
                 dataProvider.setFilter((ValueProvider<TradeAktionVO, String>) tradeAktionVO ->
-                        tradeAktionVO.getTradeAktionDTO().getVonWaehrung() + tradeAktionVO.getTradeAktionDTO().getZuWaehrung(),
+                                tradeAktionVO.getTradeAktionDTO().getCryptoWaehrung() + tradeAktionVO.getTradeAktionDTO().getCryptoWaehrungReferenz(),
                         s -> caseInsensitiveContains(s, valueChangeEvent.getValue()));
             }
 
         });
 
-        //TradingPlattform Filter-Funktion
-        filterFunktionsComponent.addTradingPlattformValueChangeListener((HasValue.ValueChangeListener<TradingPlattform>) valueChangeEvent -> {
-            FilterVO filterVO = new FilterVO();
-            filterVO.setTradingPlattform(valueChangeEvent.getValue());
-            filterVO.setTradeTyp(filterFunktionsComponent.getSelectedTradeStatusTyp());
-            filterTradeAktionen(filterVO);
-        });
-
-        //TradeTyp Filter-Funktion
-        filterFunktionsComponent.addTradeStatusTypValueChangeListener((HasValue.ValueChangeListener<TradeTyp>) valueChangeEvent -> {
-            FilterVO filterVO = new FilterVO();
-            filterVO.setTradingPlattform(filterFunktionsComponent.getSelectedTradingPlattform());
-            filterVO.setTradeTyp(valueChangeEvent.getValue());
-            filterTradeAktionen(filterVO);
-        });
-
         return filterFunktionsComponent;
     }
 
-    private void filterTradeAktionen(FilterVO filterVO) {
-        ListDataProvider<? extends Filterable> dataProvider = (ListDataProvider<? extends Filterable>) grid.getDataProvider();
-        dataProvider.clearFilters();
-
-        dataProvider.setFilter(e -> e.filteringTradingPlattform(filterVO.getTradingPlattform()));
-        dataProvider.setFilter(e -> e.filteringTradeTyp(filterVO.getTradeTyp()));
-    }
-
     private Boolean caseInsensitiveContains(String where, String what) {
-            return where.toLowerCase().contains(what.toLowerCase());
-        }
+        return where.toLowerCase().contains(what.toLowerCase());
+    }
 }

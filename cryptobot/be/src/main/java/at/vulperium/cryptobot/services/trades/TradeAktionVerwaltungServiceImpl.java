@@ -133,7 +133,7 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
 
-        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO.getVonWaehrung(), tradeAktionDTO.getZuWaehrung(), tradeAktionDTO.getVonMenge(), holdingOrderDTO);
+        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO, holdingOrderDTO);
         if (orderErfolgreichErstellt) {
             tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_PRUEFUNG_KAUF);
             tradeAktionService.aktualisiereTradeAktion(tradeAktionDTO);
@@ -150,7 +150,7 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
     private boolean erstelleVerkaufOrder(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
-        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO.getVonWaehrung(), tradeAktionDTO.getZuWaehrung(), tradeAktionDTO.getVonMenge(), holdingOrderDTO);
+        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO, holdingOrderDTO);
         if (orderErfolgreichErstellt) {
             tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_PRUEFUNG_VERKAUF);
         }
@@ -164,10 +164,20 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
         return orderErfolgreichErstellt;
     }
 
-    //TODO Preis fehlt noch
-    private boolean erstelleOrder(String vonSmybol, String zuSymbol, BigDecimal menge, HoldingOrderDTO holdingOrderDTO) {
+
+    private boolean erstelleOrder(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
         //Ueberpruefen ob Trade erstellt werden kann
-        if (istOrderMoeglich(vonSmybol, menge, holdingOrderDTO)) {
+        String notwendigesSymbol = null;
+        BigDecimal notwendigeMenge= null;
+        if (tradeAktionDTO.getTradeTyp() == TradeTyp.KAUF) {
+            notwendigesSymbol = tradeAktionDTO.getCryptoWaehrungReferenz();
+            notwendigeMenge = tradeAktionDTO.getMengeReferenz();
+        }
+        else if (tradeAktionDTO.getTradeTyp() == TradeTyp.VERKAUF) {
+            notwendigesSymbol = tradeAktionDTO.getCryptoWaehrung();
+            notwendigeMenge = tradeAktionDTO.getMenge();
+        }
+        if (istOrderMoeglich(notwendigesSymbol, notwendigeMenge, holdingOrderDTO)) {
             //Aufruf von WS zum Erstellen einer TradeOrder
 
             //Aktualisieren von HoldingOrderDTO wenn Trade erstelllt werden konnte (nur abziehen)

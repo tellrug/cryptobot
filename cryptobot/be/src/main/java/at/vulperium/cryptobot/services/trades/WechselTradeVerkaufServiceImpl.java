@@ -81,7 +81,7 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
             //Verkauf-Order erstellen
 
             //Erstellen von entsprechender TradeAktion
-            TradeAktionDTO verkaufTradeAktion = erstelleTradeAktion(tradeJobDTO);
+            TradeAktionDTO verkaufTradeAktion = erstelleTradeAktionVerkauf(tradeJobDTO);
 
             //Order erstellen
             if (tradeAktionVerwaltungService.fuehreTradeAktionDurch(verkaufTradeAktion)) {
@@ -132,31 +132,5 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
             aktualisiereTradeJob(tradeJobDTO);
         }
 
-    }
-
-    private TradeAktionDTO erstelleTradeAktion(WechselTradeJobDTO tradeJobDTO) {
-        //Es wird eine TradeAktion erstellt: Verkauf
-
-        TradeAktionDTO tradeAktionDTO = new TradeAktionDTO();
-        tradeAktionDTO.setTradeTyp(TradeTyp.VERKAUF);
-        tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_VERKAUF);
-        tradeAktionDTO.setErstelltAm(LocalDateTime.now());
-        tradeAktionDTO.setTradingPlattform(tradeJobDTO.getTradingPlattform());
-
-        tradeAktionDTO.setTradeJobId(tradeJobDTO.getId());
-        tradeAktionDTO.setTradeJobTyp(tradeJobDTO.getTradeJobTyp());
-        //tradeAktionDTO.setUserId(); //TODO technischen User setzen
-
-        tradeAktionDTO.setVonMenge(ermittleRelevanteTradeMenge(tradeJobDTO.getMenge(), tradeJobDTO.isGanzZahlig()));
-        //tradeAktionDTO.setZuMenge(); wird das hier benoetigt
-        tradeAktionDTO.setVonWaehrung(tradeJobDTO.getCryptoWaehrung());
-        tradeAktionDTO.setZuWaehrung(tradeJobDTO.getCryptoWaehrungReferenz());
-
-        //Ermitteln des Preises
-        tradeAktionDTO.setPreisProEinheit(ermittleOrderWert(tradeJobDTO));
-
-        //Speichern der TradeAktion
-        Long tradeAktionId = tradeAktionService.speichereTradeAktion(tradeAktionDTO);
-        return tradeAktionDTO;
     }
 }

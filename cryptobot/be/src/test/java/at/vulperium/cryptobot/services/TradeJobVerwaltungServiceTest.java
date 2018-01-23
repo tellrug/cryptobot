@@ -112,7 +112,7 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
 
 
         //Anpassen von Spitzenwert um Kauf auszuloesen
-        checkTradeJobDTO.setSpitzenwert(TradeUtil.getBigDecimal(0.1));
+        checkTradeJobDTO.setSpitzenwert(TradeUtil.getBigDecimal(0.000005));
         wechselTradeJobService.aktualisiereWechselTradeJob(checkTradeJobDTO);
         cleanInstances();
 
@@ -144,9 +144,9 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
 
         TradeAktionDTO kaufAktionDTO = relevanteTradeAktionen.get(0);
         Assert.assertNotNull(kaufAktionDTO);
-        Assert.assertEquals(kaufAktionDTO.getVonWaehrung(), TradeJobTestDataHelper.BTC);
-        Assert.assertEquals(kaufAktionDTO.getZuWaehrung(), TradeJobTestDataHelper.WJC_KAUF);
-        Assert.assertEquals(kaufAktionDTO.getVonMenge(), kaufOrderTradeJobDTO.getMengeReferenzwert());
+        Assert.assertEquals(kaufAktionDTO.getCryptoWaehrungReferenz(), TradeJobTestDataHelper.BTC);
+        Assert.assertEquals(kaufAktionDTO.getCryptoWaehrung(), TradeJobTestDataHelper.WJC_KAUF);
+        Assert.assertTrue(TradeUtil.getBigDecimal(2000).compareTo(kaufAktionDTO.getMenge()) == 1); //Menge an NeuCoins die gekauft werden soll, wegen Abschlägen bisschen weniger als 2000
         Assert.assertEquals(kaufAktionDTO.getTradeStatus(), TradeStatus.TRADE_PRUEFUNG_KAUF);
         Assert.assertNull(kaufAktionDTO.getErledigtAm());
 
@@ -166,9 +166,9 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
 
         TradeAktionDTO kaufAbgeschlossenAktionDTO = checkTradeAktionen.get(0);
         Assert.assertNotNull(kaufAbgeschlossenAktionDTO);
-        Assert.assertEquals(kaufAbgeschlossenAktionDTO.getVonWaehrung(), TradeJobTestDataHelper.BTC);
-        Assert.assertEquals(kaufAbgeschlossenAktionDTO.getZuWaehrung(), TradeJobTestDataHelper.WJC_KAUF);
-        Assert.assertEquals(kaufAbgeschlossenAktionDTO.getVonMenge(), kaufOrderTradeJobDTO.getMengeReferenzwert());
+        Assert.assertEquals(kaufAbgeschlossenAktionDTO.getCryptoWaehrungReferenz(), TradeJobTestDataHelper.BTC);
+        Assert.assertEquals(kaufAbgeschlossenAktionDTO.getCryptoWaehrung(), TradeJobTestDataHelper.WJC_KAUF);
+        Assert.assertEquals(kaufAbgeschlossenAktionDTO.getMenge(), kaufAktionDTO.getMenge());
         Assert.assertEquals(kaufAbgeschlossenAktionDTO.getTradeStatus(), TradeStatus.ABGESCHLOSSEN);
         Assert.assertNotNull(kaufAbgeschlossenAktionDTO.getErledigtAm());
 
@@ -188,6 +188,7 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
         //FuerTestzwecke wird die Waherung umgesetzt, Spitzenwert wird gesetzt um Abwaertstrend zu simulieren
         verkaufTradeJobDTO.setCryptoWaehrung(TradeJobTestDataHelper.WJC_VERKAUF);
         verkaufTradeJobDTO.setSpitzenwert(TradeUtil.getBigDecimal(1.5));
+        verkaufTradeJobDTO.setGanzZahlig(true);
         wechselTradeJobService.aktualisiereWechselTradeJob(verkaufTradeJobDTO);
         cleanInstances();
 
@@ -205,7 +206,7 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
         Assert.assertNotNull(verkaufOrderTradeJobDTO.getMenge());
         Assert.assertNotNull(verkaufOrderTradeJobDTO.getTradeVersuchAm());
 
-        //Zu diesem Job sollte es nun eine KaufAktion geben
+        //Zu diesem Job sollte es nun eine VerkaufAktion geben
         alleTradeAktionen = tradeAktionService.holeAlleTradeAktionen();
         Assert.assertNotNull(alleTradeAktionen);
 
@@ -221,9 +222,11 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
         }
 
         Assert.assertNotNull(verkaufAktionDTO);
-        Assert.assertEquals(verkaufAktionDTO.getVonWaehrung(), TradeJobTestDataHelper.WJC_VERKAUF);
-        Assert.assertEquals(verkaufAktionDTO.getZuWaehrung(), TradeJobTestDataHelper.BTC);
-        Assert.assertEquals(verkaufAktionDTO.getVonMenge(), verkaufOrderTradeJobDTO.getMenge());
+        Assert.assertEquals(verkaufAktionDTO.getCryptoWaehrung(), TradeJobTestDataHelper.WJC_VERKAUF);
+        Assert.assertEquals(verkaufAktionDTO.getCryptoWaehrungReferenz(), TradeJobTestDataHelper.BTC);
+        Assert.assertTrue(verkaufOrderTradeJobDTO.getMenge().compareTo(verkaufAktionDTO.getMenge()) == 1); //Menge an NeuCoins die verkauft werden soll, wegen Runden auf ganze Coins ein bisschen weniger
+        Assert.assertTrue(verkaufOrderTradeJobDTO.getLetztwert().compareTo(verkaufAktionDTO.getPreisProEinheit()) == 1);
+        Assert.assertTrue(verkaufOrderTradeJobDTO.getVorgesehenerVerkaufwert().equals(verkaufAktionDTO.getPreisProEinheit()));
         Assert.assertEquals(verkaufAktionDTO.getTradeStatus(), TradeStatus.TRADE_PRUEFUNG_VERKAUF);
         Assert.assertNull(verkaufAktionDTO.getErledigtAm());
 
@@ -239,9 +242,9 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
         TradeAktionDTO verkaufAbgeschlossenAktionDTO = tradeAktionService.holeTradeAktion(verkaufAktionDTO.getId());
         Assert.assertNotNull(verkaufAbgeschlossenAktionDTO);
 
-        Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getVonWaehrung(), TradeJobTestDataHelper.WJC_VERKAUF);
-        Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getZuWaehrung(), TradeJobTestDataHelper.BTC);
-        Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getVonMenge(), kaufOrderTradeJobDTO.getMengeReferenzwert());
+        Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getCryptoWaehrung(), TradeJobTestDataHelper.WJC_VERKAUF);
+        Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getCryptoWaehrungReferenz(), TradeJobTestDataHelper.BTC);
+        Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getMenge(), verkaufAktionDTO.getMenge());
         Assert.assertEquals(verkaufAbgeschlossenAktionDTO.getTradeStatus(), TradeStatus.ABGESCHLOSSEN);
         Assert.assertNotNull(verkaufAbgeschlossenAktionDTO.getErledigtAm());
 
@@ -254,9 +257,6 @@ public class TradeJobVerwaltungServiceTest extends ContainerTest {
         Assert.assertNull(kaufTradeJobDTO.getTradeVersuchAm());
         Assert.assertEquals(kaufTradeJobDTO.getTradeTyp(), TradeTyp.KAUF);
         Assert.assertEquals(kaufTradeJobDTO.getTradeAktionEnum(), TradeAktionEnum.ORDER_KAUF);
-
-        //Menge bei Verkauf stimmt nicht mehr !Bei API nachschauen was da nun wirklich benoetigt wird (wahrscheinlich aber zu Menge, oder gar beides abhaenigig von Kauf/Verkauf??)
-        //Assert.fail();
     }
 
 }

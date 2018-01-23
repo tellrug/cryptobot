@@ -37,17 +37,14 @@ public class TradeAktion extends BaseEntity<Long> {
     @Column(name = "ERLEDIGTAM", nullable = true, updatable = true)
     private Date erledigtAm;
 
-    @Column(name = "VON_WAEHRUNG_FK", nullable = false, updatable = false)
-    private String vonWaehrung;
+    @Column(name = "CRYPTOWAEHRUNG", nullable = false, updatable = false)
+    private String cryptoWaehrung;
 
-    @Column(name = "VON_MENGE", nullable = false, updatable = true)
-    private BigDecimal vonMenge;
+    @Column(name = "CRYPTOWAEHRUNG_REFERENZ", nullable = false, updatable = false)
+    private String referenzCryptoWaehrung;
 
-    @Column(name = "ZU_WAEHRUNG_FK", nullable = false, updatable = false)
-    private String zuWaehrung;
-
-    @Column(name = "ZU_MENGE", nullable = true, updatable = true)
-    private BigDecimal zuMenge; //TODO wird das benoetigt?
+    @Column(name = "MENGE", nullable = false, updatable = false)
+    private BigDecimal menge;
 
     @Column(name = "PREIS_EINHEIT", nullable = false, updatable = true)
     private BigDecimal preisProEinheit;
@@ -72,6 +69,9 @@ public class TradeAktion extends BaseEntity<Long> {
 
     @Column(name = "TRADEJOBTYP", nullable = true, updatable = true)
     private String tradeJobTyp;
+
+    @Column(name = "CUSTOMERORDERID", nullable = true, updatable = true)
+    private String customerOrderId;
 
 
     @Override
@@ -109,46 +109,6 @@ public class TradeAktion extends BaseEntity<Long> {
 
     public void setTradingplattform(String tradingplattform) {
         this.tradingplattform = tradingplattform;
-    }
-
-    public String getVonWaehrung() {
-        return vonWaehrung;
-    }
-
-    public void setVonWaehrung(String vonWaehrung) {
-        this.vonWaehrung = vonWaehrung;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public BigDecimal getVonMenge() {
-        return vonMenge;
-    }
-
-    public void setVonMenge(BigDecimal vonMenge) {
-        this.vonMenge = vonMenge;
-    }
-
-    public String getZuWaehrung() {
-        return zuWaehrung;
-    }
-
-    public void setZuWaehrung(String zuWaehrung) {
-        this.zuWaehrung = zuWaehrung;
-    }
-
-    public BigDecimal getZuMenge() {
-        return zuMenge;
-    }
-
-    public void setZuMenge(BigDecimal zuMenge) {
-        this.zuMenge = zuMenge;
     }
 
     public String getTradeTyp() {
@@ -189,5 +149,45 @@ public class TradeAktion extends BaseEntity<Long> {
 
     public void setTradeJobTyp(String tradeJobTyp) {
         this.tradeJobTyp = tradeJobTyp;
+    }
+
+    public String getCryptoWaehrung() {
+        return cryptoWaehrung;
+    }
+
+    public void setCryptoWaehrung(String cryptoWaehrung) {
+        this.cryptoWaehrung = cryptoWaehrung;
+    }
+
+    public String getCustomerOrderId() {
+        return customerOrderId;
+    }
+
+    public void setCustomerOrderId(String customerOrderId) {
+        this.customerOrderId = customerOrderId;
+    }
+
+    public BigDecimal getMenge() {
+        return menge;
+    }
+
+    public void setMenge(BigDecimal menge) {
+        this.menge = menge;
+    }
+
+    public String getReferenzCryptoWaehrung() {
+        return referenzCryptoWaehrung;
+    }
+
+    public void setReferenzCryptoWaehrung(String referenzCryptoWaehrung) {
+        this.referenzCryptoWaehrung = referenzCryptoWaehrung;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

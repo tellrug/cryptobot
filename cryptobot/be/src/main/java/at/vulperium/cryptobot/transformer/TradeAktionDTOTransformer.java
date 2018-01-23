@@ -28,10 +28,9 @@ public class TradeAktionDTOTransformer implements TransformBothDirections<TradeA
     @Override
     public TradeAktion transformInverse(TradeAktionDTO source, TradeAktion target) {
 
-        target.setVonMenge(source.getVonMenge());
-        target.setZuMenge(source.getZuMenge());
-        target.setVonWaehrung(source.getVonWaehrung());
-        target.setZuWaehrung(source.getZuWaehrung());
+        target.setCryptoWaehrung(source.getCryptoWaehrung());
+        target.setReferenzCryptoWaehrung(source.getCryptoWaehrungReferenz());
+        target.setMenge(source.getMenge());
         target.setErstelltAm(source.getErstelltAm().toDate());
         target.setErledigtAm(source.getErledigtAm() != null ? source.getErledigtAm().toDate() : null);
         target.setUserId(source.getUserId());
@@ -42,6 +41,7 @@ public class TradeAktionDTOTransformer implements TransformBothDirections<TradeA
         target.setTradeJobId(source.getTradeJobId());
         target.setTradeJobTyp(source.getTradeJobTyp() != null ? source.getTradeJobTyp().name() :  null);
         target.setPreisProEinheit(source.getPreisProEinheit());
+        target.setCustomerOrderId(source.getCustomerOrderId());
 
         return target;
     }
@@ -67,10 +67,9 @@ public class TradeAktionDTOTransformer implements TransformBothDirections<TradeA
         }
         */
 
-        target.setVonWaehrung(source.getVonWaehrung());
-        target.setZuWaehrung(source.getZuWaehrung());
-        target.setVonMenge(source.getVonMenge());
-        target.setZuMenge(source.getZuMenge());
+        target.setCryptoWaehrung(source.getCryptoWaehrung());
+        target.setCryptoWaehrungReferenz(source.getReferenzCryptoWaehrung());
+        target.setMenge(source.getMenge());
         target.setTradeStatus(TradeStatus.valueOf(source.getStatus()));
         target.setTradingPlattform(TradingPlattform.getByCode(source.getTradingplattform()));
         target.setUserId(source.getUserId());
@@ -79,6 +78,7 @@ public class TradeAktionDTOTransformer implements TransformBothDirections<TradeA
         target.setTradeJobId(source.getTradeJobId());
         target.setTradeJobTyp(source.getTradeJobTyp() != null ? TradeJobTyp.valueOf(source.getTradeJobTyp()) : null);
         target.setPreisProEinheit(source.getPreisProEinheit());
+        target.setCustomerOrderId(source.getCustomerOrderId());
 
         return target;
     }

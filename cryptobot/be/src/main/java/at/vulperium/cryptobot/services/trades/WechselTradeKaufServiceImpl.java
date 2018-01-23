@@ -87,7 +87,7 @@ public class WechselTradeKaufServiceImpl extends AbstractTradeService<WechselTra
 
             //Order erstellen
             if (tradeAktionVerwaltungService.fuehreTradeAktionDurch(kaufTradeAktion)) {
-                tradeJobDTO.setMenge(kaufTradeAktion.getVonMenge());
+                tradeJobDTO.setMenge(kaufTradeAktion.getMenge());
                 tradeJobDTO.setKaufwert(kaufTradeAktion.getPreisProEinheit());
 
                 tradeJobDTO.setTradeVersuchAm(LocalDateTime.now());
@@ -148,59 +148,17 @@ public class WechselTradeKaufServiceImpl extends AbstractTradeService<WechselTra
         tradeAktionDTO.setTradeJobTyp(tradeJobDTO.getTradeJobTyp());
         //tradeAktionDTO.setUserId(); //TODO technischen User setzen
 
-        //Kauf (BTC) ist nie ganzzahlig
-        tradeAktionDTO.setVonMenge(tradeJobDTO.getMengeReferenzwert());
-        //tradeAktionDTO.setZuMenge(); wird das hier benoetigt
-        tradeAktionDTO.setVonWaehrung(tradeJobDTO.getCryptoWaehrungReferenz());
-        tradeAktionDTO.setZuWaehrung(tradeJobDTO.getCryptoWaehrung());
-
         //Ermitteln des Preises
         tradeAktionDTO.setPreisProEinheit(ermittleOrderWert(tradeJobDTO));
+
+        //Kauf (BTC) ist nie ganzzahlig
+        tradeAktionDTO.setCryptoWaehrung(tradeJobDTO.getCryptoWaehrung());
+        tradeAktionDTO.setCryptoWaehrungReferenz(tradeJobDTO.getCryptoWaehrungReferenz());
+        tradeAktionDTO.setMenge(ermittleRelevanteTradeMenge(tradeJobDTO.getMengeReferenzwert().divide(tradeAktionDTO.getPreisProEinheit(), BigDecimal.ROUND_DOWN), tradeJobDTO.isGanzZahlig()));
+        tradeAktionDTO.setMengeReferenz(tradeAktionDTO.getMenge().multiply(tradeAktionDTO.getPreisProEinheit()));
 
         //Speichern der TradeAktion
         Long tradeAktionId = tradeAktionService.speichereTradeAktion(tradeAktionDTO);
         return tradeAktionDTO;
     }
-
-    /*
-    private void ueberpruefeKaufTrade(WechselTradeJobDTO tradeJobDTO) {
-        /*
-        Es werden offene Orders betrachtet.Ueberpruefen ob relevante offene Order vorhanden ist:
-        *Einheit und ReferenzEinheit
-        * Menge
-        * Kaufwert aus offenen Order vergleichen (KAUF)
-
-        Keine relevante Order vorhanden:
-        Kauf war erfolgreich-- >
-                Zielwert wird gesetzt, tradeVersuchAm auf null gesetzt, Status umstellen auf BEOBACHTEN, tradeTyp
-        wird auf VERKAUF gesetzt -- > TradeAktion speichern
-        Relevanter Order vorhanden:
-        Kauf hat nicht funktioniert -- > ?????
-
-
-        boolean kaufErfolgreich = true;
-        if (kaufErfolgreich) {
-            //setzen von Zielwert
-            tradeJobDTO.setZielwert(tradeJobDTO.getKaufwert().multiply(tradeJobDTO.getMinimalZielSatz()));
-
-            //Zuruecksetzen von TradeVersuchAm
-            tradeJobDTO.setTradeVersuchAm(null);
-
-            tradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
-            tradeJobDTO.setTradeTyp(TradeTyp.VERKAUF);
-
-            //Aktualisieren von TradeJob
-            aktualisiereTradeJob(tradeJobDTO);
-
-            //speichern von TradeAktion
-            //TODO speichern von TradeAktion
-
-            logger.info("Kauf erfolgreich. Der TradeTyp von WechselTradeJob mit wechselTradeJobId={} wurde umgesetzt", tradeJobDTO.getId(), tradeJobDTO.getTradeTyp());
-        }
-        else {
-            logger.warn("Keinen Verkauefer von {} bei WechselTradeJob mit wechselTradeJobId={} gefunden.", tradeJobDTO.getCryptoWaehrung(), tradeJobDTO.getId());
-            //TODO Trade stornieren? alles wieder zuruecksetzen so dass neue Kauf-Order erstellt wird
-        }
-    }
-    */
 }

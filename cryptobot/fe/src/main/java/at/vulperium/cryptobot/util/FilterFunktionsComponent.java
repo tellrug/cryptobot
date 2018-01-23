@@ -2,12 +2,15 @@ package at.vulperium.cryptobot.util;
 
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
+import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
 import com.vaadin.data.HasValue;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -26,9 +29,16 @@ public class FilterFunktionsComponent extends HorizontalLayout {
     private TextField filterTextField;
     private ComboBox<TradeTyp> tradeStatusTypComboBox;
     private ComboBox<TradingPlattform> tradingPlattformComboBox;
+    private CheckBox abgeschlossenCheckBox;
+
+    private ListDataProvider<? extends Filterable> dataProvider;
 
     public FilterFunktionsComponent() {
+        initFilterFunktionLayout();
+    }
 
+    public FilterFunktionsComponent(ListDataProvider<? extends Filterable> dataProvider) {
+        this.dataProvider = dataProvider;
         initFilterFunktionLayout();
     }
 
@@ -66,6 +76,10 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         setComponentAlignment(formLayout, Alignment.MIDDLE_LEFT);
         setComponentAlignment(middleLayout, Alignment.MIDDLE_CENTER);
         setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
+
+        setExpandRatio(formLayout, 0.3f);
+        setExpandRatio(middleLayout, 0.5f);
+        setExpandRatio(addButton, 0.2f);
     }
 
     private Layout initMiddleLayout() {
@@ -78,18 +92,29 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         tradingPlattformComboBox.setPlaceholder("Plattform");
         tradingPlattformComboBox.setEmptySelectionAllowed(false);
         tradingPlattformComboBox.setItems(Arrays.asList(TradingPlattform.values()));
+        tradingPlattformComboBox.addStyleName("tiny");
+        tradingPlattformComboBox.addValueChangeListener((HasValue.ValueChangeListener<TradingPlattform>) valueChangeEvent -> doFiltering());
 
         //Filter TradeTyp
         tradeStatusTypComboBox = new ComboBox<>();
         tradeStatusTypComboBox.setPlaceholder("Kategorie");
         tradeStatusTypComboBox.setEmptySelectionAllowed(true);
         tradeStatusTypComboBox.setItems(Arrays.asList(TradeTyp.values()));
+        tradeStatusTypComboBox.addStyleName("tiny");
+        tradeStatusTypComboBox.addValueChangeListener((HasValue.ValueChangeListener<TradeTyp>) valueChangeEvent -> doFiltering());
+
+        //AbgeschlosseneFilter
+        abgeschlossenCheckBox = new CheckBox("Abgeschlossene ausblenden");
+        abgeschlossenCheckBox.addStyleName("tiny");
+        abgeschlossenCheckBox.addValueChangeListener((HasValue.ValueChangeListener<Boolean>) valueChangeEvent -> doFiltering());
 
         middleLayout.addComponent(tradingPlattformComboBox);
         middleLayout.addComponent(tradeStatusTypComboBox);
+        middleLayout.addComponent(abgeschlossenCheckBox);
 
         middleLayout.setComponentAlignment(tradingPlattformComboBox, Alignment.MIDDLE_RIGHT);
         middleLayout.setComponentAlignment(tradeStatusTypComboBox, Alignment.MIDDLE_LEFT);
+        middleLayout.setComponentAlignment(abgeschlossenCheckBox, Alignment.MIDDLE_RIGHT);
 
         return middleLayout;
     }
@@ -114,11 +139,30 @@ public class FilterFunktionsComponent extends HorizontalLayout {
         tradeStatusTypComboBox.addValueChangeListener(valueChangeListener);
     }
 
+    public void addAbgeschlossenCheckBoxValueChangeListener(HasValue.ValueChangeListener<Boolean> valueChangeListener) {
+        abgeschlossenCheckBox.addValueChangeListener(valueChangeListener);
+    }
+
     public TradingPlattform getSelectedTradingPlattform() {
         return tradingPlattformComboBox.getValue();
     }
 
     public TradeTyp getSelectedTradeStatusTyp() {
         return tradeStatusTypComboBox.getValue();
+    }
+
+
+    public FilterVO getFilterVO() {
+        FilterVO filterVO = new FilterVO();
+        filterVO.setTradingPlattform(tradingPlattformComboBox.getValue());
+        filterVO.setTradeTyp(tradeStatusTypComboBox.getValue());
+        filterVO.setZeigeAbgeschlossen(abgeschlossenCheckBox.isEmpty());
+        return filterVO;
+    }
+
+    public void doFiltering() {
+        FilterVO filterVO = getFilterVO();
+        dataProvider.clearFilters();
+        dataProvider.setFilter(e -> e.filtering(filterVO));
     }
 }

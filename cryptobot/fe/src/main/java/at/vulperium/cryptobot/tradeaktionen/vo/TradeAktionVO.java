@@ -1,17 +1,16 @@
 package at.vulperium.cryptobot.tradeaktionen.vo;
 
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
-import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
+import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
 import at.vulperium.cryptobot.util.Filterable;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
 /**
  * Created by 02ub0400 on 18.01.2018.
  */
-public class TradeAktionVO implements Serializable, Filterable{
+public class TradeAktionVO implements Serializable, Filterable {
 
     private TradeAktionDTO tradeAktionDTO;
 
@@ -27,29 +26,22 @@ public class TradeAktionVO implements Serializable, Filterable{
         this.tradeAktionDTO = tradeAktionDTO;
     }
 
-
-    //FILTER-EIGENSCHAFTEN
     @Override
-    public boolean filteringSymbol(String symbol) {
-        if (StringUtils.isEmpty(symbol)) {
-            return true;
+    public boolean filtering(FilterVO filterVO) {
+        if (tradeAktionDTO.getErledigtAm() != null && !filterVO.isZeigeAbgeschlossen()) {
+            return false;
         }
-        return tradeAktionDTO.getVonWaehrung().contains(symbol) || tradeAktionDTO.getZuWaehrung().contains(symbol);
-    }
 
-    @Override
-    public boolean filteringTradingPlattform(TradingPlattform tradingPlattform) {
-        if (tradingPlattform == null || tradingPlattform == TradingPlattform.ALLE) {
-            return true;
+        if (filterVO.getTradingPlattform() != null && filterVO.getTradingPlattform() != TradingPlattform.ALLE) {
+            if (filterVO.getTradingPlattform() != tradeAktionDTO.getTradingPlattform()) {
+                return false;
+            }
         }
-        return tradeAktionDTO.getTradingPlattform() == tradingPlattform;
-    }
 
-    @Override
-    public boolean filteringTradeTyp(TradeTyp tradeTyp) {
-        if (tradeTyp == null) {
-            return true;
+        if (filterVO.getTradeTyp() != null && filterVO.getTradeTyp() != tradeAktionDTO.getTradeTyp()) {
+            return false;
         }
-        return tradeAktionDTO.getTradeTyp() == tradeTyp;
+
+        return true;
     }
 }

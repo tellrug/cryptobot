@@ -29,20 +29,15 @@ public class TradeAktionTestDataHelper {
         tradeAktionDTO.setTradeTyp(tradeTyp);
         tradeAktionDTO.setErstelltAm(LocalDateTime.now());
         tradeAktionDTO.setTradingPlattform(TradingPlattform.BINANCE);
+        tradeAktionDTO.setCryptoWaehrung(TradeJobTestDataHelper.SYMBOL);
+        tradeAktionDTO.setCryptoWaehrungReferenz(TradeJobTestDataHelper.SYMBOL_REFERENZ);
+        tradeAktionDTO.setMenge(TradeUtil.getBigDecimal(1));
 
         if (tradeTyp == TradeTyp.KAUF) {
-            tradeAktionDTO.setVonWaehrung(TradeJobTestDataHelper.SYMBOL_REFERENZ);
-            tradeAktionDTO.setZuWaehrung(TradeJobTestDataHelper.SYMBOL);
-            tradeAktionDTO.setVonMenge(TradeUtil.getBigDecimal(1));
-            tradeAktionDTO.setZuMenge(TradeUtil.getBigDecimal(1));
             tradeAktionDTO.setPreisProEinheit(TradeUtil.getBigDecimal(1));
         }
         else {
-            tradeAktionDTO.setVonMenge(TradeUtil.getBigDecimal(1));
-            tradeAktionDTO.setZuMenge(TradeUtil.getBigDecimal(2));
             tradeAktionDTO.setPreisProEinheit(TradeUtil.getBigDecimal("0.5"));
-            tradeAktionDTO.setVonWaehrung(TradeJobTestDataHelper.SYMBOL);
-            tradeAktionDTO.setZuWaehrung(TradeJobTestDataHelper.SYMBOL_REFERENZ);
         }
 
         return tradeAktionDTO;

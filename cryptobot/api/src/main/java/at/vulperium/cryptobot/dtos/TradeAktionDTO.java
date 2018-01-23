@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 
-
 /**
  * Created by 02ub0400 on 11.01.2018.
  */
@@ -19,10 +18,10 @@ public class TradeAktionDTO implements Serializable {
     private Long id;
     private LocalDateTime erstelltAm;
     private LocalDateTime erledigtAm;
-    private String vonWaehrung;
-    private String zuWaehrung;
-    private BigDecimal vonMenge;
-    private BigDecimal zuMenge;
+    private String cryptoWaehrung;          //TODO wird noch durch DTO ersetzt
+    private String cryptoWaehrungReferenz;  //TODO wird noch durch DTO ersetzt
+    private BigDecimal menge;
+    private BigDecimal mengeReferenz;
     private BigDecimal preisProEinheit;
     private TradeStatus tradeStatus;
     private TradingPlattform tradingPlattform;
@@ -31,6 +30,7 @@ public class TradeAktionDTO implements Serializable {
     private TradeTyp tradeTyp;
     private Long tradeJobId;
     private TradeJobTyp tradeJobTyp;
+    private String customerOrderId;
 
     public LocalDateTime getErstelltAm() {
         return erstelltAm;
@@ -80,38 +80,6 @@ public class TradeAktionDTO implements Serializable {
         this.userId = userId;
     }
 
-    public BigDecimal getVonMenge() {
-        return vonMenge;
-    }
-
-    public void setVonMenge(BigDecimal vonMenge) {
-        this.vonMenge = vonMenge;
-    }
-
-    public String getVonWaehrung() {
-        return vonWaehrung;
-    }
-
-    public void setVonWaehrung(String vonWaehrung) {
-        this.vonWaehrung = vonWaehrung;
-    }
-
-    public BigDecimal getZuMenge() {
-        return zuMenge;
-    }
-
-    public void setZuMenge(BigDecimal zuMenge) {
-        this.zuMenge = zuMenge;
-    }
-
-    public String getZuWaehrung() {
-        return zuWaehrung;
-    }
-
-    public void setZuWaehrung(String zuWaehrung) {
-        this.zuWaehrung = zuWaehrung;
-    }
-
     public Long getReferenzTradeAktionId() {
         return referenzTradeAktionId;
     }
@@ -150,5 +118,45 @@ public class TradeAktionDTO implements Serializable {
 
     public void setTradeJobTyp(TradeJobTyp tradeJobTyp) {
         this.tradeJobTyp = tradeJobTyp;
+    }
+
+    public String getCryptoWaehrung() {
+        return cryptoWaehrung;
+    }
+
+    public void setCryptoWaehrung(String cryptoWaehrung) {
+        this.cryptoWaehrung = cryptoWaehrung;
+    }
+
+    public String getCryptoWaehrungReferenz() {
+        return cryptoWaehrungReferenz;
+    }
+
+    public void setCryptoWaehrungReferenz(String cryptoWaehrungReferenz) {
+        this.cryptoWaehrungReferenz = cryptoWaehrungReferenz;
+    }
+
+    public String getCustomerOrderId() {
+        return customerOrderId;
+    }
+
+    public void setCustomerOrderId(String customerOrderId) {
+        this.customerOrderId = customerOrderId;
+    }
+
+    public BigDecimal getMenge() {
+        return menge;
+    }
+
+    public void setMenge(BigDecimal menge) {
+        this.menge = menge;
+    }
+
+    public BigDecimal getMengeReferenz() {
+        return mengeReferenz;
+    }
+
+    public void setMengeReferenz(BigDecimal mengeReferenz) {
+        this.mengeReferenz = mengeReferenz;
     }
 }

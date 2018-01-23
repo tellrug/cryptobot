@@ -1,6 +1,7 @@
 package at.vulperium.cryptobot.services.trades;
 
 import at.vulperium.cryptobot.dtos.AbstractTradeJobDTO;
+import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeStatus;
@@ -10,9 +11,12 @@ import at.vulperium.cryptobot.utils.TradeUtil;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 
 public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
+
+    protected  @Inject TradeAktionService tradeAktionService;
 
     protected void verarbeiteTradeJob(T tradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
         Validate.notNull(tradeJobDTO, "tradeJobDTO ist null");
@@ -81,9 +85,34 @@ public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
 
     protected BigDecimal ermittleRelevanteTradeMenge(BigDecimal menge, boolean ganzzahligeMenge) {
         if (ganzzahligeMenge) {
-            return menge.setScale(0, BigDecimal.ROUND_DOWN).setScale(TradeUtil.SCALE, BigDecimal.ROUND_DOWN);
+            return menge.setScale(0, BigDecimal.ROUND_FLOOR).setScale(TradeUtil.SCALE, BigDecimal.ROUND_FLOOR);
         }
         return menge;
+    }
+
+    protected TradeAktionDTO erstelleTradeAktionVerkauf(T tradeJobDTO) {
+        //Es wird eine TradeAktion erstellt: Verkauf
+
+        TradeAktionDTO tradeAktionDTO = new TradeAktionDTO();
+        tradeAktionDTO.setTradeTyp(TradeTyp.VERKAUF);
+        tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_VERKAUF);
+        tradeAktionDTO.setErstelltAm(LocalDateTime.now());
+        tradeAktionDTO.setTradingPlattform(tradeJobDTO.getTradingPlattform());
+
+        tradeAktionDTO.setTradeJobId(tradeJobDTO.getId());
+        tradeAktionDTO.setTradeJobTyp(tradeJobDTO.getTradeJobTyp());
+        //tradeAktionDTO.setUserId(); //TODO technischen User setzen
+
+        tradeAktionDTO.setMenge(ermittleRelevanteTradeMenge(tradeJobDTO.getMenge(), tradeJobDTO.isGanzZahlig()));
+        tradeAktionDTO.setCryptoWaehrung(tradeJobDTO.getCryptoWaehrung());
+        tradeAktionDTO.setCryptoWaehrungReferenz(tradeJobDTO.getCryptoWaehrungReferenz());
+
+        //Ermitteln des Preises
+        tradeAktionDTO.setPreisProEinheit(ermittleOrderWert(tradeJobDTO));
+
+        //Speichern der TradeAktion
+        Long tradeAktionId = tradeAktionService.speichereTradeAktion(tradeAktionDTO);
+        return tradeAktionDTO;
     }
 
     private void setzeSpitzenWert(T tradeJobDTO, BigDecimal aktuellerWert) {

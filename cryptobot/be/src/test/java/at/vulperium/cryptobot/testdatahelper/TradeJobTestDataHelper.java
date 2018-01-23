@@ -65,13 +65,15 @@ public class TradeJobTestDataHelper {
         if (TradeAktionEnum.KAUF_ZIEL == tradeAktionEnum || TradeAktionEnum.ORDER_KAUF == tradeAktionEnum) {
             wechselTradeJobDTO.setTradeTyp(TradeTyp.KAUF);
             wechselTradeJobDTO.setCryptoWaehrung(WJC_KAUF);
+            wechselTradeJobDTO.setGanzZahlig(false);
         }
         else if (TradeAktionEnum.VERKAUF_ZIEL == tradeAktionEnum || TradeAktionEnum.ORDER_VERKAUF == tradeAktionEnum) {
             wechselTradeJobDTO.setTradeTyp(TradeTyp.VERKAUF);
             wechselTradeJobDTO.setCryptoWaehrung(WJC_VERKAUF);
+            wechselTradeJobDTO.setGanzZahlig(true);
         }
 
-        wechselTradeJobDTO.setMinimalZielSatz(TradeUtil.getBigDecimal(2));
+        wechselTradeJobDTO.setMinimalZielSatz(TradeUtil.getBigDecimal(1.5));
         wechselTradeJobDTO.setKaufwert(TradeUtil.getBigDecimal(0.7)); //entspricht eigentlich aktuellenWert bei Erstellung des Jobs
         wechselTradeJobDTO.setKaufwertGrenze(TradeUtil.getBigDecimal(0.5));
         wechselTradeJobDTO.setMengeReferenzwert(TradeUtil.getBigDecimal(0.02));
@@ -86,9 +88,8 @@ public class TradeJobTestDataHelper {
         wechselTradeJobDTO.setTradeStatus(tradeStatus);
         wechselTradeJobDTO.setCryptoWaehrungReferenz(BTC);
         wechselTradeJobDTO.setErstelltAm(LocalDateTime.now());
-
         wechselTradeJobDTO.setTradingPlattform(TradingPlattform.BINANCE);
-        wechselTradeJobDTO.setGanzZahlig(false);
+
         return wechselTradeJobDTO;
     }
 
@@ -101,7 +102,6 @@ public class TradeJobTestDataHelper {
         simpelTradeJobDTO.setTradeStatus(tradeStatus);
         simpelTradeJobDTO.setMenge(TradeUtil.getBigDecimal(10));
         simpelTradeJobDTO.setTradingPlattform(TradingPlattform.BINANCE);
-        simpelTradeJobDTO.setGanzZahlig(false);
 
         return simpelTradeJobDTO;
     }

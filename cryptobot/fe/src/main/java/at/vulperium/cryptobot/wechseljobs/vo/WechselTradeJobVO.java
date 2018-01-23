@@ -1,10 +1,9 @@
 package at.vulperium.cryptobot.wechseljobs.vo;
 
 import at.vulperium.cryptobot.dtos.WechselTradeJobDTO;
-import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
+import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
 import at.vulperium.cryptobot.util.Filterable;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
@@ -29,26 +28,21 @@ public class WechselTradeJobVO implements Serializable, Filterable {
 
 
     @Override
-    public boolean filteringSymbol(String symbol) {
-        if (StringUtils.isEmpty(symbol)) {
-            return true;
+    public boolean filtering(FilterVO filterVO) {
+        if (wechselTradeJobDTO.getErledigtAm() != null && !filterVO.isZeigeAbgeschlossen()) {
+            return false;
         }
-        return wechselTradeJobDTO.getCryptoWaehrung().contains(symbol) || wechselTradeJobDTO.getCryptoWaehrungReferenz().contains(symbol);
-    }
 
-    @Override
-    public boolean filteringTradingPlattform(TradingPlattform tradingPlattform) {
-        if (tradingPlattform == null || tradingPlattform == TradingPlattform.ALLE) {
-            return true;
+        if (filterVO.getTradingPlattform() != null && filterVO.getTradingPlattform() != TradingPlattform.ALLE) {
+            if (filterVO.getTradingPlattform() != wechselTradeJobDTO.getTradingPlattform()) {
+                return false;
+            }
         }
-        return wechselTradeJobDTO.getTradingPlattform() == tradingPlattform;
-    }
 
-    @Override
-    public boolean filteringTradeTyp(TradeTyp tradeTyp) {
-        if (tradeTyp == null) {
-            return true;
+        if (filterVO.getTradeTyp() != null && filterVO.getTradeTyp() != wechselTradeJobDTO.getTradeTyp()) {
+            return false;
         }
-        return wechselTradeJobDTO.getTradeTyp() == tradeTyp;
+
+        return true;
     }
 }

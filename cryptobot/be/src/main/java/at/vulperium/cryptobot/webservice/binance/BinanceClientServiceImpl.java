@@ -3,11 +3,22 @@ package at.vulperium.cryptobot.webservice.binance;
 
 import at.vulperium.cryptobot.config.ConfigValue;
 import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
+import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.services.BinanceClientService;
 import at.vulperium.cryptobot.utils.ConfigUtil;
 import at.vulperium.cryptobot.utils.TradeUtil;
+import com.google.gson.JsonObject;
+import com.webcerebrium.binance.api.BinanceApi;
+import com.webcerebrium.binance.api.BinanceApiException;
+import com.webcerebrium.binance.datatype.BinanceOrder;
+import com.webcerebrium.binance.datatype.BinanceOrderPlacement;
+import com.webcerebrium.binance.datatype.BinanceOrderStatus;
+import com.webcerebrium.binance.datatype.BinanceSymbol;
+import com.webcerebrium.binance.datatype.BinanceWalletAsset;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.johnzon.mapper.Mapper;
 import org.apache.johnzon.mapper.MapperBuilder;
 import org.json.JSONArray;
@@ -17,13 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class BinanceClientServiceImpl implements BinanceClientService {
@@ -35,7 +50,10 @@ public class BinanceClientServiceImpl implements BinanceClientService {
     private static final ConfigValue pingReq = new ConfigValue("binancePing");
     private static final ConfigValue letztePreiseReq = new ConfigValue("binanceLetztePreise");
 
+    private @Inject BinanceApiTransformer transformer;
+
     private Mapper mapper;
+    private final BinanceApi binanceApi = new BinanceApi();
 
     @PostConstruct
     private void init() {
@@ -69,8 +87,8 @@ public class BinanceClientServiceImpl implements BinanceClientService {
             responseText = "[{\"symbol\": \"LTCBTC\",\"price\": \"4.00000200\"},{\"symbol\": \"ETHBTC\",\"price\": \"0.07946600\"}," +
                     "{\"symbol\": \"VK1BTC\",\"price\": \"0.0081\"}," +
                     "{\"symbol\": \"VK2BTC\",\"price\": \"0.010\"}," +
-                    "{\"symbol\": \"WJCKBTC\",\"price\": \"0.3\"}," +
-                    "{\"symbol\": \"WJCVBTC\",\"price\": \"0.8\"}," +
+                    "{\"symbol\": \"WJCKBTC\",\"price\": \"0.00001\"}," +
+                    "{\"symbol\": \"WJCVBTC\",\"price\": \"0.00002\"}," +
                     "{\"symbol\": \"K1BTC\",\"price\": \"0.0029\"}]";
             logger.warn("Test-Modus ist aktiv: Kein WebService-Aufruf. Antwort: {}", responseText);
         }
@@ -118,7 +136,7 @@ public class BinanceClientServiceImpl implements BinanceClientService {
         if (ConfigUtil.toBoolean(testModus)) {
             holdingOrderDTO.getHoldingMap().put("LTC", TradeUtil.getBigDecimal(100));
             holdingOrderDTO.getHoldingMap().put("BTC", TradeUtil.getBigDecimal(0.03));
-            holdingOrderDTO.getHoldingMap().put("WJCV", TradeUtil.getBigDecimal(300));
+            holdingOrderDTO.getHoldingMap().put("WJCV", TradeUtil.getBigDecimal(2000));
         }
         else {
             //TODO
@@ -135,5 +153,123 @@ public class BinanceClientServiceImpl implements BinanceClientService {
 
     private <T> T fromJSON(String s, Class<T> clazz) {
         return mapper.readObject(s, clazz);
+    }
+
+
+    /**
+     * Holt Kurs-Informationen per WS
+     * ES WIRD KEIN KEY BENOETIGT
+     */
+    private Map<String, WSCryptoCoinDTO> ermittleKursMap() {
+        logger.info("BinanceWS - Holen der aktuellen Kursdaten...");
+
+        //Es wird kein Key benoetigt
+        Map<String, BigDecimal> kursMap;
+        try {
+            kursMap = getBinanceApi().pricesMap();
+        }
+        catch (BinanceApiException e) {
+            logger.error("Fehler bei Abfrage von BinanceWS-pricesMap: ", e);
+            throw new RuntimeException(e);
+        }
+
+        if (kursMap == null) {
+            return null;
+        }
+
+        Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap = new HashMap<>();
+        for (String symbol : kursMap.keySet()) {
+            WSCryptoCoinDTO wsCryptoCoinDTO = new WSCryptoCoinDTO();
+            wsCryptoCoinDTO.setSymbol(symbol);
+            wsCryptoCoinDTO.setPrice(kursMap.get(symbol));
+
+            wsCryptoCoinDTOMap.put(symbol, wsCryptoCoinDTO);
+        }
+
+        return wsCryptoCoinDTOMap;
+    }
+
+    /**
+     * Holt alle offenen Trades
+     * ES WIRD EIN API KEY BENOETIGT
+     */
+    private void holeOffeneOrderBySymbolPair(String symbolPair) {
+        logger.info("BinanceWS - Holen der offenen Orders fuer SymbolPair={} ...", symbolPair);
+
+        List<BinanceOrder> binanceOrderList;
+        try {
+            binanceOrderList = getBinanceApi().openOrders(BinanceSymbol.valueOf(symbolPair));
+        }
+        catch (BinanceApiException e) {
+            logger.error("Fehler bei Abfrage von BinanceWS-holeOffeneOrderBySymbolPair: ", e);
+            throw new RuntimeException(e);
+        }
+
+        if (CollectionUtils.isEmpty(binanceOrderList)) {
+            return;
+        }
+
+        for (BinanceOrder binanceOrder : binanceOrderList) {
+            BinanceOrderStatus binanceOrderStatus = binanceOrder.getStatus();
+
+        }
+
+        //TODO transformieren oder FolgeAktion durchfuehren
+    }
+
+    private boolean storniereOrder(String symbolPair, String clientOrderId) {
+        Validate.notNull(symbolPair, "symbolPair ist null.");
+        Validate.notNull(clientOrderId, "clientOrderId ist null.");
+
+        logger.info("BinanceWS - Storniere Order von SymbolPair={} mit clientOrderId={} ...", symbolPair, clientOrderId);
+        try {
+            JsonObject jsonObject = getBinanceApi().deleteOrderByOrigClientId(BinanceSymbol.valueOf(symbolPair), clientOrderId);
+        }
+        catch (BinanceApiException e) {
+            logger.error("Fehler bei Abfrage von BinanceWS-storniereOrder: ", e);
+            throw new RuntimeException(e);
+        }
+
+        //TODO Antwort checken?
+
+        return true;
+    }
+
+    private boolean erstelleOrder(TradeAktionDTO tradeAktionDTO) {
+        logger.info("BinanceWS - Erstellen von Order fuer tradeAktionId={} ...", tradeAktionDTO.getId());
+
+        //Erstellen der Order
+        BinanceOrderPlacement binanceOrderPlacement = transformer.transformTradeAktionDTO(tradeAktionDTO);
+        tradeAktionDTO.setCustomerOrderId(binanceOrderPlacement.getNewClientOrderId());
+        try {
+            JsonObject jsonObject = getBinanceApi().createOrder(binanceOrderPlacement);
+        }
+        catch (BinanceApiException e) {
+            logger.error("Fehler bei Aufruf von BinanceWS-erstelleOrder: ", e);
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    private void ermittleAktuelleHoldings() {
+        logger.info("BinanceWS - Ermitteln der aktuellen Hldings...");
+
+        Map<String, BinanceWalletAsset> balancesMap;
+        try {
+            balancesMap = getBinanceApi().balancesMap();
+        }
+        catch (BinanceApiException e) {
+            logger.error("Fehler bei Abfrage von BinanceWS-ermittleAktuelleHoldings: ", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private synchronized BinanceApi getBinanceApi() {
+        String apiKey = "";
+        String secretKey = "";
+        binanceApi.setApiKey(apiKey);
+        binanceApi.setSecretKey(secretKey);
+        return binanceApi;
     }
 }

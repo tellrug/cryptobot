@@ -1,6 +1,7 @@
 package at.vulperium.cryptobot.tradeaktionen;
 
 import at.vulperium.cryptobot.base.components.ComponentProducer;
+import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.tradeaktionen.vo.TradeAktionVO;
 import at.vulperium.cryptobot.util.CryptoStyles;
 import at.vulperium.cryptobot.util.ViewUtils;
@@ -11,6 +12,7 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.components.grid.HeaderRow;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,8 +49,18 @@ public class TradeAktionGrid {
 
         //Symbol
         grid.addComponentColumn((ValueProvider<TradeAktionVO, Component>) tradeAktionVO -> {
-            String vonSymbol = tradeAktionVO.getTradeAktionDTO().getVonWaehrung();
-            String zuSymbol = tradeAktionVO.getTradeAktionDTO().getZuWaehrung();
+
+            String vonSymbol;
+            String zuSymbol;
+            if (tradeAktionVO.getTradeAktionDTO().getTradeTyp() == TradeTyp.KAUF) {
+                vonSymbol = tradeAktionVO.getTradeAktionDTO().getCryptoWaehrungReferenz();
+                zuSymbol = tradeAktionVO.getTradeAktionDTO().getCryptoWaehrung();
+            }
+            else {
+                vonSymbol = tradeAktionVO.getTradeAktionDTO().getCryptoWaehrung();
+                zuSymbol = tradeAktionVO.getTradeAktionDTO().getCryptoWaehrungReferenz();
+            }
+
             String text = ViewUtils.formatTradeInfo(vonSymbol, zuSymbol, VaadinIcons.ANGLE_DOUBLE_RIGHT.getHtml(), tradeAktionVO.getTradeAktionDTO().getTradeTyp());
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName("tiny");
@@ -58,13 +70,14 @@ public class TradeAktionGrid {
 
         //Menge
         grid.addComponentColumn((ValueProvider<TradeAktionVO, Component>) tradeAktionVO -> {
+            String symbolText = ViewUtils.formatWertEinheit(tradeAktionVO.getTradeAktionDTO().getMenge(), tradeAktionVO.getTradeAktionDTO().getCryptoWaehrung());
+            String color = tradeAktionVO.getTradeAktionDTO().getTradeTyp() == TradeTyp.KAUF ? ViewUtils.COLOR_GREEN : ViewUtils.COLOR_RED;
+            symbolText = ViewUtils.formatColor(symbolText, color);
 
-            //TODO richtige Menge
-            String symbolText = tradeAktionVO.getTradeAktionDTO().getVonMenge().toString() + " " + tradeAktionVO.getTradeAktionDTO().getVonWaehrung();
-            symbolText = ViewUtils.formatColor(symbolText, ViewUtils.COLOR_RED);
-            //String symbolReferenzText = tradeAktionVO.getTradeAktionDTO().getZuMenge().toString() + " " + tradeAktionVO.getTradeAktionDTO().getZuWaehrung();
-            String symbolReferenzText = "F0.005" + " " + tradeAktionVO.getTradeAktionDTO().getZuWaehrung();
-            symbolReferenzText = ViewUtils.formatColor(symbolReferenzText, ViewUtils.COLOR_GREEN);
+            BigDecimal referenzWert = tradeAktionVO.getTradeAktionDTO().getMenge().multiply(tradeAktionVO.getTradeAktionDTO().getPreisProEinheit());
+            String symbolReferenzText = ViewUtils.formatWertEinheit(referenzWert, tradeAktionVO.getTradeAktionDTO().getCryptoWaehrungReferenz());
+            color = tradeAktionVO.getTradeAktionDTO().getTradeTyp() == TradeTyp.KAUF ? ViewUtils.COLOR_RED : ViewUtils.COLOR_GREEN;
+            symbolReferenzText = ViewUtils.formatColor(symbolReferenzText, color);
 
             String text = symbolText + ViewUtils.NEW_LINE + symbolReferenzText;
             Label label = ComponentProducer.erstelleLabelHtml(text);
@@ -75,7 +88,7 @@ public class TradeAktionGrid {
 
         //PreisProEinheit
         grid.addComponentColumn((ValueProvider<TradeAktionVO, Component>) tradeAktionVO -> {
-            String text = ViewUtils.formatWertEinheit(tradeAktionVO.getTradeAktionDTO().getPreisProEinheit(), tradeAktionVO.getTradeAktionDTO().getVonWaehrung());
+            String text = ViewUtils.formatWertEinheit(tradeAktionVO.getTradeAktionDTO().getPreisProEinheit(), tradeAktionVO.getTradeAktionDTO().getCryptoWaehrungReferenz());
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName("tiny");
             return label;
@@ -87,7 +100,7 @@ public class TradeAktionGrid {
             Label label = ComponentProducer.erstelleLabelHtml(text);
             label.addStyleName(CryptoStyles.XLARGE_STATUS_ICON);
             return label;
-        }).setCaption("Status").setResizable(false).setStyleGenerator(item -> "v-align-center").setWidth(150);
+        }).setCaption("Status").setResizable(false).setStyleGenerator(item -> "v-align-center").setWidth(120);
 
         //TradingPlattform (nur vollansicht)
         if (!winModus) {

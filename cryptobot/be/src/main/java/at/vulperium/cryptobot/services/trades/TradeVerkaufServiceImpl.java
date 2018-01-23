@@ -6,7 +6,6 @@ import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeStatus;
-import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.Trend;
 import at.vulperium.cryptobot.services.jobs.TradeJobService;
 import org.apache.commons.lang.Validate;
@@ -85,7 +84,7 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
         if (simpelTradeJobDTO.getTradeAktionEnum() == TradeAktionEnum.ORDER_VERKAUF && simpelTradeJobDTO.getTradeStatus() == TradeStatus.TRADE_VERKAUF) {
             //Verkauf-Order erstellen
             //Erstellen von entsprechender TradeAktion
-            TradeAktionDTO verkaufTradeAktion = erstelleTradeAktion(simpelTradeJobDTO);
+            TradeAktionDTO verkaufTradeAktion = erstelleTradeAktionVerkauf(simpelTradeJobDTO);
 
             //Order erstellen
             if (tradeAktionVerwaltungService.fuehreTradeAktionDurch(verkaufTradeAktion)) {
@@ -125,32 +124,6 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
             aktualisiereTradeJob(simpelTradeJobDTO);
         }
 
-    }
-
-    private TradeAktionDTO erstelleTradeAktion(SimpelTradeJobDTO tradeJobDTO) {
-        //Es wird eine TradeAktion erstellt: Verkauf
-
-        TradeAktionDTO tradeAktionDTO = new TradeAktionDTO();
-        tradeAktionDTO.setTradeTyp(TradeTyp.VERKAUF);
-        tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_VERKAUF);
-        tradeAktionDTO.setErstelltAm(LocalDateTime.now());
-        tradeAktionDTO.setTradingPlattform(tradeJobDTO.getTradingPlattform());
-
-        tradeAktionDTO.setTradeJobId(tradeJobDTO.getId());
-        tradeAktionDTO.setTradeJobTyp(tradeJobDTO.getTradeJobTyp());
-        //tradeAktionDTO.setUserId(); //TODO technischen User setzen
-
-        tradeAktionDTO.setVonMenge(ermittleRelevanteTradeMenge(tradeJobDTO.getMenge(), tradeJobDTO.isGanzZahlig()));
-        //tradeAktionDTO.setZuMenge(); wird das hier benoetigt
-        tradeAktionDTO.setVonWaehrung(tradeJobDTO.getCryptoWaehrung());
-        tradeAktionDTO.setZuWaehrung(tradeJobDTO.getCryptoWaehrungReferenz());
-
-        //Ermitteln des Preises
-        tradeAktionDTO.setPreisProEinheit(ermittleOrderWert(tradeJobDTO));
-
-        //Speichern der TradeAktion
-        Long tradeAktionId = tradeAktionService.speichereTradeAktion(tradeAktionDTO);
-        return tradeAktionDTO;
     }
 
     /*

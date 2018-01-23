@@ -2,12 +2,11 @@ package at.vulperium.cryptobot.tradejobs;
 
 import at.vulperium.cryptobot.base.components.ComponentProducer;
 import at.vulperium.cryptobot.enums.TradeTyp;
-import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.tradejobs.service.TradeJobViewService;
-import at.vulperium.cryptobot.tradejobs.vo.FilterVO;
 import at.vulperium.cryptobot.tradejobs.vo.TradeJobVO;
 import at.vulperium.cryptobot.util.CryptoStyles;
 import at.vulperium.cryptobot.util.FilterFunktionsComponent;
+import at.vulperium.cryptobot.util.Filterable;
 import at.vulperium.cryptobot.util.ViewUtils;
 import at.vulperium.cryptobot.utils.TradeUtil;
 import com.vaadin.data.HasValue;
@@ -57,10 +56,11 @@ public class TradeJobComponent extends VerticalLayout {
     }
 
     private void initContent() {
-        //Funktionsleiste
-        Component funktionsLeiste = initFunktionsleiste();
         //Tabelle
         Component jobTabelle = initTradeJobTabelle();
+
+        //Funktionsleiste
+        Component funktionsLeiste = initFunktionsleiste();
 
 
         addComponent(funktionsLeiste);
@@ -72,7 +72,7 @@ public class TradeJobComponent extends VerticalLayout {
 
     private Component initFunktionsleiste() {
 
-        FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent();
+        FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent((ListDataProvider<? extends Filterable>) tradeJobGrid.getDataProvider());
 
         //Funktion Add-Button
         filterFunktionsComponent.addButtonListener((Button.ClickListener) clickEvent -> {
@@ -110,22 +110,6 @@ public class TradeJobComponent extends VerticalLayout {
                 dataProvider.setFilter((ValueProvider<TradeJobVO, String>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getCryptoWaehrung(),
                         s -> caseInsensitiveContains(s, valueChangeEvent.getValue()));
             }
-        });
-
-        //TradingPlattform Filter-Funktion
-        filterFunktionsComponent.addTradingPlattformValueChangeListener((HasValue.ValueChangeListener<TradingPlattform>) valueChangeEvent -> {
-            FilterVO filterVO = new FilterVO();
-            filterVO.setTradingPlattform(valueChangeEvent.getValue());
-            filterVO.setTradeTyp(filterFunktionsComponent.getSelectedTradeStatusTyp());
-            filterTradeJobs(filterVO);
-        });
-
-        //TradeTyp Filter-Funktion
-        filterFunktionsComponent.addTradeStatusTypValueChangeListener((HasValue.ValueChangeListener<TradeTyp>) valueChangeEvent -> {
-            FilterVO filterVO = new FilterVO();
-            filterVO.setTradingPlattform(filterFunktionsComponent.getSelectedTradingPlattform());
-            filterVO.setTradeTyp(valueChangeEvent.getValue());
-            filterTradeJobs(filterVO);
         });
 
         return filterFunktionsComponent;
@@ -275,24 +259,5 @@ public class TradeJobComponent extends VerticalLayout {
 
     private Boolean caseInsensitiveContains(String where, String what) {
         return where.toLowerCase().contains(what.toLowerCase());
-    }
-
-
-    private void filterTradeJobs(FilterVO filterVO) {
-        ListDataProvider<TradeJobVO> dataProvider = (ListDataProvider<TradeJobVO>) tradeJobGrid.getDataProvider();
-
-        dataProvider.clearFilters();
-
-        //Zuerst nach Plattform filtern
-        if (filterVO.getTradingPlattform() != TradingPlattform.ALLE) {
-            dataProvider.setFilter((ValueProvider<TradeJobVO, TradingPlattform>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getTradingPlattform(),
-                    tj -> tj == filterVO.getTradingPlattform());
-        }
-
-        //Nach TradeTyp filtern
-        if (filterVO.getTradeTyp() != null) {
-            dataProvider.setFilter((ValueProvider<TradeJobVO, TradeTyp>) tradeJobVO -> tradeJobVO.getSimpelTradeJobDTO().getTradeAktionEnum().getTradeTyp(),
-                    tj -> tj == filterVO.getTradeTyp());
-        }
     }
 }

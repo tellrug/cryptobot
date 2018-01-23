@@ -142,15 +142,15 @@ public class TradeKaufServiceImpl extends AbstractTradeService<SimpelTradeJobDTO
         tradeAktionDTO.setTradeJobTyp(tradeJobDTO.getTradeJobTyp());
         //tradeAktionDTO.setUserId(); //TODO technischen User setzen
 
-        tradeAktionDTO.setVonWaehrung(tradeJobDTO.getCryptoWaehrungReferenz());
-        tradeAktionDTO.setZuWaehrung(tradeJobDTO.getCryptoWaehrung());
-
         //Ermitteln des Preises
         tradeAktionDTO.setPreisProEinheit(ermittleOrderWert(tradeJobDTO));
-        //Kauf (BTC) ist nie ganzzahlig
 
-        tradeAktionDTO.setVonMenge(ermittleRelevanteTradeMenge(tradeAktionDTO.getPreisProEinheit().multiply(tradeJobDTO.getMenge()), false));
-        //tradeAktionDTO.setZuMenge(); wird das hier benoetigt
+
+        //Kauf (BTC) ist nie ganzzahlig
+        tradeAktionDTO.setCryptoWaehrung(tradeJobDTO.getCryptoWaehrung());
+        tradeAktionDTO.setCryptoWaehrungReferenz(tradeJobDTO.getCryptoWaehrungReferenz());
+        tradeAktionDTO.setMenge(ermittleRelevanteTradeMenge(tradeJobDTO.getMenge(), false));
+        tradeAktionDTO.setMengeReferenz(tradeJobDTO.getMenge().multiply(tradeAktionDTO.getPreisProEinheit()));
 
         //Speichern der TradeAktion
         Long tradeAktionId = tradeAktionService.speichereTradeAktion(tradeAktionDTO);
