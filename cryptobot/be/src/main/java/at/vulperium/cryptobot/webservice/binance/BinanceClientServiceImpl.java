@@ -35,10 +35,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @ApplicationScoped
 public class BinanceClientServiceImpl implements BinanceClientService {
@@ -193,7 +196,7 @@ public class BinanceClientServiceImpl implements BinanceClientService {
      * Holt alle offenen Trades
      * ES WIRD EIN API KEY BENOETIGT
      */
-    private void holeOffeneOrderBySymbolPair(String symbolPair) {
+    public void holeOffeneOrderBySymbolPair(String symbolPair) {
         logger.info("BinanceWS - Holen der offenen Orders fuer SymbolPair={} ...", symbolPair);
 
         List<BinanceOrder> binanceOrderList;
@@ -209,12 +212,14 @@ public class BinanceClientServiceImpl implements BinanceClientService {
             return;
         }
 
+        Set<String> customerOrderIdSet = new HashSet<>();
         for (BinanceOrder binanceOrder : binanceOrderList) {
             BinanceOrderStatus binanceOrderStatus = binanceOrder.getStatus();
-
+            customerOrderIdSet.add(binanceOrder.getClientOrderId());
         }
 
-        //TODO transformieren oder FolgeAktion durchfuehren
+        //Rueckliefern der CustomerId
+        //Zuordnen zu TradeAktionen
     }
 
     private boolean storniereOrder(String symbolPair, String clientOrderId) {
@@ -251,7 +256,7 @@ public class BinanceClientServiceImpl implements BinanceClientService {
         return true;
     }
 
-    private void ermittleAktuelleHoldings() {
+    public void ermittleAktuelleHoldings() {
         logger.info("BinanceWS - Ermitteln der aktuellen Hldings...");
 
         Map<String, BinanceWalletAsset> balancesMap;
@@ -262,10 +267,27 @@ public class BinanceClientServiceImpl implements BinanceClientService {
             logger.error("Fehler bei Abfrage von BinanceWS-ermittleAktuelleHoldings: ", e);
             throw new RuntimeException(e);
         }
+
+        BigDecimal nullValue = TradeUtil.getBigDecimal(0).setScale(8, RoundingMode.HALF_DOWN);
+        Set<String> deletSymbolSet = new HashSet<>();
+        for (String symbol : balancesMap.keySet()) {
+            if (balancesMap.get(symbol).getFree().equals(nullValue)) {
+                deletSymbolSet.add(symbol);
+            }
+        }
+
+        for (String symbol : deletSymbolSet) {
+            balancesMap.remove(symbol);
+        }
+
+        logger.info("Anzahl der aktuellen Holdings: {}", balancesMap.size());
+
+        //Transformieren
     }
 
 
     private synchronized BinanceApi getBinanceApi() {
+        //TODO als config speichern
         String apiKey = "";
         String secretKey = "";
         binanceApi.setApiKey(apiKey);
