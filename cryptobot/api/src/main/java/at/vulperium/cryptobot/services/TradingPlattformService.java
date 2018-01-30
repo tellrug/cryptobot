@@ -1,6 +1,8 @@
 package at.vulperium.cryptobot.services;
 
-import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
+import at.vulperium.cryptobot.dtos.HoldingDTO;
+import at.vulperium.cryptobot.dtos.OrderDTO;
+import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 
@@ -15,5 +17,11 @@ public interface TradingPlattformService {
 
     Map<String, WSCryptoCoinDTO> holeWSCryptoCoinMap(TradingPlattform tradingPlattform);
 
-    HoldingOrderDTO ermittleHoldingOrderInformationen(TradingPlattform tradingPlattform);
+    HoldingDTO ermittleHoldingInformationen(TradingPlattform tradingPlattform);
+
+    OrderDTO holeOrderDTOzuTradeAktion(TradeAktionDTO tradeAktionDTO);
+
+    boolean storniereOrder(TradeAktionDTO tradeAktionDTO);
+
+    boolean erstelleOrder(TradeAktionDTO tradeAktionDTO);
 }

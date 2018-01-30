@@ -1,6 +1,8 @@
 package at.vulperium.cryptobot.services;
 
-import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
+import at.vulperium.cryptobot.dtos.HoldingDTO;
+import at.vulperium.cryptobot.dtos.OrderDTO;
+import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import org.apache.commons.lang.Validate;
@@ -20,7 +22,8 @@ import java.util.Map;
 @ApplicationScoped
 public class TradingPlattformServiceImpl implements TradingPlattformService {
 
-    private @Inject BinanceClientService binanceClientService;
+    private @Inject
+    BinanceClientService binanceClientService;
 
     private Map<TradingPlattform, TradingInfos> tradingInfosMap = new HashMap<>();
 
@@ -39,40 +42,58 @@ public class TradingPlattformServiceImpl implements TradingPlattformService {
     }
 
     @Override
-    public HoldingOrderDTO ermittleHoldingOrderInformationen(TradingPlattform tradingPlattform) {
+    public HoldingDTO ermittleHoldingInformationen(TradingPlattform tradingPlattform) {
         Validate.notNull(tradingPlattform, "tradingPlattform ist null.");
         TradingInfos tradingInfos = holeTradingInfos(tradingPlattform);
-        return tradingInfos.getHoldingOrderDTO();
+        return tradingInfos.getHoldingDTO();
     }
 
+    @Override
+    public OrderDTO holeOrderDTOzuTradeAktion(TradeAktionDTO tradeAktionDTO) {
+
+        if (tradeAktionDTO.getTradingPlattform() != TradingPlattform.BINANCE) {
+            throw new IllegalStateException("Fehler bei Abfrage von Order zu TradeAktion - " +
+                    "Momentan wird nur BINANCE unterstuetzt. TradeAktionId: " + tradeAktionDTO.getId());
+        }
+        String symbolPair = tradeAktionDTO.getCryptoWaehrung() + tradeAktionDTO.getCryptoWaehrungReferenz();
+        OrderDTO orderDTO = binanceClientService.holeOrderInfosByClientOrderId(symbolPair, tradeAktionDTO.getCustomerOrderId());
+        orderDTO.setTradeAktionId(tradeAktionDTO.getId());
+        return orderDTO;
+    }
+
+    @Override
+    public boolean storniereOrder(TradeAktionDTO tradeAktionDTO) {
+        if (tradeAktionDTO.getTradingPlattform() != TradingPlattform.BINANCE) {
+            throw new IllegalStateException("Fehler bei Abfrage von  storniere Order zu TradeAktion - " +
+                    "Momentan wird nur BINANCE unterstuetzt. TradeAktionId: " + tradeAktionDTO.getId());
+        }
+        return binanceClientService.storniereOrder(tradeAktionDTO);
+    }
+
+    @Override
+    public boolean erstelleOrder(TradeAktionDTO tradeAktionDTO) {
+        if (tradeAktionDTO.getTradingPlattform() != TradingPlattform.BINANCE) {
+            throw new IllegalStateException("Fehler bei Abfrage von erstelle Order zu TradeAktion - " +
+                    "Momentan wird nur BINANCE unterstuetzt. TradeAktionId: " + tradeAktionDTO.getId());
+        }
+
+        return binanceClientService.erstelleOrder(tradeAktionDTO);
+    }
 
     private Map<String, WSCryptoCoinDTO> ladeWSCryptoCoinMapPerWS(TradingPlattform tradingPlattform) {
         TradingPlattformClient tradingPlattformClient = ermittleClient(tradingPlattform);
-        List<WSCryptoCoinDTO> wsCryptoCoinDTOList = tradingPlattformClient.ermittleLetztePreise();
-        return ermittleWSCryptoCoinMap(wsCryptoCoinDTOList);
+        return tradingPlattformClient.ermittleLetztePreiseMap();
     }
 
-    private HoldingOrderDTO ladeHoldingOrderInformationenPerWS(TradingPlattform tradingPlattform) {
+    private HoldingDTO ladeHoldingOrderInformationenPerWS(TradingPlattform tradingPlattform) {
         TradingPlattformClient tradingPlattformClient = ermittleClient(tradingPlattform);
-        return tradingPlattformClient.ermittleHoldingOrderInformationen();
-    }
-
-    private Map<String, WSCryptoCoinDTO> ermittleWSCryptoCoinMap(List<WSCryptoCoinDTO> wsCryptoCoinDTOList) {
-        Validate.notNull(wsCryptoCoinDTOList, "wsCryptoCoinDTOList ist null");
-
-        Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap = new HashMap<>();
-        for (WSCryptoCoinDTO wsCryptoCoinDTO : wsCryptoCoinDTOList) {
-            wsCryptoCoinDTOMap.put(wsCryptoCoinDTO.getSymbol(), wsCryptoCoinDTO);
-        }
-
-        return wsCryptoCoinDTOMap;
+        return tradingPlattformClient.ermittleHoldingInformationen();
     }
 
     private TradingPlattformClient ermittleClient(TradingPlattform tradingPlattform) {
         if (TradingPlattform.BINANCE == tradingPlattform) {
             return binanceClientService;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Abfragen von TradingPlattform=" + tradingPlattform + " werden derzeit nicht unterstuetzt.");
         }
     }
@@ -85,9 +106,9 @@ public class TradingPlattformServiceImpl implements TradingPlattformService {
 
                 //Aktualisierung der Daten per WS
                 Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap = ladeWSCryptoCoinMapPerWS(tradingPlattform);
-                HoldingOrderDTO holdingOrderDTO = ladeHoldingOrderInformationenPerWS(tradingPlattform);
+                HoldingDTO holdingDTO = ladeHoldingOrderInformationenPerWS(tradingPlattform);
 
-                TradingInfos tradingInfos = new TradingInfos(LocalDateTime.now(), tradingPlattform, wsCryptoCoinDTOMap, holdingOrderDTO);
+                TradingInfos tradingInfos = new TradingInfos(LocalDateTime.now(), tradingPlattform, wsCryptoCoinDTOMap, holdingDTO);
                 tradingInfosMap.put(tradingPlattform, tradingInfos);
             }
         }
@@ -100,18 +121,18 @@ public class TradingPlattformServiceImpl implements TradingPlattformService {
         private TradingPlattform tradingPlattform;
         private LocalDateTime letzteAktualisierung;
         Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap;
-        private HoldingOrderDTO holdingOrderDTO;
+        private HoldingDTO holdingDTO;
 
         public TradingInfos(LocalDateTime letzteAktualisierung, TradingPlattform tradingPlattform,
-                            Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, HoldingOrderDTO holdingOrderDTO) {
-            this.holdingOrderDTO = holdingOrderDTO;
+                            Map<String, WSCryptoCoinDTO> wsCryptoCoinDTOMap, HoldingDTO holdingDTO) {
+            this.holdingDTO = holdingDTO;
             this.letzteAktualisierung = letzteAktualisierung;
             this.tradingPlattform = tradingPlattform;
             this.wsCryptoCoinDTOMap = wsCryptoCoinDTOMap;
         }
 
-        public HoldingOrderDTO getHoldingOrderDTO() {
-            return holdingOrderDTO;
+        public HoldingDTO getHoldingDTO() {
+            return holdingDTO;
         }
 
         public TradingPlattform getTradingPlattform() {

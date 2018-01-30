@@ -51,7 +51,6 @@ public class TimerJobScheduler {
     private void initTimer() {
         //timerService.createTimer(3000L, 1000L, "test");
         logger.info("Timer fuer TimerJobs wird gestartet...");
-        System.out.println("Timer fuer TimerJobs wird gestartet... - Intervall: " + timerIntervall.get());
         //Starten des Timers
         startTimer();
     }

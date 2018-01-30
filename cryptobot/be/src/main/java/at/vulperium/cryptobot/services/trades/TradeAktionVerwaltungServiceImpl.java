@@ -1,7 +1,9 @@
 package at.vulperium.cryptobot.services.trades;
 
-import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
+import at.vulperium.cryptobot.dtos.HoldingDTO;
+import at.vulperium.cryptobot.dtos.OrderDTO;
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
+import at.vulperium.cryptobot.enums.OrderStatus;
 import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
@@ -86,17 +88,17 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
         Validate.notNull(tradeAktionDTO.getId(), "tradeAktionId ist null.");
 
-        HoldingOrderDTO holdingOrderDTO = tradingPlattformService.ermittleHoldingOrderInformationen(tradeAktionDTO.getTradingPlattform());
+        HoldingDTO holdingDTO = tradingPlattformService.ermittleHoldingInformationen(tradeAktionDTO.getTradingPlattform());
 
         //Ueberpruefen um welche Art von Trade es sich handelt
         switch (tradeAktionDTO.getTradeStatus()) {
             case TRADE_KAUF:
-                return erstelleKaufOrder(tradeAktionDTO, holdingOrderDTO);
+                return erstelleKaufOrder(tradeAktionDTO, holdingDTO);
             case TRADE_VERKAUF:
-                return erstelleVerkaufOrder(tradeAktionDTO, holdingOrderDTO);
+                return erstelleVerkaufOrder(tradeAktionDTO, holdingDTO);
             case TRADE_PRUEFUNG_KAUF:
             case TRADE_PRUEFUNG_VERKAUF:
-                return ueberpruefeKaufUndVerkaufOrder(tradeAktionDTO, holdingOrderDTO);
+                return ueberpruefeKaufUndVerkaufOrder(tradeAktionDTO, holdingDTO);
             default:
                 throw new IllegalStateException("Fuer die TradeAktion=" + tradeAktionDTO.getId() + " konnte kein gueltiger TradeStatus ermittelt werden.");
         }
@@ -107,8 +109,8 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
      *
      * @param tradeAktionDTO
      */
-    private boolean ueberpruefeKaufUndVerkaufOrder(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
-        boolean orderAbgeschlossen = ueberpruefeTradeAktion(tradeAktionDTO, holdingOrderDTO);
+    private boolean ueberpruefeKaufUndVerkaufOrder(TradeAktionDTO tradeAktionDTO, HoldingDTO holdingDTO) {
+        boolean orderAbgeschlossen = ueberpruefeTradeAktion(tradeAktionDTO, holdingDTO);
         if (orderAbgeschlossen) {
             tradeAktionDTO.setTradeStatus(TradeStatus.ABGESCHLOSSEN);
             tradeAktionDTO.setErledigtAm(LocalDateTime.now());
@@ -129,11 +131,11 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
         return orderAbgeschlossen;
     }
 
-    private boolean erstelleKaufOrder(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
+    private boolean erstelleKaufOrder(TradeAktionDTO tradeAktionDTO, HoldingDTO holdingDTO) {
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
 
-        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO, holdingOrderDTO);
+        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO, holdingDTO);
         if (orderErfolgreichErstellt) {
             tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_PRUEFUNG_KAUF);
             tradeAktionService.aktualisiereTradeAktion(tradeAktionDTO);
@@ -147,10 +149,10 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
         return orderErfolgreichErstellt;
     }
 
-    private boolean erstelleVerkaufOrder(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
+    private boolean erstelleVerkaufOrder(TradeAktionDTO tradeAktionDTO, HoldingDTO holdingDTO) {
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
-        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO, holdingOrderDTO);
+        boolean orderErfolgreichErstellt = erstelleOrder(tradeAktionDTO, holdingDTO);
         if (orderErfolgreichErstellt) {
             tradeAktionDTO.setTradeStatus(TradeStatus.TRADE_PRUEFUNG_VERKAUF);
         }
@@ -165,7 +167,7 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
     }
 
 
-    private boolean erstelleOrder(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
+    private boolean erstelleOrder(TradeAktionDTO tradeAktionDTO, HoldingDTO holdingDTO) {
         //Ueberpruefen ob Trade erstellt werden kann
         String notwendigesSymbol = null;
         BigDecimal notwendigeMenge= null;
@@ -177,23 +179,27 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
             notwendigesSymbol = tradeAktionDTO.getCryptoWaehrung();
             notwendigeMenge = tradeAktionDTO.getMenge();
         }
-        if (istOrderMoeglich(notwendigesSymbol, notwendigeMenge, holdingOrderDTO)) {
+        if (istOrderMoeglich(notwendigesSymbol, notwendigeMenge, holdingDTO)) {
             //Aufruf von WS zum Erstellen einer TradeOrder
-
-            //Aktualisieren von HoldingOrderDTO wenn Trade erstelllt werden konnte (nur abziehen)
+            if(tradingPlattformService.erstelleOrder(tradeAktionDTO)) {
+                //Trade erfolgreich gestellt
+                //Aktualisieren der TradeAktion notwendig
+                //Aktualisieren von HoldingDTO wenn Trade erstelllt werden konnte (nur abziehen)
+                BigDecimal ausgangsmenge = holdingDTO.getHoldingMap().get(notwendigesSymbol);
+                holdingDTO.getHoldingMap().put(notwendigesSymbol, ausgangsmenge.subtract(notwendigeMenge));
+            }
         }
         else {
             return false;
         }
-
         return true;
     }
 
 
-    private boolean istOrderMoeglich(String vonSymbol, BigDecimal angeforderteMenge, HoldingOrderDTO holdingOrderDTO) {
-        Validate.notNull(holdingOrderDTO, "holdingOrderDTO ist null.");
+    private boolean istOrderMoeglich(String vonSymbol, BigDecimal angeforderteMenge, HoldingDTO holdingDTO) {
+        Validate.notNull(holdingDTO, "holdingDTO ist null.");
 
-        Map<String, BigDecimal> holdingMap = holdingOrderDTO.getHoldingMap();
+        Map<String, BigDecimal> holdingMap = holdingDTO.getHoldingMap();
         if (holdingMap == null) {
             logger.error("Fehler bei der Ueberpruefung der HoldingMap. HoldingMap ist null!");
             return false;
@@ -214,9 +220,17 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
         return true;
     }
 
-    private boolean ueberpruefeTradeAktion(TradeAktionDTO tradeAktionDTO, HoldingOrderDTO holdingOrderDTO) {
-        //TODO per WS nachschauen ob die Order noch offen ist oder ob die Order bereits abgeschlossen wurde
-        //TODO wenn Order nicht abgeschlossen wurde gleich stornieren?
+    private boolean ueberpruefeTradeAktion(TradeAktionDTO tradeAktionDTO, HoldingDTO holdingDTO) {
+        //per WS nachschauen ob die Order noch offen ist oder ob die Order bereits abgeschlossen wurde
+        OrderDTO orderDTO = tradingPlattformService.holeOrderDTOzuTradeAktion(tradeAktionDTO);
+        if (orderDTO.getOrderStatus() == OrderStatus.OFFEN) {
+            //Trade ist noch offen - Trade wird storniert
+            tradingPlattformService.storniereOrder(tradeAktionDTO);
+            return false;
+        }
+        else if (orderDTO.getOrderStatus() == OrderStatus.STORNIERT){
+            return false;
+        }
         return true;
     }
 

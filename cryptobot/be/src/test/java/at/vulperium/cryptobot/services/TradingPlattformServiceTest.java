@@ -1,7 +1,7 @@
 package at.vulperium.cryptobot.services;
 
 import at.vulperium.cryptobot.ContainerTest;
-import at.vulperium.cryptobot.dtos.HoldingOrderDTO;
+import at.vulperium.cryptobot.dtos.HoldingDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import junit.framework.Assert;
@@ -26,10 +26,10 @@ public class TradingPlattformServiceTest extends ContainerTest {
 
 
         //Laden der HoldingOrderInfos
-        HoldingOrderDTO holdingOrderDTO= tradingPlattformService.ermittleHoldingOrderInformationen(TradingPlattform.BINANCE);
-        Assert.assertNotNull(holdingOrderDTO);
-        org.testng.Assert.assertEquals(holdingOrderDTO.getTradingPlattform(), TradingPlattform.BINANCE);
-        Assert.assertTrue(holdingOrderDTO.getHoldingMap().containsKey("LTC"));
+        HoldingDTO holdingDTO = tradingPlattformService.ermittleHoldingInformationen(TradingPlattform.BINANCE);
+        Assert.assertNotNull(holdingDTO);
+        org.testng.Assert.assertEquals(holdingDTO.getTradingPlattform(), TradingPlattform.BINANCE);
+        Assert.assertTrue(holdingDTO.getHoldingMap().containsKey("LTC"));
     }
 
 }

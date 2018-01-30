@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by 02ub0400 on 17.01.2018.
  */
-public class HoldingOrderDTO implements Serializable {
+public class HoldingDTO implements Serializable {
 
     private TradingPlattform tradingPlattform;
 

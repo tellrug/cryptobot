@@ -250,6 +250,14 @@
         </dependencies>
     </dependencyManagement>
 
+    <profiles>
+        <profile>
+            <id>mac</id>
+            <properties>
+                <h2.database.base.path>/Users/vulpes/Documents/db</h2.database.base.path>
+            </properties>
+        </profile>
+    </profiles>
     <build>
         <testResources>
             <!-- generiert die TestResourcen fuer ContainerTest -->

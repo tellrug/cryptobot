@@ -12,7 +12,7 @@ public class TestMain {
         //Funktioniert
         //binanceClientService.holeOffeneOrderBySymbolPair("XVGBTC");
 
-        binanceClientService.ermittleAktuelleHoldings();
+        binanceClientService.ermittleHoldingInformationen();
 
         /*
         BinanceApiService binanceApiService = new BinanceApiService();
