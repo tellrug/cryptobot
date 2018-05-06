@@ -42,11 +42,11 @@ public class TradeVerarbeitungEventObserver {
 
             if (tradeVerarbeitungEvent.getTimerJobEnum() == TimerJobEnum.TRADE_BEOBACHTUNG) {
                 //Betrachten der aktuellen Kurse
-                //tradeJobVerwaltungService.verarbeiteBeobachtungsAufgaben();
+                tradeJobVerwaltungService.verarbeiteBeobachtungsAufgaben();
             }
             else if (tradeVerarbeitungEvent.getTimerJobEnum() == TimerJobEnum.TRADE_AKTION) {
                 //Verarbeiten der offenen Tradeaufgaben
-                //tradeAktionVerwaltungService.verarbeiteTradeAktionAufgaben();
+                tradeAktionVerwaltungService.verarbeiteTradeAktionAufgaben();
             }
 
             //Aktualisieren des TimerJobs

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  */
 public class TradeUtil {
 
-    public static final int SCALE = 10;
+    public static final int SCALE = 8;
 
     public static BigDecimal getBigDecimal(String value) {
         if (value == null) {

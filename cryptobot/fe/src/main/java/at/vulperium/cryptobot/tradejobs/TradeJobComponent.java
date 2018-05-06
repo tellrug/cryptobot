@@ -1,6 +1,7 @@
 package at.vulperium.cryptobot.tradejobs;
 
 import at.vulperium.cryptobot.base.components.ComponentProducer;
+import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.tradejobs.service.TradeJobViewService;
 import at.vulperium.cryptobot.tradejobs.vo.TradeJobVO;
@@ -76,16 +77,17 @@ public class TradeJobComponent extends VerticalLayout {
 
         //Funktion Add-Button
         filterFunktionsComponent.addButtonListener((Button.ClickListener) clickEvent -> {
-            TradeJobBearbeitenWindow tradeJobBearbeitenWindow = new TradeJobBearbeitenWindow();
-            tradeJobBearbeitenWindow.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
+            TradeJobVO tradeJobVO = new TradeJobVO(new SimpelTradeJobDTO());
+            SimpelTradeJobBearbeitenWindow window = new SimpelTradeJobBearbeitenWindow(tradeJobVO);
+            window.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
                 //Ueberpruefen ob die Eingaben vollstaendig sind
-                TradeJobVO neuerTradeJobVO = tradeJobBearbeitenWindow.holeVollstaendigeEingaben();
+                TradeJobVO neuerTradeJobVO = window.holeVollstaendigeEingaben();
                 if (neuerTradeJobVO != null) {
                     //Speichern des neuen Jobs
                     if (tradeJobViewService.erstelleNeuenTradeJob(neuerTradeJobVO)) {
 
                         //Schliessen des Fensters
-                        tradeJobBearbeitenWindow.closeWindow();
+                        window.closeWindow();
 
                         //Neuer Job wurde erfolgreich erstellt
                         tradeJobVOList.add(neuerTradeJobVO);
@@ -97,7 +99,7 @@ public class TradeJobComponent extends VerticalLayout {
                     }
                 }
             });
-            UI.getCurrent().addWindow(tradeJobBearbeitenWindow.getWindow());
+            UI.getCurrent().addWindow(window.getWindow());
         });
 
         //Symbol Filter-Funktion
@@ -201,26 +203,25 @@ public class TradeJobComponent extends VerticalLayout {
             aktionButton.addStyleName(CryptoStyles.ONLY_ICON_BUTTON);
 
             aktionButton.addClickListener((Button.ClickListener) clickEvent -> {
-                TradeJobBearbeitenWindow tradeJobBearbeitenWindow = new TradeJobBearbeitenWindow(tradeJobVO);
-                tradeJobBearbeitenWindow.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
+                SimpelTradeJobBearbeitenWindow window = new SimpelTradeJobBearbeitenWindow(tradeJobVO);
+                window.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
                     //Ueberpruefen ob die Eingaben vollstaendig sind
-                    TradeJobVO bearbeiteterTradeJobVO = tradeJobBearbeitenWindow.holeVollstaendigeEingaben();
+                    TradeJobVO bearbeiteterTradeJobVO = window.holeVollstaendigeEingaben();
                     if (bearbeiteterTradeJobVO != null) {
                         //Aktualisieren des Jobs
                         if (tradeJobViewService.bearbeiteTradeJob(bearbeiteterTradeJobVO)) {
                             //Neuer Job wurde erfolgreich erstellt
                             //Schliessen des Fensters
-                            tradeJobBearbeitenWindow.closeWindow();
+                            window.closeWindow();
                         }
                         else {
                             //Fehler beim Erstellen des neuen Jobs
                             Notification.show("Es ist ein Fehler bei der Bearbeitung des Jobs aufgetreten", Notification.Type.ERROR_MESSAGE);
                         }
-
                         tradeJobGrid.getDataProvider().refreshAll();
                     }
                 });
-                UI.getCurrent().addWindow(tradeJobBearbeitenWindow.getWindow());
+                UI.getCurrent().addWindow(window.getWindow());
             });
 
             return aktionButton;

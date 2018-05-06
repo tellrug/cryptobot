@@ -1,6 +1,6 @@
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('testKey', 'testWert');
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('testModus', 'true');
---AENDERUNGSSATZ
+--AENDERUNGSSATZ ab wann eine Trendwende detektiert wird
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('aenderungssatz', '0.03');
 --TIMER-INTERVALL in Minuten
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('timerIntervall', '1');
@@ -10,6 +10,8 @@ INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('intervallTradeAktion', '3');
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('binanceURL', 'https://api.binance.com/api/v1');
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('binancePing', '/ping');
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('binanceLetztePreise', '/ticker/allPrices');
+INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('binanceApiKey', '');
+INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('binanceSecretKey', '');
 --MAIL-Einstellungen
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('mailBenachrichtigung', 'false');
 INSERT INTO CRYPTOBOT_CONFIG(KEY, VALUE) VALUES ('mailHost', 'smtp.gmail.com');

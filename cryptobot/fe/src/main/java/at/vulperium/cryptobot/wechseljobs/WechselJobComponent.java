@@ -1,6 +1,7 @@
 package at.vulperium.cryptobot.wechseljobs;
 
 import at.vulperium.cryptobot.base.components.ComponentProducer;
+import at.vulperium.cryptobot.dtos.WechselTradeJobDTO;
 import at.vulperium.cryptobot.tradeaktionen.TradeAktionWindow;
 import at.vulperium.cryptobot.tradeaktionen.service.TradeAktionViewService;
 import at.vulperium.cryptobot.tradeaktionen.vo.TradeAktionVO;
@@ -73,14 +74,16 @@ public class WechselJobComponent extends VerticalLayout {
         FilterFunktionsComponent filterFunktionsComponent = new FilterFunktionsComponent((ListDataProvider<? extends Filterable>) wechselJobGrid.getDataProvider());
         //Funktion Add-Button
         filterFunktionsComponent.addButtonListener((Button.ClickListener) clickEvent -> {
-            WechselJobBearbeitenWindow wechselJobBearbeitenWindow = new WechselJobBearbeitenWindow();
-            wechselJobBearbeitenWindow.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
-                WechselTradeJobVO neuerWechselTradeJobVO = wechselJobBearbeitenWindow.holeVollstaendigeEingaben();
+
+            WechselTradeJobVO wechselTradeJobVO = new WechselTradeJobVO(new WechselTradeJobDTO());
+            WechselJobBearbeitenWindow window = new WechselJobBearbeitenWindow(wechselTradeJobVO);
+            window.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
+                WechselTradeJobVO neuerWechselTradeJobVO = window.holeVollstaendigeEingaben();
                 if (neuerWechselTradeJobVO != null) {
                     if (wechselTradeJobViewService.erstelleNeuenTradeJob(neuerWechselTradeJobVO)) {
 
                         //Schliessen des Fensters
-                        wechselJobBearbeitenWindow.closeWindow();
+                        window.closeWindow();
 
                         //Neuer Job wurde erfolgreich erstellt
                         wechselTradeJobVOList.add(neuerWechselTradeJobVO);
@@ -92,7 +95,7 @@ public class WechselJobComponent extends VerticalLayout {
                     }
                 }
             });
-            UI.getCurrent().addWindow(wechselJobBearbeitenWindow.getWindow());
+            UI.getCurrent().addWindow(window.getWindow());
         });
 
         //Symbol Filter-Funktion
@@ -207,6 +210,23 @@ public class WechselJobComponent extends VerticalLayout {
             aktionButton.addStyleName(CryptoStyles.ONLY_ICON_BUTTON);
 
             aktionButton.addClickListener((Button.ClickListener) clickEvent -> {
+                WechselJobBearbeitenWindow window = new WechselJobBearbeitenWindow(wechselTradeJobVO);
+                window.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
+                    WechselTradeJobVO neuerWechselTradeJobVO = window.holeVollstaendigeEingaben();
+                    if (neuerWechselTradeJobVO != null) {
+                        if (wechselTradeJobViewService.bearbeiteTradeJob(neuerWechselTradeJobVO)) {
+                            //Schliessen des Fensters
+                            window.closeWindow();
+                        }
+                        else {
+                            //Fehler beim Erstellen des neuen Jobs
+                            Notification.show("Es ist ein Fehler bei der Bearbeitung des Jobs aufgetreten", Notification.Type.ERROR_MESSAGE);
+                        }
+                    }
+                });
+                UI.getCurrent().addWindow(window.getWindow());
+
+                /*
                 WechselJobBearbeitenWindow wechselJobBearbeitenWindow = new WechselJobBearbeitenWindow(wechselTradeJobVO);
                 wechselJobBearbeitenWindow.addAbschlussClickListener((Button.ClickListener) clickEvent1 -> {
                     WechselTradeJobVO neuerWechselTradeJobVO = wechselJobBearbeitenWindow.holeVollstaendigeEingaben();
@@ -222,6 +242,7 @@ public class WechselJobComponent extends VerticalLayout {
                     }
                 });
                 UI.getCurrent().addWindow(wechselJobBearbeitenWindow.getWindow());
+                */
             });
 
             return aktionButton;

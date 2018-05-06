@@ -1,12 +1,16 @@
 package at.vulperium.cryptobot.services.trades;
 
 import at.vulperium.cryptobot.dtos.AbstractTradeJobDTO;
+import at.vulperium.cryptobot.dtos.BenachrichtigungDTO;
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
 import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.Trend;
+import at.vulperium.cryptobot.services.BenachrichtigungManager;
+import at.vulperium.cryptobot.services.BenachrichtigungService;
 import at.vulperium.cryptobot.utils.TradeUtil;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
@@ -16,7 +20,9 @@ import java.math.BigDecimal;
 
 public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
 
-    protected  @Inject TradeAktionService tradeAktionService;
+    protected @Inject TradeAktionService tradeAktionService;
+    protected @Inject BenachrichtigungService benachrichtigungService;
+    protected  @Inject BenachrichtigungManager benachrichtigungManager;
 
     protected void verarbeiteTradeJob(T tradeJobDTO, WSCryptoCoinDTO wsCryptoCoinDTO) {
         Validate.notNull(tradeJobDTO, "tradeJobDTO ist null");
@@ -34,9 +40,9 @@ public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
         boolean zielErreicht = ermittleZielErreicht(tradeJobDTO, wsCryptoCoinDTO.getPrice());
         TradeJobReaktion tradeJobReaktion = ermittleTradeJobReaktion(tradeJobDTO, zielErreicht, trend);
 
-
+        boolean benachrichtigung = false;
         if (TradeJobReaktion.FOLGE_AKTION == tradeJobReaktion) {
-            fuehreFolgeaktionDurch(tradeJobDTO);
+            benachrichtigung = fuehreFolgeaktionDurchErmittleBenachrichtigung(tradeJobDTO);
         }
 
         //Wenn Abgeschlossen oder Fehler dann soll auch auf erledigt gesetzt werden
@@ -48,6 +54,10 @@ public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
 
         //Aktualisieren des TradeJobs (Letztwerte)
         aktualisiereTradeJob(tradeJobDTO);
+
+        if (benachrichtigung) {
+            fuehreBenachrichtigungDurch(tradeJobDTO);
+        }
     }
 
 
@@ -143,5 +153,11 @@ public abstract class AbstractTradeService<T extends AbstractTradeJobDTO> {
 
     protected abstract void aktualisiereTradeJob(T tradeJobDTO);
 
-    protected abstract TradeStatus fuehreFolgeaktionDurch(T tradeJobDTO);
+    protected abstract boolean fuehreFolgeaktionDurchErmittleBenachrichtigung(T tradeJobDTO);
+
+    protected void fuehreBenachrichtigungDurch(T tradeJobDTO) {
+        //Momentan wird nur Mai-Benachrichtigung unterstuetzt
+        BenachrichtigungDTO benachrichtigungDTO = benachrichtigungService.erstelleBenachrichtigungsDTO(tradeJobDTO, BenachrichtigungTyp.MAIL);
+        benachrichtigungManager.registriereBenachrichtigung(benachrichtigungDTO);
+    }
 }

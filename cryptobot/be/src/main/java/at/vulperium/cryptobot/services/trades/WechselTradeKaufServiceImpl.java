@@ -78,7 +78,7 @@ public class WechselTradeKaufServiceImpl extends AbstractTradeService<WechselTra
     }
 
     @Override
-    protected TradeStatus fuehreFolgeaktionDurch(WechselTradeJobDTO tradeJobDTO) {
+    protected boolean fuehreFolgeaktionDurchErmittleBenachrichtigung(WechselTradeJobDTO tradeJobDTO) {
         if (tradeJobDTO.getTradeAktionEnum() == TradeAktionEnum.ORDER_KAUF && tradeJobDTO.getTradeStatus() == TradeStatus.TRADE_KAUF) {
             //Kauf-Order erstellen
 
@@ -97,8 +97,8 @@ public class WechselTradeKaufServiceImpl extends AbstractTradeService<WechselTra
                 //Fehler beim Erstellen des Trades
                 tradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
             }
-            //TODO wird das hier noch benoetigt?
-            return null;
+            //Bei Trade-Versuch soll keine Benachrichtigung erfolgen
+            return false;
         }
         logger.error("Zu TradeJob mit wechselTradeJobId={} konnte keine Folgeaktion durchgefuehrt werden.", tradeJobDTO.getId());
         throw new IllegalStateException("Zu TradeJob mit wechselTradeJobId=" + tradeJobDTO.getId() + " konnte keine Folgeaktion durchgefuehrt werden.");

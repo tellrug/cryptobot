@@ -7,6 +7,7 @@ import at.vulperium.cryptobot.enums.OrderStatus;
 import at.vulperium.cryptobot.enums.TradeStatus;
 import at.vulperium.cryptobot.enums.TradeTyp;
 import at.vulperium.cryptobot.enums.TradingPlattform;
+import at.vulperium.cryptobot.services.BenachrichtigungManager;
 import at.vulperium.cryptobot.services.TradingPlattformService;
 import at.vulperium.cryptobot.services.jobs.TradeJobVerwaltungService;
 import org.apache.commons.collections.CollectionUtils;
@@ -32,12 +33,17 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
     private @Inject TradeAktionService tradeAktionService;
     private @Inject TradeJobVerwaltungService tradeJobVerwaltungService;
     private @Inject TradingPlattformService tradingPlattformService;
+    private @Inject BenachrichtigungManager benachrichtigungManager;
 
     @Override
     public void verarbeiteTradeAktionAufgaben() {
         //Holen aller TradeAktionen
         List<TradeAktionDTO> alleTradeAktionDTOList = tradeAktionService.holeAlleTradeAktionen();
         List<TradeAktionDTO> offeneTradeAktionDTOList = tradeAktionService.filterTradeAktionDTOList(alleTradeAktionDTOList, false);
+
+        if (CollectionUtils.isEmpty(offeneTradeAktionDTOList)) {
+            return;
+        }
 
         for (TradingPlattform tradingPlattform : TradingPlattform.values()) {
 
@@ -50,6 +56,9 @@ public class TradeAktionVerwaltungServiceImpl implements TradeAktionVerwaltungSe
             List<TradeAktionDTO> relevanteTradeAktionDTOList = tradeAktionService.filterTradeAktionDTOList(offeneTradeAktionDTOList, tradingPlattform);
             verarbeiteTradeAktionAufgaben(relevanteTradeAktionDTOList, tradingPlattform);
         }
+
+        //Senden der Benachrichtigungen
+        benachrichtigungManager.fuehreBenachrichtigungDurch();
     }
 
 

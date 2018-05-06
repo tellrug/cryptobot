@@ -1,8 +1,10 @@
 package at.vulperium.cryptobot.services.trades;
 
+import at.vulperium.cryptobot.dtos.BenachrichtigungDTO;
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.WechselTradeJobDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeStatus;
@@ -76,7 +78,7 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
     }
 
     @Override
-    protected TradeStatus fuehreFolgeaktionDurch(WechselTradeJobDTO tradeJobDTO) {
+    protected boolean fuehreFolgeaktionDurchErmittleBenachrichtigung(WechselTradeJobDTO tradeJobDTO) {
         if (tradeJobDTO.getTradeAktionEnum() == TradeAktionEnum.ORDER_VERKAUF && tradeJobDTO.getTradeStatus() == TradeStatus.TRADE_VERKAUF) {
             //Verkauf-Order erstellen
 
@@ -93,8 +95,8 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
                 //Fehler beim Erstellen des Trades
                 tradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
             }
-            //TODO wird das hier noch benoetigt?
-            return null;
+            //Bei Trade-Versuch soll keine Benachrichtigung erfolgen
+            return false;
         }
         logger.error("Zu TradeJob mit wechselTradeJobId={} konnte keine Folgeaktion durchgefuehrt werden.", tradeJobDTO.getId());
         throw new IllegalStateException("Zu TradeJob mit wechselTradeJobId=" + tradeJobDTO.getId() + " konnte keine Folgeaktion durchgefuehrt werden.");
@@ -106,6 +108,11 @@ public class WechselTradeVerkaufServiceImpl extends AbstractTradeService<Wechsel
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
         if (tradeAktionDTO.getTradeStatus() == TradeStatus.ABGESCHLOSSEN) {
+
+            //Benachrichtigung erstellen
+            BenachrichtigungDTO benachrichtigungDTO = benachrichtigungService.erstelleBenachrichtigungsDTO(tradeJobDTO, BenachrichtigungTyp.MAIL);
+            benachrichtigungManager.registriereBenachrichtigung(benachrichtigungDTO);
+
             //Verkauf ist erledigt --> WechselJob muss umgestellt werden
             tradeJobDTO.setKaufwert(tradeJobDTO.getLetztwert()); //Darf nicht auf NULL gesetzt werden wegen Trend-Bestimmung
             tradeJobDTO.setMenge(null);

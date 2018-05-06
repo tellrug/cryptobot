@@ -6,6 +6,7 @@ import at.vulperium.cryptobot.dtos.HoldingDTO;
 import at.vulperium.cryptobot.dtos.OrderDTO;
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.OrderStatus;
 import at.vulperium.cryptobot.enums.TradingPlattform;
 import at.vulperium.cryptobot.services.BinanceClientService;
 import at.vulperium.cryptobot.utils.ConfigUtil;
@@ -37,8 +38,11 @@ public class BinanceClientServiceImpl implements BinanceClientService {
     private static final Logger logger = LoggerFactory.getLogger(BinanceClientServiceImpl.class);
 
     private static final ConfigValue testModus = new ConfigValue("testModus");
+    private static final ConfigValue apiKey = new ConfigValue("binanceApiKey");
+    private static final ConfigValue secretKey = new ConfigValue("binanceSecretKey");
 
     private @Inject BinanceApiTransformer transformer;
+
     private final BinanceApi binanceApi = new BinanceApi();
 
     @Override
@@ -123,6 +127,15 @@ public class BinanceClientServiceImpl implements BinanceClientService {
     public OrderDTO holeOrderInfosByClientOrderId(String symbolPair, String clientOrderId) {
         logger.info("BinanceWS - Holen der offenen Orders fuer SymbolPair={} und customerOrderId={}...", symbolPair, clientOrderId);
 
+        if (ConfigUtil.toBoolean(testModus)) {
+            //Im Test werden alle Orders angenommen
+            OrderDTO orderDTO = new OrderDTO();
+            orderDTO.setSymbolPair(symbolPair);
+            orderDTO.setClientOrderId(clientOrderId);
+            orderDTO.setOrderStatus(OrderStatus.ABGESCHLOSSEN);
+            return orderDTO;
+        }
+
         List<BinanceOrder> binanceOrderList;
         BinanceOrder binanceOrder;
         try {
@@ -168,6 +181,11 @@ public class BinanceClientServiceImpl implements BinanceClientService {
         //Erstellen der Order
         BinanceOrderPlacement binanceOrderPlacement = transformer.transformTradeAktionDTO(tradeAktionDTO);
         tradeAktionDTO.setCustomerOrderId(binanceOrderPlacement.getNewClientOrderId());
+
+        if (ConfigUtil.toBoolean(testModus)) {
+            return true;
+        }
+
         try {
             JsonObject jsonObject = getBinanceApi().createOrder(binanceOrderPlacement);
         } catch (BinanceApiException e) {
@@ -207,11 +225,11 @@ public class BinanceClientServiceImpl implements BinanceClientService {
     }
 
     private synchronized BinanceApi getBinanceApi() {
-        //TODO als config speichern
-        String apiKey = "";
-        String secretKey = "";
-        binanceApi.setApiKey(apiKey);
-        binanceApi.setSecretKey(secretKey);
+        binanceApi.setApiKey(apiKey.get());
+        binanceApi.setSecretKey(secretKey.get());
+        //Fuer WebService-Test hier direkt setzen
+        //binanceApi.setApiKey("");
+        //binanceApi.setSecretKey("");
         return binanceApi;
     }
 }

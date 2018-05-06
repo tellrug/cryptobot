@@ -1,8 +1,10 @@
 package at.vulperium.cryptobot.services.trades;
 
+import at.vulperium.cryptobot.dtos.BenachrichtigungDTO;
 import at.vulperium.cryptobot.dtos.SimpelTradeJobDTO;
 import at.vulperium.cryptobot.dtos.TradeAktionDTO;
 import at.vulperium.cryptobot.dtos.webservice.WSCryptoCoinDTO;
+import at.vulperium.cryptobot.enums.BenachrichtigungTyp;
 import at.vulperium.cryptobot.enums.TradeAktionEnum;
 import at.vulperium.cryptobot.enums.TradeJobReaktion;
 import at.vulperium.cryptobot.enums.TradeStatus;
@@ -35,7 +37,6 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
         if (simpelTradeJobDTO.getTradeStatus() == TradeStatus.ERSTELLT || simpelTradeJobDTO.getTradeStatus() == TradeStatus.BEOBACHTUNG) {
             verarbeiteTradeJob(simpelTradeJobDTO, wsCryptoCoinDTO);
         }
-
     }
 
     @Override
@@ -76,10 +77,12 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
     }
 
     @Override
-    protected TradeStatus fuehreFolgeaktionDurch(SimpelTradeJobDTO simpelTradeJobDTO) {
+    protected boolean fuehreFolgeaktionDurchErmittleBenachrichtigung(SimpelTradeJobDTO simpelTradeJobDTO) {
         if (simpelTradeJobDTO.getTradeAktionEnum() == TradeAktionEnum.VERKAUF_ZIEL) {
             //momentan keine Folgeaktion
-            return null;
+
+            //Benachrichtigung soll aber erfolgen
+            return true;
         }
         if (simpelTradeJobDTO.getTradeAktionEnum() == TradeAktionEnum.ORDER_VERKAUF && simpelTradeJobDTO.getTradeStatus() == TradeStatus.TRADE_VERKAUF) {
             //Verkauf-Order erstellen
@@ -94,8 +97,9 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
                 //Fehler beim Erstellen des Trades
                 simpelTradeJobDTO.setTradeStatus(TradeStatus.BEOBACHTUNG);
             }
-            //TODO wird das hier noch benoetigt?
-            return null;
+
+            //Keine Benachrichtigung bei Trade-Versuch
+            return false;
         }
         logger.error("Zu TradeJob mit simpelTradeJobId={} konnte keine Folgeaktion durchgefuehrt werden.", simpelTradeJobDTO.getId());
         throw new IllegalStateException("Zu TradeJob mit simpelTradeJobId=" + simpelTradeJobDTO.getId() + " konnte keine Folgeaktion durchgefuehrt werden.");
@@ -107,6 +111,11 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
         Validate.notNull(tradeAktionDTO, "tradeAktionDTO ist null.");
 
         if (tradeAktionDTO.getTradeStatus() == TradeStatus.ABGESCHLOSSEN) {
+
+            //Benachrichtigung erstellen
+            BenachrichtigungDTO benachrichtigungDTO = benachrichtigungService.erstelleBenachrichtigungsDTO(simpelTradeJobDTO, BenachrichtigungTyp.MAIL);
+            benachrichtigungManager.registriereBenachrichtigung(benachrichtigungDTO);
+
             simpelTradeJobDTO.setTradeStatus(TradeStatus.ABGESCHLOSSEN);
             simpelTradeJobDTO.setErledigtAm(LocalDateTime.now());
 
@@ -125,26 +134,4 @@ public class TradeVerkaufServiceImpl extends AbstractTradeService<SimpelTradeJob
         }
 
     }
-
-    /*
-    private void ueberpruefeVerkaufTrade(SimpelTradeJobDTO simpelTradeJobDTO) {
-        boolean verkaufErfolgreich = true;
-        if (verkaufErfolgreich) {
-            simpelTradeJobDTO.setTradeStatus(TradeStatus.ABGESCHLOSSEN);
-            simpelTradeJobDTO.setErledigtAm(LocalDateTime.now());
-
-            //Aktualisieren von TradeJob
-            aktualisiereTradeJob(simpelTradeJobDTO);
-
-            //speichern von TradeAktion
-            //TODO speichern von TradeAktion
-
-            logger.info("Verkauf von {} erfolgreich. TradeJob mit tradeJobId={} abgeschlossen", simpelTradeJobDTO.getCryptoWaehrung(), simpelTradeJobDTO.getId());
-        }
-        else {
-            logger.warn("Keinen Kauefer von {} bei TradeJob mit tradeJobId={} gefunden.", simpelTradeJobDTO.getCryptoWaehrung(), simpelTradeJobDTO.getId());
-            //TODO Trade stornieren? alles wieder zuruecksetzen so dass neue Verkauf-Order erstellt wird
-        }
-    }
-    */
 }
